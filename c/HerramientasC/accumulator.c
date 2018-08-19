@@ -61,6 +61,7 @@ void accumulate_right_private(stream * st, accumulator * ac){
 	}
 }
 
+
 void * accumulate_right(stream * st, accumulator * ac){
 	accumulate_right_private(st,ac);
 	return ac->result(get_mem_sm(ac->result_type.size),ac->base_state);
