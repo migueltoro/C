@@ -24,6 +24,7 @@ typedef struct {
 } accumulator;
 
 
+
 void * accumulate_left(const stream st, accumulator ac);
 void * accumulate_right(stream * st, accumulator * ac);
 
