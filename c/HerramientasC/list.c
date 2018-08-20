@@ -32,7 +32,7 @@ void list_memory_clear(){
 	memory_heap_free(&list_memory);
 }
 
-type list_type = {sizeof(list),NULL,NULL,NULL,NULL,"alist_type"};
+type list_type = {sizeof(list),NULL,NULL,NULL,NULL,NULL,NULL,"alist_type"};
 
 void grow_list(list * list) {
 	if(list->size == list->tam){

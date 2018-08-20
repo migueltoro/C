@@ -14,7 +14,7 @@ void print_array(string_buffer * buffer, void **b, int low, int height, type typ
 	for(int i = low; i < height; i++) {
 			string_buffer_add(buffer,type.tostring(pm,b[i]));
 	}
-	string_buffer_clear(buffer);
+	string_buffer_close(buffer);
 }
 
 int partition(void **arr, int low, int hight, int (*compare)(const void *, const void *)) {

@@ -63,7 +63,7 @@ void test_string_buffer(){
 	printf("String Buffer test\n\n");
 	string_buffer buffer = string_buffer_create(",","\n{","}\n");
 	complete_buffer(&buffer);
-	string_buffer_clear(&buffer);
+	string_buffer_close(&buffer);
 }
 
 void test_tuple2(){
@@ -72,11 +72,11 @@ void test_tuple2(){
 	char mem[Tam_String];
 	double a1 = getDoubleAleatorio(0, 1000);
 	double a2 = getDoubleAleatorio(0, 1000);
-	void * t1 = tuple2_double_memory(&heap,a1,a2);
+	void * t1 = tuple2_double_pointer_from_value(a1,a2,&heap);
 	printf("1: %s\n",tuple2_type.tostring(mem,t1));
 	a1 = getDoubleAleatorio(0, 1000);
 	a2 = getDoubleAleatorio(0, 1000);
-	void * t2 = tuple2_double_memory(&heap,a1,a2);
+	void * t2 = tuple2_double_pointer_from_value(a1,a2,&heap);
 	printf("2: %s\n",tuple2_type.tostring(mem,t2));
 	printf("3: %d\n",tuple2_type.naturalorder(t1,t2));
 	memory_heap_free(&heap);
@@ -92,7 +92,7 @@ void test_quicksort(){
 	for(int i = 0; i<tam; i++) {
 		double a1 = getDoubleAleatorio(0, 1000);
 		double a2 = getDoubleAleatorio(0, 1000);
-		b[i] = tuple2_double_memory(&heap,a1,a2);
+		b[i] = tuple2_double_pointer_from_value(a1,a2,&heap);
 	}
 	print_array(&buffer,b,0,tam,type);
 	generic_qsort(b,0,tam,type.naturalorder);
@@ -113,7 +113,7 @@ void test_list_stream() {
 	for (int i = 0; i < tam; i++) {
 		double a1 = getDoubleAleatorio(0, 1000);
 		double a2 = getDoubleAleatorio(0, 1000);
-		void * t = tuple2_double_memory(&heap, a1, a2);
+		void * t = tuple2_double_pointer_from_value(a1,a2,&heap);
 		list_add(&ls,t);
 	}
 	stream st = list_stream(ls);
@@ -138,15 +138,15 @@ hash_table complete_table(memory_heap heap) {
 	for (int i = 0; i < tam; i++) {
 		double a1 = getDoubleAleatorio(0, 1000);
 		double a2 = getDoubleAleatorio(0, 1000);
-		void * t1 = int_memory(&heap, (int) a1);
-		void * t2 = double_memory(&heap, a2);
+		void * t1 = int_pointer_from_value((int) a1,&heap);
+		void * t2 = double_pointer_from_value(a2,&heap);
 		hash_table_put(&ht, t1, t2);
 	}
 	int r = 658;
-	void * t3 = int_memory(&heap, r);
+	void * t3 = int_pointer_from_value(r,&heap);
 	hash_table_remove(&ht,t3);
 	r = 492;
-	t3 = int_memory(&heap, r);
+	t3 = int_pointer_from_value(r,&heap);
 	hash_table_remove(&ht,t3);
 	return ht;
 }
@@ -208,13 +208,7 @@ int main() {
 //test_list_stream();
 //test_hash_table();
 //test_file_stream();
-//test_accumulator();
-test_tree();
-
-//generator gg = create_prueba();
-//while(generator_has_next(&gg)){
-//	printf("%d\n", generator_next(&gg));
-//}
-//f2();
+test_accumulator();
+//test_tree();
 }
 

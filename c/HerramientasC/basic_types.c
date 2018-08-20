@@ -58,7 +58,28 @@ int int_naturalorder(const void * e1,const  void * e2){
     return r;
 }
 
-type int_type = {sizeof(int),int_tostring,int_equals,int_hashcode,int_naturalorder,"int_type"};
+void * int_pointer(const void * value, memory_heap * heap){
+	int * element = (int *) malloc(sizeof(int));
+	*element = *(int *)value;
+	memory_heap_add(heap, element);
+	return element;
+}
+
+void * int_copy(void * target, const void * source) {
+	int * e_target = (int *) target;
+	int * e_source = (int *) source;
+	*e_target = *e_source;
+	return e_target;
+}
+void * int_pointer_from_value(int a,memory_heap * heap) {
+	int * element = (int *) malloc(sizeof(int));
+	*element = a;
+	memory_heap_add(heap, element);
+	return element;
+}
+
+
+type int_type = {sizeof(int),int_tostring,int_equals,int_hashcode,int_naturalorder,int_pointer,int_copy,"int_type"};
 
 // long type
 
@@ -91,7 +112,32 @@ int long_naturalorder(const void * e1,const  void * e2){
     return r;
 }
 
-type long_type = {sizeof(long),long_tostring,long_equals,long_hashcode,long_naturalorder,"long_type"};
+void * long_pointer(const void * value, memory_heap * heap){
+	long * element = (long *) malloc(sizeof(long));
+	*element = *(long *)value;
+	memory_heap_add(heap, element);
+	return element;
+}
+
+void * long_copy(void * target, const void * source) {
+	long * e_target = (long *) target;
+	long * e_source = (long *) source;
+	*e_target = *e_source;
+	return e_target;
+}
+
+
+void * long_pointer_from_value(long a,memory_heap * heap) {
+	long * element = (long *) malloc(sizeof(long));
+	*element = a;
+	memory_heap_add(heap, element);
+	return element;
+}
+
+
+
+type long_type = {sizeof(long),long_tostring,long_equals,long_hashcode,
+		long_naturalorder,long_pointer, long_copy,"long_type"};
 
 
 // float type
@@ -125,7 +171,31 @@ int float_naturalorder(const void * e1, const void * e2){
     return r;
 }
 
-type float_type = {sizeof(float),float_tostring,float_equals,float_hashcode,float_naturalorder,"float_type"};
+void * float_pointer(const void * value, memory_heap * heap){
+	float * element = (float *) malloc(sizeof(float));
+	*element = *(float *)value;
+	memory_heap_add(heap, element);
+	return element;
+}
+
+void * float_copy(void * target, const void * source) {
+	float * e_target = (float *) target;
+	float * e_source = (float *) source;
+	*e_target = *e_source;
+	return e_target;
+}
+
+void * float_pointer_from_value(float a,memory_heap * heap) {
+	float * element = (float *) malloc(sizeof(float));
+	*element = a;
+	memory_heap_add(heap, element);
+	return element;
+}
+
+
+
+type float_type = {sizeof(float),float_tostring,float_equals,float_hashcode,
+		float_naturalorder,float_pointer, float_copy,"float_type"};
 
 //double type
 
@@ -159,7 +229,31 @@ int double_naturalorder(const void * e1, const void * e2){
     return r;
 }
 
-type double_type = {sizeof(double),double_tostring,double_equals,double_hashcode,double_naturalorder,"double_type"};
+void * double_pointer(const void * value, memory_heap * heap){
+	double * element = (double *) malloc(sizeof(double));
+	*element = *(double *)value;
+	memory_heap_add(heap, element);
+	return element;
+}
+
+void * double_copy(void * target, const void * source) {
+	double * e_target = (double *) target;
+	double * e_source = (double *) source;
+	*e_target = *e_source;
+	return e_target;
+}
+
+void * double_pointer_from_value(double a,memory_heap * heap) {
+	double * element = (double *) malloc(sizeof(double));
+	*element = a;
+	memory_heap_add(heap, element);
+	return element;
+}
+
+
+
+type double_type = {sizeof(double),double_tostring,double_equals,double_hashcode,
+		double_naturalorder,double_pointer,double_copy,"double_type"};
 
 // string type
 
@@ -185,6 +279,21 @@ int string_naturalorder(const void * e1, const void * e2) {
 	return strcmp(a1, a2);
 }
 
+void * string_pointer(const void * value, memory_heap * heap){
+	char * element = (char *) malloc(Tam_String);
+	strcpy(element,value);
+	memory_heap_add(heap, element);
+	return element;
+}
+
+void * string_copy(void * target, const void * source) {
+	char * e_target = (char *) target;
+	char * e_source = (char *) source;
+	strcpy(e_target,e_source);
+	return e_target;
+}
+
+
 char * remove_eol(char * string){
 	int len = strlen(string);
 	if (len>0) {
@@ -194,7 +303,7 @@ char * remove_eol(char * string){
 }
 
 type string_type = { 256, string_tostring,string_equals, string_hashcode,
-		string_naturalorder,"string_type" };
+		string_naturalorder,string_pointer,string_copy,"string_type" };
 
 // tuple2 type
 
@@ -228,9 +337,47 @@ int tuple2_naturalorder(const void * t1, const void * t2) {
 	return r;
 }
 
+void * tuple2_pointer(const void * value, memory_heap * heap){
+	tuple2 * element = (tuple2 *) malloc(sizeof(tuple2));
+	*element = *(tuple2 *)value;
+	memory_heap_add(heap, element);
+	return element;
+}
 
-type tuple2_type = {sizeof(tuple2),tuple2_tostring,tuple2_equals,
-		tuple2_hashcode,tuple2_naturalorder,"tuple2_type"};
+void * tuple2_copy(void * target, const void * source) {
+	tuple2 * e_target = (tuple2 *) target;
+	tuple2 * e_source = (tuple2 *) source;
+	*e_target = *e_source;
+	return e_target;
+}
+
+void  * tuple2_int_ponter_from_value(int key, int value,memory_heap * heap){
+	tuple2 * element = (tuple2 *) malloc(sizeof(tuple2));
+	element->key_type = int_type;
+	element->value_type = int_type;
+	void * pkey = int_pointer_from_value(key,heap);
+	void * pvalue = int_pointer_from_value(value,heap);
+	element->key = pkey;
+	element->value = pvalue;
+	memory_heap_add(heap, element);
+	return element;
+}
+
+void * tuple2_double_pointer_from_value(double key, double value,memory_heap * heap) {
+	tuple2 * element = (tuple2 *) malloc(sizeof(tuple2));
+	element->key_type = double_type;
+	element->value_type = double_type;
+	void * pkey = double_pointer_from_value(key,heap);
+	void * pvalue = double_pointer_from_value(value,heap);
+	element->key = pkey;
+	element->value = pvalue;
+	memory_heap_add(heap, element);
+	return element;
+}
+
+
+type tuple2_type = {sizeof(tuple2),tuple2_tostring,tuple2_equals,tuple2_hashcode,
+		tuple2_naturalorder,tuple2_pointer,tuple2_copy,"tuple2_type"};
 
 
 //optional type
@@ -265,16 +412,30 @@ int optional_naturalorder(const void * e1,const  void * e2) {
 	return r;
 }
 
-type optional_type = {sizeof(optional),optional_tostring,optional_equals,
-		optional_hashcode,optional_naturalorder,"optional_type"};
+void * optional_pointer(const void * value, memory_heap * heap){
+	optional * element = (optional *) malloc(sizeof(optional));
+	*element = *(optional *)value;
+	memory_heap_add(heap, element);
+	return element;
+}
+
+void * optional_copy(void * target, const void * source) {
+	optional * e_target = (optional *) target;
+	optional * e_source = (optional *) source;
+	*e_target = *e_source;
+	return e_target;
+}
+
+type optional_type = {sizeof(optional),optional_tostring,optional_equals,optional_hashcode,
+		optional_naturalorder,optional_pointer,optional_copy,"optional_type"};
 
 // void * type
 
-type void_star_type = {sizeof(void *),NULL,NULL,NULL,NULL,"void_star_type"};
+type void_star_type = {sizeof(void *),NULL,NULL,NULL,NULL,NULL,NULL,"void_star_type"};
 
 // unkown type
 
-type unkown_type = {sizeof(void *),NULL,NULL,NULL,NULL,"unkown_type"};
+type unkown_type = {sizeof(void *),NULL,NULL,NULL,NULL,NULL,NULL,"unkown_type"};
 
 
 double punto_distancia_al_origen(const punto p){
@@ -309,6 +470,19 @@ int punto_naturalorder(const void * p1, const void * p2){
 	return double_type.naturalorder(&d1,&d2);
 }
 
+void * punto_pointer(const void * value, memory_heap * heap){
+	punto * element = (punto *) malloc(sizeof(punto));
+	*element = *(punto *)value;
+	memory_heap_add(heap, element);
+	return element;
+}
+
+void * punto_copy(void * target, const void * source) {
+	punto * e_target = (punto *) target;
+	punto * e_source = (punto *) source;
+	*e_target = *e_source;
+	return e_target;
+}
 Cuadrante pt_cuadrante(const punto p) {
 	Cuadrante r;
 	if(p.x >=0 && p.y>=0){
@@ -324,4 +498,4 @@ Cuadrante pt_cuadrante(const punto p) {
 }
 
 type punto_type = {sizeof(punto), punto_tostring,punto_equals, punto_hashcode,
-		punto_naturalorder,"punto_type" };
+		punto_naturalorder,punto_pointer,punto_copy,"punto_type" };

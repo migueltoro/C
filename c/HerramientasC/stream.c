@@ -24,11 +24,11 @@ void * get_mem_sm(int size){
 }
 
 void * get_int_sm(int a){
-	return int_memory(get_stream_memory(),a);
+	return int_pointer_from_value(a,get_stream_memory());
 }
 
 void * get_long_sm(long a){
-	return long_memory(get_stream_memory(),a);
+	return long_pointer_from_value(a,get_stream_memory());
 }
 
 void * get_value_sm(int size, void * value){
@@ -40,7 +40,7 @@ void stream_memory_clear(){
 }
 
 
-type stream_type = {sizeof(stream),NULL,stream_equals,NULL,NULL,"stream_type"};
+type stream_type = {sizeof(stream),NULL,stream_equals,NULL,NULL,NULL,NULL,"stream_type"};
 
 int stream_has_next(stream st);
 void * stream_next(stream st);
@@ -71,7 +71,7 @@ void stream_to_buffer(string_buffer * buffer, stream st) {
 		void * r = stream_next(st);
 		string_buffer_add(buffer,st.state_type.tostring(nm,r));
 	}
-	string_buffer_clear(buffer);
+	string_buffer_close(buffer);
 }
 
 typedef struct{

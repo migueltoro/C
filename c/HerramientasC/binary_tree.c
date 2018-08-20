@@ -23,11 +23,11 @@ void * get_mem_tree(int size){
 }
 
 void * get_int_tree(int a){
-	return int_memory(get_tree_memory(),a);
+	return int_pointer_from_value(a,get_tree_memory());
 }
 
 void * get_long_tree(long a){
-	return long_memory(get_tree_memory(),a);
+	return long_pointer_from_value(a,get_tree_memory());
 }
 
 void * get_value_tree(int size, void * value){
@@ -38,7 +38,7 @@ void binary_tree_memory_clear(){
 	memory_heap_free(&tree_memory);
 }
 
-type binary_tree_type = {sizeof(binary_tree),NULL,NULL,NULL,NULL,"binary_tree_type"};
+type binary_tree_type = {sizeof(binary_tree),NULL,NULL,NULL,NULL,NULL,NULL,"binary_tree_type"};
 
 binary_tree * tree_empty(type label_type) {
 	binary_tree tree = {Empty_Tree,label_type,NULL,NULL,NULL};

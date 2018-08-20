@@ -15,7 +15,9 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 #include "definitions.h"
+#include "memory_heap.h"
 
 typedef struct {
     int size;
@@ -23,6 +25,8 @@ typedef struct {
     int (*equals)(const void *, const void *);
     long (*hashcode) (const void *);
     int (*naturalorder) (const void *, const void *);
+    void * (*pointer)(const void * value, memory_heap * heap);
+    void * (*copy) (void * target, const void * source);
     char * id;
 } type;
 
@@ -35,6 +39,10 @@ char * int_tostring(char * mem, const void * e);
 long int_hashcode(const void * e);
 int int_equals(const void * e1, const void * e2);
 int int_naturalorder(const void * e1, const void * e2);
+void * int_pointer(const void * value, memory_heap * heap);
+void * int_copy(void * target, const void * source);
+void  * int_pointer_from_value(int a, memory_heap * heap);
+
 
 
 extern type int_type;
@@ -44,6 +52,9 @@ char * long_tostring(char * mem, const void * e);
 long long_hashcode(const void * e);
 int long_equals(const void * e1, const void * e2);
 int long_naturalorder(const void * e1, const void * e2);
+void * long_pointer(const void * value, memory_heap * heap);
+void * long_copy(void * target, const void * source);
+void  * long_pointer_from_value(long a, memory_heap * heap);
 
 extern type long_type;
 
@@ -53,6 +64,11 @@ char * float_tostring(char * mem, const void * e);
 long float_hashcode(const void * e);
 int float_equals(const void * e1, const void * e2);
 int float_naturalorder(const void * e1,const  void * e2);
+void * float_pointer(const void * value, memory_heap * heap);
+void * float_copy(void * target, const void * source);
+void  * float_pointer_from_value(float a,memory_heap * heap);
+
+
 
 extern type float_type;
 
@@ -62,6 +78,10 @@ char * double_tostring(char * mem, const void * e);
 long double_hashcode(const void * e);
 int double_equals(const void * e1, const void * e2);
 int double_naturalorder(const void * e1,const  void * e2);
+void * double_pointer(const void * value, memory_heap * heap);
+void * double_copy(void * target, const void * source);
+void  * double_pointer_from_value(double a, memory_heap * heap);
+
 
 extern type double_type;
 
@@ -73,6 +93,9 @@ char * string_tostring(char * mem, const void * e);
 long string_hashcode(const void * e);
 int string_equals(const void * e1, const void * e2);
 int string_naturalorder(const void * e1,const  void * e2);
+void * string_pointer(const void * value, memory_heap * heap);
+void * string_copy(void * target, const void * source);
+
 
 char * remove_eol(char * string);
 
@@ -91,6 +114,10 @@ char * tuple2_tostring(char * mem, const void * t);
 int tuple2_equals(const void * t1, const void * t2);
 long tuple2_hashcode(const void * t);
 int tuple2_naturalorder(const void * t1,const  void * t2);
+void * tuple2_pointer(const void * value, memory_heap * heap);
+void * tuple2_copy(void * target, const void * source);
+void  * tuple2_int_ponter_from_value(int a, int b, memory_heap * heap);
+void  * tuple2_double_pointer_from_value( double a, double b, memory_heap * heap);
 
 extern type tuple2_type;
 
@@ -105,6 +132,8 @@ char * optional_tostring(char * mem, const void * t);
 int optional_equals(const void * t1, const void * t2);
 long optional_hashcode(const void * t);
 int optional_naturalorder(const void * t1,const  void * t2);
+void * optional_pointer(const void * value, memory_heap * heap);
+void * optional_copy(void * target, const void * source);
 
 extern type optional_type;
 
@@ -134,6 +163,8 @@ char * punto_tostring(char * mem, const void * p);
 int punto_equals(const void * p1, const void * p2);
 long punto_hashcode(const void * p);
 int punto_naturalorder(const void * t1,const  void * t2);
+void * punto_pointer(const void * value, memory_heap * heap);
+void * punto_copy(void * target, const void * source);
 
 extern type punto_type;
 

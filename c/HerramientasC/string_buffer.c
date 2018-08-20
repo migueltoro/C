@@ -27,7 +27,7 @@ void string_buffer_add(string_buffer * buffer, char * string) {
 	printf("%s", string);
 }
 
-void string_buffer_clear(string_buffer * buffer){
+void string_buffer_close(string_buffer * buffer){
 	printf(buffer->sufix);
 	buffer->is_first = 1;
 	buffer->number = 0;

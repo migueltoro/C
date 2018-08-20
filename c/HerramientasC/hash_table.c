@@ -111,7 +111,7 @@ string_buffer * hash_table_tostring(string_buffer * buffer, hash_table table){
 			table.parameters.size
 			);
 	string_buffer_add(buffer,mdata);
-	string_buffer_clear(buffer);
+	string_buffer_close(buffer);
     return buffer;
 }
 
