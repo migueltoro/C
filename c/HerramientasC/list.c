@@ -91,7 +91,7 @@ typedef struct {
 	list_stream_state * old_state;
 }list_stream_dependencies;
 
-int list_stream_has_next(void * state,void * dependencies){
+bool list_stream_has_next(void * state,void * dependencies){
 	list_stream_dependencies * d = (list_stream_dependencies *) dependencies;
 	list_stream_state * s = (list_stream_state *) state;
 	return s->index < d->ls.size;

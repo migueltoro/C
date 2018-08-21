@@ -110,16 +110,29 @@ typedef struct {
 	 void * value;
 } tuple2;
 
+
 char * tuple2_tostring(char * mem, const void * t);
 int tuple2_equals(const void * t1, const void * t2);
 long tuple2_hashcode(const void * t);
 int tuple2_naturalorder(const void * t1,const  void * t2);
 void * tuple2_pointer(const void * value, memory_heap * heap);
 void * tuple2_copy(void * target, const void * source);
-void  * tuple2_int_ponter_from_value(int a, int b, memory_heap * heap);
+void  * tuple2_int_pointer_from_value(int a, int b, memory_heap * heap);
 void  * tuple2_double_pointer_from_value( double a, double b, memory_heap * heap);
 
+typedef struct {
+	 int key;
+	 int value;
+} tuple2_int;
+
+typedef struct {
+	 double key;
+	 double value;
+} tuple2_double;
+
 extern type tuple2_type;
+extern type tuple2_int_type;
+extern type tuple2_double_type;
 
 // optional type
 

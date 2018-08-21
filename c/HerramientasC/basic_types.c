@@ -351,7 +351,7 @@ void * tuple2_copy(void * target, const void * source) {
 	return e_target;
 }
 
-void  * tuple2_int_ponter_from_value(int key, int value,memory_heap * heap){
+void  * tuple2_int_pointer_from_value(int key, int value,memory_heap * heap){
 	tuple2 * element = (tuple2 *) malloc(sizeof(tuple2));
 	element->key_type = int_type;
 	element->value_type = int_type;
@@ -375,10 +375,14 @@ void * tuple2_double_pointer_from_value(double key, double value,memory_heap * h
 	return element;
 }
 
-
 type tuple2_type = {sizeof(tuple2),tuple2_tostring,tuple2_equals,tuple2_hashcode,
 		tuple2_naturalorder,tuple2_pointer,tuple2_copy,"tuple2_type"};
 
+type tuple2_int_type = {sizeof(tuple2_int),NULL,NULL,NULL,
+		NULL,NULL,NULL,"tuple2_int_type"};
+
+type tuple2_double_type = {sizeof(tuple2_double),NULL,NULL,NULL,
+		NULL,NULL,NULL,"tuple2_double_type"};
 
 //optional type
 

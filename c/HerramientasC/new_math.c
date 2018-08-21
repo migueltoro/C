@@ -12,7 +12,7 @@
  * @param a Un entero
  * @return Si es par
  */
-int esPar(int a) {
+bool esPar(int a) {
 	return a % 2 == 0;
 }
 
@@ -20,7 +20,7 @@ int esPar(int a) {
  * @param a Un entero
  * @return Si es impar
  */
-int esImpar(int a) {
+bool esImpar(int a) {
 	return !esPar(a);
 }
 
@@ -30,11 +30,11 @@ int esImpar(int a) {
  * @return Si a es divisible por b
  */
 
-int esDivisible_int(int a, int b) {
+bool esDivisible_int(int a, int b) {
 	return (a % b) == 0;
 }
 
-int esDivisible_long(long a, long b) {
+bool esDivisible_long(long a, long b) {
 	return (a % b) == 0;
 }
 /**
@@ -42,7 +42,7 @@ int esDivisible_long(long a, long b) {
  * @return Si a es primo
  */
 
-int esPrimo(long a) {
+bool esPrimo(long a) {
 	long sq = (long) sqrt((double) a);
 	long i;
 	int r = 0;
@@ -102,7 +102,7 @@ double getDoubleAleatorio(double a, double b) {
  * @param b Un segundo entero
  * @return Calcula el máximo común divisor de los valores ablsolutos de los parámetros
  */
-int mcd(int a, int b) {
+long mcd(long a, long b) {
 	int u = abs(a);
 	int v = abs(b);
 	int r;

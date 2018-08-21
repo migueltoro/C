@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 
 #ifndef MAX
 #define MAX(a,b) ((a)>(b)?(a):(b))
@@ -23,24 +24,24 @@
  * @param a Un entero
  * @return Si es par
  */
-int esPar(int a);
+bool esPar(int a);
 /**
  * @param a Un entero
  * @return Si es impar
  */
-int esImpar(int a);
+bool esImpar(int a);
 /**
  * @param a Un entero
  * @param b Un segundo entero
  * @return Si a es divisible por b
  */
-int esDivisible_int(int a, int b);
-int esDivisible_long(long a, long b);
+bool esDivisible_int(int a, int b);
+bool esDivisible_long(long a, long b);
 /**
  * @param a Un entero
  * @return Si a es primo
  */
-int esPrimo(long a);
+bool esPrimo(long a);
 /**
  * @param a Un entero
  * @return Siguiente primo
@@ -65,7 +66,7 @@ double getDoubleAleatorio(double a, double b);
  * @param b Un segundo entero
  * @return Calcula el máximo común divisor de los valores ablsolutos de los parámetros
  */
-int mcd(int a, int b);
+long mcd(long a, long b);
 
 void * sum_long_int(void * base, void * value);
 
