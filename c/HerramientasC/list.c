@@ -21,18 +21,18 @@ memory_heap * get_list_memory(){
 }
 
 void * get_mem_list(int size){
-	return tam_memory(get_list_memory(),size);
+	return memory_heap_tam_memory(get_list_memory(),size);
 }
 
 void * get_value_list(int size, void * value){
-	return value_memory(get_list_memory(),size, value);
+	return memory_heap_memory_for_value(get_list_memory(),size, value);
 }
 
 void list_memory_clear(){
 	memory_heap_free(&list_memory);
 }
 
-type list_type = {sizeof(list),NULL,NULL,NULL,NULL,NULL,NULL,"alist_type"};
+type list_type = {1,NULL,sizeof(list),NULL,NULL,NULL,NULL,NULL,NULL,"list_type"};
 
 void grow_list(list * list) {
 	if(list->size == list->tam){
@@ -46,6 +46,7 @@ list list_empty(type element_type){
 	list r = {element_type,0,10,malloc(10*sizeof(void *))};
 	return r;
 }
+
 
 void * list_get(const list list, const int index) {
 	assert(index < list.size);
@@ -80,41 +81,3 @@ void list_sort(list * ls, int (*comparator)(const void*, const void*)){
 void list_sort_naturalorder(list * ls) {
 	generic_qsort(ls->elements, 0, ls->size,ls->element_type.naturalorder);
 }
-
-typedef struct {
-	int index;
-	void * element;
-} list_stream_state;
-
-typedef struct {
-	list ls;
-	list_stream_state * old_state;
-}list_stream_dependencies;
-
-bool list_stream_has_next(void * state,void * dependencies){
-	list_stream_dependencies * d = (list_stream_dependencies *) dependencies;
-	list_stream_state * s = (list_stream_state *) state;
-	return s->index < d->ls.size;
-}
-
-void * list_stream_next(void * state, void * dependencies){
-	list_stream_dependencies * d = (list_stream_dependencies *) dependencies;
-	list_stream_state * s = (list_stream_state *) state;
-	int index = s->index;
-	d->old_state->index = index;
-	void * r = list_get(d->ls,index);
-	d->old_state->element = r;
-	s->index = index +1;
-	return d->old_state->element;
-}
-
-stream list_stream(list ls) {
-	list_stream_dependencies dp = {ls, get_mem_list(sizeof(list_stream_state))};
-	list_stream_state initial_state ={0, get_mem_list(sizeof(void *))};
-	stream sm = stream_create(ls.element_type,
-			get_value_list(sizeof(list_stream_state),&initial_state),
-			list_stream_has_next, list_stream_next,
-			get_value_list(sizeof(list_stream_dependencies), &dp));
-	return sm;
-}
-

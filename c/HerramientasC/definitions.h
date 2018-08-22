@@ -34,32 +34,6 @@
 #define to_char (char*)
 #define to_optional *(optional*)
 
-#ifndef CONTENT_TYPE
-#define CONTENT_TYPE(pointer,type) *(type *) pointer
-#endif
-
-#ifndef POINTER_TYPE
-#define POINTER_TYPE(pointer,type) (type *) pointer
-#endif
-
-#ifndef EXPAND
-#define EXPAND(f,type_in,type_out) \
-		void * __##f(void * target, void * source) { \
-	         type_in in_value = CONTENT_TYPE(source,type_in); \
-	         type_out * out_value = POINTER_TYPE(target,type_out); \
-	         * out_value = f(in_value); \
-	         return out_value; \
-		}
-#endif
-
-#ifndef EXPAND_RB
-#define EXPAND_RB(f,type_in,type_out) \
-		type_out __##f(void * source) { \
-	         type_in in_value = CONTENT_TYPE(source,type_in); \
-	         type_out out_value = f(in_value); \
-	         return out_value; \
-		}
-#endif
 
 
 #endif /* DEFINITIONS_H_ */

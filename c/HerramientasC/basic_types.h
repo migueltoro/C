@@ -19,8 +19,10 @@
 #include "definitions.h"
 #include "memory_heap.h"
 
-typedef struct {
-    int size;
+typedef struct tt {
+	int num_type_parameters;
+	struct tt * types;
+    int size_type;
     char * (*tostring)(char *, const void *);
     int (*equals)(const void *, const void *);
     long (*hashcode) (const void *);
@@ -32,6 +34,9 @@ typedef struct {
 
 unsigned long int hash(const char *key);
 int type_equals(const type t1, const type t2);
+type instance_type_1(type generic_type, type t1);
+type instance_type_2(type generic_type, type t1, type t2);
+type get_parameter_type(type generic_type, int index);
 
 // int type
 
@@ -117,22 +122,9 @@ long tuple2_hashcode(const void * t);
 int tuple2_naturalorder(const void * t1,const  void * t2);
 void * tuple2_pointer(const void * value, memory_heap * heap);
 void * tuple2_copy(void * target, const void * source);
-void  * tuple2_int_pointer_from_value(int a, int b, memory_heap * heap);
-void  * tuple2_double_pointer_from_value( double a, double b, memory_heap * heap);
 
-typedef struct {
-	 int key;
-	 int value;
-} tuple2_int;
-
-typedef struct {
-	 double key;
-	 double value;
-} tuple2_double;
 
 extern type tuple2_type;
-extern type tuple2_int_type;
-extern type tuple2_double_type;
 
 // optional type
 
@@ -180,5 +172,7 @@ void * punto_pointer(const void * value, memory_heap * heap);
 void * punto_copy(void * target, const void * source);
 
 extern type punto_type;
+
+void types_memory_clear();
 
 #endif /* BASIC_TYPES_H_ */

@@ -38,22 +38,22 @@ void * get_0(void * base){
 
 accumulator accumulator_sum_long() {
 	accumulator ac = {int_type,long_type,long_type,
-			get_mem_sm(long_type.size),get_0,sum_long_int,result_identity,is_done_false};
+			get_mem_sm(long_type.size_type),get_0,sum_long_int,result_identity,is_done_false};
 	return ac;
 }
 
-void * accumulate_left(const stream st, accumulator ac){
-	ac.initial_value(ac.base_state);
+void * accumulate_left(stream * st, accumulator * ac){
+	ac->initial_value(ac->base_state);
 	while(stream_has_next(st)){
-		ac.add(ac.base_state,stream_next(st));
+		ac->add(ac->base_state,stream_next(st));
 	}
-	return ac.result(get_mem_sm(ac.result_type.size),ac.base_state);
+	return ac->result(get_mem_sm(ac->result_type.size_type),ac->base_state);
 }
 
 void accumulate_right_private(stream * st, accumulator * ac){
-	if(stream_has_next(*st)){
-		void * r = stream_next(*st);
-		void * value = get_value_sm(ac->element_type.size,r);
+	if(stream_has_next(st)){
+		void * r = stream_next(st);
+		void * value = get_value_sm(ac->element_type.size_type,r);
 		accumulate_right_private(st,ac);
 		ac->add(ac->base_state,value);
 	} else {
@@ -64,5 +64,5 @@ void accumulate_right_private(stream * st, accumulator * ac){
 
 void * accumulate_right(stream * st, accumulator * ac){
 	accumulate_right_private(st,ac);
-	return ac->result(get_mem_sm(ac->result_type.size),ac->base_state);
+	return ac->result(get_mem_sm(ac->result_type.size_type),ac->base_state);
 }

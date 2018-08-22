@@ -11,6 +11,25 @@
 #include <assert.h>
 #include "hash_table.h"
 
+memory_heap hash_table_memory = {0,0,NULL};
+
+memory_heap * get_hash_table_memory(){
+	if(hash_table_memory.elements == NULL) {
+		hash_table_memory = memory_heap_create();
+	}
+	return &hash_table_memory;
+}
+
+void * get_mem_hash_table(int size){
+	return memory_heap_tam_memory(get_hash_table_memory(),size);
+}
+
+void * get_value_hash_table(int size, void * value){
+	return memory_heap_memory_for_value(get_hash_table_memory(),size, value);
+}
+
+type hash_table_type = {2,NULL,sizeof(hash_table),NULL,NULL,NULL,NULL,NULL,NULL,"hash_table_type"};
+
 int _primes[] = {13, 23, 41, 61, 83, 151, 199, 263, 383, 503, 641, 769, 911, 1049, 1559};
 int _next_prime = 0;
 int _nprimes = 15;
@@ -27,8 +46,8 @@ int rehash(hash_table * table);
 void ini_data(hash_table * table) {
 	int capacity = table->parameters.capacity;
 	int capacity_data = table->parameters.capacity_data;
-	table->blocks = (int *) malloc(capacity * sizeof(int));
-	table->data = (entry_data *) malloc(capacity_data * sizeof(entry_data));
+	table->blocks = (int *) get_mem_hash_table(capacity * sizeof(int));
+	table->data = (entry_data *) get_mem_hash_table(capacity_data * sizeof(entry_data));
 	for (int i = 0; i < capacity; i++) {
 		table->blocks[i] = -1;
 	}
@@ -46,7 +65,6 @@ hash_table hash_table_create(type key, type value) {
     ini_data(&table);
     return table;
 }
-
 
 
 int rehash(hash_table * table) {

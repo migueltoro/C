@@ -28,14 +28,14 @@ memory_heap * memory_heap_add(memory_heap * heap, void * element) {
 }
 
 
-void * value_memory(memory_heap * heap, int size, void * value) {
+void * memory_heap_memory_for_value(memory_heap * heap, int size, void * value) {
 	void * element = (void *) malloc(size);
 	memcpy(element,value,size);
 	memory_heap_add(heap, element);
 	return element;
 }
 
-void * tam_memory(memory_heap * heap, int size) {
+void * memory_heap_tam_memory(memory_heap * heap, int size) {
 	void * element = (void *) malloc(size);
 	memory_heap_add(heap, element);
 	return element;

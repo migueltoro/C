@@ -20,7 +20,7 @@ memory_heap * get_stream_memory(){
 }
 
 void * get_mem_sm(int size){
-	return tam_memory(get_stream_memory(),size);
+	return memory_heap_tam_memory(get_stream_memory(),size);
 }
 
 void * get_int_sm(int a){
@@ -32,18 +32,18 @@ void * get_long_sm(long a){
 }
 
 void * get_value_sm(int size, void * value){
-	return value_memory(get_stream_memory(),size, value);
+	return memory_heap_memory_for_value(get_stream_memory(),size, value);
 }
 
 void stream_memory_clear(){
 	memory_heap_free(&stream_memory);
 }
 
+type stream_type = {1,NULL,sizeof(stream),NULL,stream_equals,NULL,NULL,NULL,NULL,"stream_type"};
 
-type stream_type = {sizeof(stream),NULL,stream_equals,NULL,NULL,NULL,NULL,"stream_type"};
-
-int stream_has_next(stream st);
-void * stream_next(stream st);
+int stream_has_next(stream * st);
+void * stream_see_next(stream * st);
+void * stream_next(stream * st);
 
 int stream_equals(const void * e1, const void * e2) {
 	stream tt1 = *(stream *)e1;
@@ -51,149 +51,184 @@ int stream_equals(const void * e1, const void * e2) {
 	return  type_equals(tt1.state_type,tt2.state_type);
 }
 
-stream stream_create(type element_type, void * initial, bool (*has_next)(void *, void *),
-		void * (*next)(void *, void *), void * dependencies) {
-	stream st = {element_type,initial,has_next,next,dependencies};
+stream stream_create(type state_type,void * initial_state, bool (*has_next)(stream *, void *),
+		void * (*next)(stream *, void *), void * dependencies) {
+	stream st = {
+			state_type,
+			get_mem_sm(state_type.size_type),
+			get_mem_sm(state_type.size_type),
+			has_next,
+			next,
+			dependencies};
+	state_type.copy(st.state,initial_state);
 	return st;
 }
 
-int stream_has_next(stream st) {
-	return st.has_next(st.state,st.dependencies);
+int stream_has_next(stream * st) {
+	return st->has_next(st,st->dependencies);
 }
 
-void * stream_next(stream st) {
-	return st.next(st.state,st.dependencies);
+void * stream_see_next(stream * st){
+	assert(stream_has_next(st));
+	return st->state;
 }
 
-void stream_to_buffer(string_buffer * buffer, stream st) {
+void * stream_next(stream * st) {
+	assert(stream_has_next(st));
+	return st->next(st,st->dependencies);
+}
+
+void stream_to_buffer(string_buffer * buffer, stream * st) {
 	char nm[256];
+	string_buffer_add_prefix(buffer);
 	while(stream_has_next(st)){
 		void * r = stream_next(st);
-		string_buffer_add(buffer,st.state_type.tostring(nm,r));
+		string_buffer_add(buffer,st->state_type.tostring(nm,r));
 	}
+	string_buffer_add_sufix(buffer);
 	string_buffer_close(buffer);
 }
 
 typedef struct{
-	stream depending_stream;
+	stream * depending_stream;
 	void * (*map_function)(void * target, void * source);
-}dependencies_map_context;
+}dependencies_map;
 
-bool stream_map_has_next(void * state, void * dependencies){
-	stream st = ((dependencies_map_context *) dependencies)->depending_stream;
+bool stream_map_has_next(stream * current_stream, void * dependencies){
+	stream * st = ((dependencies_map *) dependencies)->depending_stream;
 	return stream_has_next(st);
 }
 
-void * stream_map_next(void * state, void * dependencies) {
-	dependencies_map_context * d = (dependencies_map_context *) dependencies;
-	stream st = d->depending_stream;
-	void * r = stream_next(st);
-	void  * s = d->map_function(state,r);
-	return s;
+void * stream_map_next(stream * current_stream, void * dependencies) {
+	dependencies_map * d = (dependencies_map *) dependencies;
+	stream * depending_stream = d->depending_stream;
+	void * r = stream_next(depending_stream);
+	assert(*(long*)r<30);
+	d->map_function(current_stream->state, r);
+	return current_stream->state;
 }
 
 
-stream stream_map(stream st, type type_map, void * (*map_function)(void *, void*)) {
-	dependencies_map_context dp = {st, map_function };
-	int size = sizeof(dependencies_map_context);
-	stream new_st = {type_map,
-			get_mem_sm(type_map.size),
+stream stream_map(stream  * depending_stream, type type_map, void * (*map_function)(void * out, void * in)) {
+	dependencies_map dp = {depending_stream, map_function };
+	int size = sizeof(dependencies_map);
+	stream sm = {
+			type_map,
+			get_mem_sm(type_map.size_type),
+			get_mem_sm(type_map.size_type),
 			stream_map_has_next,
 			stream_map_next,
 			get_value_sm(size, &dp)
 	};
-	return new_st;
+	return sm;
 }
 
 typedef struct {
-	stream depending_stream;
+	stream * depending_stream;
 	bool (*filter_predicate)(void * source);
 	bool has_next;
-	bool done;
-} dependencies_filter_context;
+} dependencies_filter;
 
-bool stream_filter_has_next(void * state, void * dependencies) {
-	dependencies_filter_context * d = (dependencies_filter_context *) dependencies;
-	stream st = d->depending_stream;
-	void * r;
-	if (!d->done) {
-		d->has_next = 0;
-		while(stream_has_next(st)) {
-			r = stream_next(st);
-			if(d->filter_predicate(r)){
-				memcpy(state,r,st.state_type.size);
-				d->has_next = 1;
-				break;
-			}
-		}
-		d->done = 1;
+void next_depending_state(stream * current_stream, dependencies_filter * dependencies) {
+	stream * depending_stream = dependencies->depending_stream;
+	while (stream_has_next(depending_stream)) {
+		void * r = stream_see_next(depending_stream);
+		if (dependencies->filter_predicate(r)) break;
+		stream_next(depending_stream);
 	}
+	if (!stream_has_next(depending_stream)) dependencies->has_next = false;
+	current_stream->state_type.copy(current_stream->state, depending_stream->state);
+}
+
+bool stream_filter_has_next(stream * current_stream, void * dependencies) {
+	dependencies_filter * d = (dependencies_filter *) dependencies;
 	return d->has_next;
 }
 
-void * stream_filter_next(void * state, void * dependencies) {
-	dependencies_filter_context * d = (dependencies_filter_context *) dependencies;
-	d->done = false;
-	return state;
+void * stream_filter_next(stream * current_stream, void * dependencies) {
+	dependencies_filter * d = (dependencies_filter *) dependencies;
+	current_stream->state_type.copy(current_stream->auxiliary_state,current_stream->state);
+	stream_next(d->depending_stream);
+	next_depending_state(current_stream,d);
+	return current_stream->auxiliary_state;
 }
 
 
-stream stream_filter(stream st, bool (*filter_predicate)(void *)) {
-	dependencies_filter_context dp = {st,filter_predicate,0,0};
-	stream new_st = {st.state_type, get_mem_sm(st.state_type.size),
-			stream_filter_has_next, stream_filter_next,
-			get_value_sm(sizeof(dependencies_filter_context), &dp)};
+stream stream_filter(stream * depending_stream, bool (*filter_predicate)(void *)) {
+	dependencies_filter d = {depending_stream,filter_predicate,true};
+	stream new_st = {
+			depending_stream->state_type,
+			get_value_sm(sizeof(depending_stream->state_type.size_type), stream_see_next(d.depending_stream)),
+			get_mem_sm(depending_stream->state_type.size_type),
+			stream_filter_has_next,
+			stream_filter_next,
+			get_value_sm(sizeof(dependencies_filter), &d)
+	};
+	next_depending_state(&new_st,&d);
 	return new_st;
 }
 
 typedef struct {
+	type element_type;
 	void * initial_value;
 	bool (*hash_next)(void * element);
 	void * (*next)(void * state);
 }dependencies_iterate;
 
-bool iterate_stream_has_next(void * state,void * dependencies){
+bool iterate_stream_has_next(stream * current_stream,void * dependencies){
 	dependencies_iterate * d = (dependencies_iterate *) dependencies;
-	return d->hash_next(state);
+	return d->hash_next(current_stream->state);
 }
 
-void * iterate_stream_next(void * state,void * dependencies){
+void * iterate_stream_next(stream * current_stream, void * dependencies){
 	dependencies_iterate * d = (dependencies_iterate *) dependencies;
-	return d->next(state);
+	d->element_type.copy(current_stream->auxiliary_state,current_stream->state);
+	d->next(current_stream->state);
+	return current_stream->auxiliary_state;
 }
 
-stream stream_iterate(type element_type, void * initial_value, bool (*has_next)(void * element), void * (*next)(void * state)){
-	dependencies_iterate dp = {initial_value,has_next,next};
-		stream new_st = {element_type, get_value_sm(sizeof(element_type.size),dp.initial_value),
-				iterate_stream_has_next, iterate_stream_next,
-				get_value_sm(sizeof(dependencies_iterate), &dp)};
+stream stream_iterate(type element_type, void * initial_value, bool (*has_next)(void * element), void * (*next)(void * state)) {
+	dependencies_iterate dp = { element_type, initial_value, has_next, next };
+	stream new_st = {
+			element_type,
+			get_value_sm(sizeof(element_type.size_type),
+			dp.initial_value),
+			get_mem_sm(sizeof(element_type.size_type)),
+			iterate_stream_has_next,
+			iterate_stream_next, get_value_sm(sizeof(dependencies_iterate), &dp)
+	};
 	return new_st;
 }
 
 typedef struct {
-	int initial_value;
-	bool (*hash_next)(int);
-	int (*next)(int);
-}dependencies_iterate_int;
+	long initial_value;
+	bool (*hash_next)(long);
+	long (*next)(long);
+}dependencies_iterate_long;
 
-bool iterate_stream_has_next_int(void * state,void * dependencies){
-	dependencies_iterate_int * d = (dependencies_iterate_int *) dependencies;
-	return d->hash_next(*(int*)state);
+bool iterate_stream_has_next_long(stream * current_stream,void * dependencies){
+	dependencies_iterate_long * d = (dependencies_iterate_long *) dependencies;
+	return d->hash_next(*(long*)current_stream->state);
 }
 
-void * iterate_stream_next_int(void * state,void * dependencies){
-	dependencies_iterate_int * d = (dependencies_iterate_int*) dependencies;
-	int * next = (int *) state;
-	* next = d->next(*(int*)state);
-	return next;
+void * iterate_stream_next_long(stream * current_stream,void * dependencies){
+	dependencies_iterate_long * d = (dependencies_iterate_long*) dependencies;
+	long_type.copy(current_stream->auxiliary_state,current_stream->state);
+	*(long*)current_stream->state = d->next(*(long*)current_stream->state);
+	return current_stream->auxiliary_state;
 }
 
-stream stream_iterate_int(int initial_value, bool (*has_next)(int),int (*next)(int)){
-	dependencies_iterate_int dp = {initial_value,has_next,next};
-			stream new_st = {int_type, get_value_sm(sizeof(int_type.size),&dp.initial_value),
-					iterate_stream_has_next_int, iterate_stream_next_int,
-					get_value_sm(sizeof(dependencies_iterate_int), &dp)};
-		return new_st;
+stream stream_iterate_long(long initial_value, bool (*has_next)(long),long (*next)(long)){
+	dependencies_iterate_long dp = {initial_value,has_next,next};
+	stream new_st = {
+					long_type,
+					get_value_sm(sizeof(long_type.size_type),&initial_value),
+					get_mem_sm(sizeof(long_type.size_type)),
+					iterate_stream_has_next_long,
+					iterate_stream_next_long,
+					get_value_sm(sizeof(dependencies_iterate_long), &dp)
+	};
+	return new_st;
 }
 
 typedef struct {
@@ -202,77 +237,58 @@ typedef struct {
 	double (*next)(double);
 }dependencies_iterate_double;
 
-bool iterate_stream_has_next_double(void * state,void * dependencies){
+bool iterate_stream_has_next_double(stream * current_stream,void * dependencies){
 	dependencies_iterate_double * d = (dependencies_iterate_double *) dependencies;
-	return d->hash_next(*(double*)state);
+	return d->hash_next(*(double*)current_stream->state);
 }
 
-void * iterate_stream_next_double(void * state,void * dependencies){
+void * iterate_stream_next_double(stream * current_stream, void * dependencies) {
 	dependencies_iterate_double * d = (dependencies_iterate_double*) dependencies;
-	double * next = (double *) state;
-	* next = d->next(*(double*)state);
-	return next;
+	double_type.copy(current_stream->auxiliary_state, current_stream->state);
+	*(double*)current_stream->state = d->next(*(double*) current_stream->state);
+	return current_stream->auxiliary_state;
 }
 
 stream stream_iterate_double(double initial_value, bool (*has_next)(double),double (*next)(double)){
 	dependencies_iterate_double dp = {initial_value,has_next,next};
-			stream new_st = {double_type, get_value_sm(sizeof(double_type.size),&dp.initial_value),
-					iterate_stream_has_next_double, iterate_stream_next_double,
+			stream new_st = {
+					double_type,
+					get_value_sm(sizeof(double_type.size_type),&dp.initial_value),
+					get_mem_sm(sizeof(double_type.size_type)),
+					iterate_stream_has_next_double,
+					iterate_stream_next_double,
 					get_value_sm(sizeof(dependencies_iterate_double), &dp)};
 		return new_st;
 }
 
 
-typedef struct {
-	tuple2_int initial_value;
-	bool (*hash_next)(tuple2_int);
-	tuple2_int (*next)(tuple2_int);
-}dependencies_iterate_tuple2_int;
-
-bool iterate_stream_has_next_tuple2_int(void * state,void * dependencies){
-	dependencies_iterate_tuple2_int * d = (dependencies_iterate_tuple2_int *) dependencies;
-	return d->hash_next(*(tuple2_int*)state);
-}
-
-void * iterate_stream_next_tuple2_int(void * state,void * dependencies){
-	dependencies_iterate_tuple2_int * d = (dependencies_iterate_tuple2_int*) dependencies;
-	tuple2_int * next = (tuple2_int *) state;
-	* next = d->next(*(tuple2_int*)state);
-	return next;
-}
-
-stream stream_iterate_tuple2_int(tuple2_int initial_value, bool (*has_next)(tuple2_int),tuple2_int (*next)(tuple2_int)){
-	dependencies_iterate_tuple2_int dp = {initial_value,has_next,next};
-			stream new_st = {tuple2_int_type, get_value_sm(sizeof(tuple2_int_type.size),&dp.initial_value),
-					iterate_stream_has_next_tuple2_int, iterate_stream_next_tuple2_int,
-					get_value_sm(sizeof(dependencies_iterate_double), &dp)};
-		return new_st;
-}
-
 
 typedef struct {
-	int a;
-	int b;
-	int c;
-	int * old_state;
+	long a;
+	long b;
+	long c;
 }dependencies_range;
 
-bool range_stream_has_next(void * state,void * dependencies){
+bool range_stream_has_next(stream * current_stream, void * dependencies){
 	dependencies_range * d = (dependencies_range *) dependencies;
-	return *(int *)state < d->b;
+	return *(long *)current_stream->state < d->b;
 }
 
-void * range_stream_next(void * state,void * dependencies){
+void * range_stream_next(stream * current_stream, void * dependencies){
 	dependencies_range * d = (dependencies_range *) dependencies;
-	*d->old_state = *(int *)state;
-	*(int *)state = *(int *)state +d->c;
-	return d->old_state;
+	long_type.copy(current_stream->auxiliary_state, current_stream->state);
+	(*(long*) current_stream->state) = (*(long*) current_stream->state) +d->c;
+	return current_stream->auxiliary_state;
 }
 
-stream stream_range_int(int a, int b, int c){
-	dependencies_range dp = {a,b,c,get_mem_sm(sizeof(int))};
-	stream new_st = {int_type, get_int_sm(a),
-			range_stream_has_next, range_stream_next,
+stream stream_range_int(long a, long b, long c){
+	dependencies_range dp = {a,b,c};
+	stream new_st = {
+			int_type,
+			get_int_sm(a),
+			get_mem_sm(sizeof(long)),
+			range_stream_has_next,
+			range_stream_next,
 			get_value_sm(sizeof(dependencies_range), &dp)};
 	return new_st;
 }
@@ -283,10 +299,10 @@ typedef struct{
 	bool has_next;
 }dependencies_file;
 
-bool file_stream_has_next(void * state,void * dependencies){
+bool file_stream_has_next(stream * current_stream,void * dependencies){
 	dependencies_file * dp = (dependencies_file *) dependencies;
 	if(!(dp->is_done)){
-		char * mem = (char *)state;
+		char * mem = (char *)current_stream->state;
 		char * r = fgets(mem,Tam_String, dp->file);
 		if(r==NULL) {
 			dp->has_next = 0;
@@ -298,10 +314,10 @@ bool file_stream_has_next(void * state,void * dependencies){
 	return dp->has_next;
 }
 
-void * file_stream_next(void * state,void * dependencies){
+void * file_stream_next(stream * current_stream,void * dependencies){
 	dependencies_file * dp = (dependencies_file *) dependencies;
 	dp->is_done = 0;
-	return state;
+	return current_stream->state;
 }
 
 
@@ -309,9 +325,12 @@ stream file_stream(char * file) {
 	FILE * st = fopen(file,"r");
 	assert(st != NULL);
 	dependencies_file dp = {st,0,1};
-	stream s_file = {string_type,
-			tam_memory(get_stream_memory(),Tam_String),
-			file_stream_has_next, file_stream_next,
+	stream s_file = {
+			string_type,
+			memory_heap_tam_memory(get_stream_memory(),Tam_String),
+			memory_heap_tam_memory(get_stream_memory(),Tam_String),
+			file_stream_has_next,
+			file_stream_next,
 			get_value_sm(sizeof(dependencies_file), &dp)};
 	return s_file;
 }

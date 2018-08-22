@@ -16,8 +16,8 @@
 typedef enum{Empty_Tree, Leaf_Tree, Binary_Tree} tree_type;
 
 typedef struct bt {
-	tree_type tree_type;
 	type label_type;
+	tree_type tree_type;
 	void * label;
 	struct bt * left;
 	struct bt * right;
@@ -25,7 +25,7 @@ typedef struct bt {
 
 
 binary_tree * tree_empty(type label_type);
-binary_tree * tree_leaf(void * label,type label_type);
+binary_tree * tree_leaf(type label_type, void * label);
 binary_tree * tree_binary(void * label, binary_tree * left, binary_tree * right);
 tree_type get_type(binary_tree * tree);
 void * get_label(binary_tree * tree);

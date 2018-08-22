@@ -20,49 +20,53 @@ bool is_multiple_3(int source){
 	return source % 3 ==0;
 }
 
-EXPAND_RB(is_multiple_3,int,bool);
 
-bool is_first_pair(tuple2_int t) {
-	return t.key % 2 ==0;
+
+bool gt_300(tuple2 t) {
+	return *(double*)t.key >300;
 }
 
-EXPAND_RB(is_first_pair,tuple2_int,bool);
 
 
 int triple_int(int a) {
 	return 3*a;
 }
 
-EXPAND(triple_int,int,int);
 
-
-double sqrt_double(double source){
+void * sqrt_double(void * out, void * in){
+	double source = *(double*)in;
 	double r = sqrt(abs(source));
-	return r;
+	double * p_out = (double *) out;
+	(* p_out) = r;
+	return p_out;
 }
 
-EXPAND(sqrt_double,double,double);
 
 double sqrt_second_double(tuple2 source){
 	double r =  *(double*) source.value;
 	return  sqrt(r);
 }
 
-EXPAND(sqrt_second_double,tuple2,double);
 
-void * tuple2_value(tuple2 t){
-	return t.value;
+void * tuple2_value(void * out, void * in){
+	tuple2 t = *(tuple2*)in;
+	double * p_out = (double *) out;
+	(* p_out) = *(double *) t.value;
+	return out;
 }
 
-EXPAND(tuple2_value,tuple2,void *);
+
 
 void complete_buffer(string_buffer * buffer) {
 	char mem[Tam_String];
 	int tam = 10;
+	string_buffer_add_prefix(buffer);
 	for (int i = 0; i < tam; i++) {
 		double a1 = getDoubleAleatorio(0, 1000);
 		string_buffer_add(buffer, double_type.tostring(mem, &a1));
 	}
+	string_buffer_add_sufix(buffer);
+	string_buffer_close(buffer);
 }
 
 void test_string_buffer(){
@@ -95,14 +99,16 @@ void test_quicksort(){
 	string_buffer buffer = string_buffer_create(",","\n{","}\n");
 	memory_heap heap = memory_heap_create();
 	int tam = 100;
-	type type = tuple2_type;
-	void ** b = malloc(tam*sizeof(void*));
+	type type = instance_type_2(tuple2_type,double_type,double_type);
+	tuple2 t = {double_type,double_type,NULL,NULL};
+	void ** b = memory_heap_tam_memory(&heap,tam*sizeof(void*));
 	for(int i = 0; i<tam; i++) {
 		double a1 = getDoubleAleatorio(0, 1000);
 		double a2 = getDoubleAleatorio(0, 1000);
-		tuple2 t = {double_type,double_type,&a1,&a2};
-		void * pt = tuple2_type.pointer(&t,&heap);
-		b[i] = tuple2_type.pointer(pt,&heap);
+		t.key = memory_heap_memory_for_value(&heap,get_parameter_type(type,0).size_type,&a1);
+		t.value = memory_heap_memory_for_value(&heap,get_parameter_type(type,1).size_type,&a2);
+		void * pt = type.pointer(&t,&heap);
+		b[i] = type.pointer(pt,&heap);
 	}
 	print_array(&buffer,b,0,tam,type);
 	generic_qsort(b,0,tam,type.naturalorder);
@@ -113,31 +119,57 @@ void test_quicksort(){
 	memory_heap_free(&heap);
 }
 
-void test_list_stream() {
+list complete_list(memory_heap heap) {
+	int tam = 30;
+	list ls = list_empty(double_type);
+	for (int i = 0; i < tam; i++) {
+		double a = getDoubleAleatorio(0, 1000);
+		void * pt = ls.element_type.pointer(&a, &heap);
+		list_add(&ls, pt);
+	}
+	return ls;
+}
+
+
+bool le_200(void * in) {
+	double r = *(double*) in;
+	return r <= 200;
+}
+
+void * sqrt_d(void * out, void * in){
+	double r = *(double*) in;
+	double * p_out = (double *) out;
+	(* p_out) = sqrt(r);
+	return p_out;
+}
+
+void * to_int_module_7(void * out, void * in){
+	double r = *(double*) in;
+	int * p_out = (int *) out;
+	(* p_out) = ((int)r) % 7;
+	return p_out;
+}
+
+list ls;
+
+void * index_to_contain(void * out, void * in){
+	long index = *(long*) in;
+	double * p_out = (double *) out;
+	(* p_out) = *(double*)list_get(ls,index);
+	return p_out;
+}
+
+void test_list() {
 	printf("List test\n\n");
+	char mem[Tam_String];
 	string_buffer buffer = string_buffer_create(",","\n{","}\n");
 	memory_heap heap = memory_heap_create();
-	char mem[Tam_String];
-	int tam = 40;
-	list ls = list_empty(tuple2_type);
-	for (int i = 0; i < tam; i++) {
-		double a1 = getDoubleAleatorio(0, 1000);
-		double a2 = getDoubleAleatorio(0, 1000);
-		tuple2 t = {double_type,double_type,&a1,&a2};
-		void * pt = tuple2_type.pointer(&t,&heap);
-		list_add(&ls,pt);
-	}
-	stream st = list_stream(ls);
-	stream_to_buffer(&buffer,st);
+	list ls = complete_list(heap);
+	print_array(&buffer,ls.elements,0,ls.size,ls.element_type);
 	list_sort_naturalorder(&ls);
-	st = list_stream(ls);
-	stream_to_buffer(&buffer,st);
-	st = list_stream(ls);
-	stream sf = stream_filter(st,__is_first_pair);
-	stream sm = stream_map(sf,double_type,__tuple2_value);
-	stream ss = stream_map(sm,double_type,__sqrt_double);
-	stream_to_buffer(&buffer,ss);
-	printf("%s\n",ls.element_type.tostring(mem,list_get(ls,20)));
+	printf("\n\n");
+	print_array(&buffer,ls.elements,0,ls.size,ls.element_type);
+	printf("\n\n%s\n",ls.element_type.tostring(mem,list_get(ls,20)));
 	string_buffer_free(&buffer);
 	memory_heap_free(&heap);
 	stream_memory_clear();
@@ -177,7 +209,23 @@ void test_file_stream() {
 	printf("File Stream test\n\n");
 	string_buffer buffer = string_buffer_create(",","\n{","}\n");
 	stream sf = file_stream("prueba.txt");
-	stream_to_buffer(&buffer,sf);
+	stream_to_buffer(&buffer,&sf);
+}
+
+bool lt_500(long a){
+	return a < 500;
+}
+
+bool ge_300(void * in) {
+	long r = *(long*) in;
+	return r >= 300;
+}
+
+void * square(void * out, void * in){
+	long r = *(long*) in;
+	long * p_out = (long *) out;
+	(* p_out) = r*r;
+	return p_out;
 }
 
 void test_accumulator() {
@@ -185,39 +233,45 @@ void test_accumulator() {
 	string_buffer buffer = string_buffer_create(",","\n{","}\n\n");
 	accumulator ac = accumulator_sum_long();
 	stream st = stream_range_int(2,100,2);
-	stream_to_buffer(&buffer,st);
+	stream_to_buffer(&buffer,&st);
 	st = stream_range_int(2,100,2);
-	long r1 = to_long accumulate_left(st,ac);
+	long r1 = to_long accumulate_left(&st,&ac);
 	st = stream_range_int(2,100,2);
 	long r2 = to_long accumulate_right(&st,&ac);
 	printf("left = %ld, right = %ld\n\n",r1,r2);
+	stream sti = stream_iterate_long(2, lt_500, siguientePrimo);
+	printf("Secuencia de primos menores que 500\n\n");
+	stream_to_buffer(&buffer, &sti);
+	sti = stream_iterate_long(2, lt_500, siguientePrimo);
+	stream stf = stream_filter(&sti, ge_300);
+	printf("Secuencia de primos mayores que 300 y menores que 500\n\n");
+	stream_to_buffer(&buffer, &stf);
+	sti = stream_iterate_long(2, lt_500, siguientePrimo);
+	stf = stream_filter(&sti, ge_300);
+	stream stm = stream_map(&sti, long_type, square);
+	printf("Secuencia de los cuadrados de los primos menores que 300\n\n");
+	stream_to_buffer(&buffer, &stm);
 }
 
 void test_tree(){
 	printf("Binary Tree test\n\n");
 	string_buffer buffer = string_buffer_create("","\n","\n\n");
 	binary_tree * t0 = tree_empty(int_type);
-	binary_tree * t1 = tree_leaf(get_int_tree(84),int_type);
+	binary_tree * t1 = tree_leaf(int_type,get_int_tree(84));
 	binary_tree * t2 = tree_binary(get_int_tree(90),t0,t1);
-	binary_tree * t3 = tree_binary(get_int_tree(56),t2,tree_leaf(get_int_tree(55),int_type));
+	binary_tree * t3 = tree_binary(get_int_tree(56),t2,tree_leaf(int_type,get_int_tree(55)));
 	binary_tree * t4 = tree_binary(get_int_tree(81),t3,t3);
 	printf("size = %d\n\n", tree_size(t4));
 	tree_to_buffer(&buffer,t4);
 	printf("\n\n");
-	list * ls = tree_to_list(t4);
-	stream st = list_stream(*ls);
-	buffer = string_buffer_create(",","{","}\n");
-	stream_to_buffer(&buffer,st);
-
 	binary_tree_memory_clear();
-
 }
 
 int main() {
-test_string_buffer();
-test_quicksort();
-test_tuple2();
-test_list_stream();
+//test_string_buffer();
+//test_quicksort();
+//test_tuple2();
+test_list();
 //test_hash_table();
 //test_file_stream();
 //test_accumulator();

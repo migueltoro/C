@@ -25,8 +25,8 @@ typedef struct {
 
 memory_heap memory_heap_create();
 memory_heap * memory_heap_add(memory_heap * heap, void * element);
-void  * value_memory(memory_heap * heap, int size, void * value);
-void  * tam_memory(memory_heap * heap, int size);
+void  * memory_heap_memory_for_value(memory_heap * heap, int size, void * value);
+void  * memory_heap_tam_memory(memory_heap * heap, int size);
 
 void memory_heap_free(memory_heap * heap);
 

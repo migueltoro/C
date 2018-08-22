@@ -12,10 +12,6 @@
 #include "memory_heap.h"
 #include "string_buffer.h"
 
-//typedef struct {
-//    short first;
-////    short last;
-//} entry_block;
 
 typedef struct {
     void * key;
@@ -46,6 +42,8 @@ void * hash_table_remove(hash_table * table, void * key);
 void * hash_table_get(hash_table table, void * key);
 int hash_table_contains(hash_table table, void * key);
 void hash_table_free(hash_table * table);
+
+extern type hash_table_type;
 
 //extern parameters_hash_table initial_parameters;
 

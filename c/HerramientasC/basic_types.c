@@ -7,7 +7,9 @@
 
 
 #include "basic_types.h"
-#include "memory_heap.h"
+
+
+
 
 /* Hash a string */
 unsigned long int hash(const char *key) {
@@ -23,8 +25,53 @@ unsigned long int hash(const char *key) {
 	return hashval;
 }
 
+memory_heap types_memory = {0,0,NULL};
+
+memory_heap * get_types_memory(){
+	if(types_memory.elements == NULL) {
+		types_memory = memory_heap_create();
+	}
+	return &types_memory;
+}
+
+void * get_mem_types(int size){
+	return memory_heap_tam_memory(get_types_memory(),size);
+}
+
+void * get_value_types(int size, void * value){
+	return memory_heap_memory_for_value(get_types_memory(),size, value);
+}
+
+void types_memory_clear(){
+	memory_heap_free(&types_memory);
+}
+
+
 int type_equals(const type t1 , const type t2) {
-	return !strcmp(t1.id,t2.id) && t1.size == t2.size;
+	return !strcmp(t1.id,t2.id) && t1.size_type == t2.size_type;
+}
+
+type instance_type_1(type generic_type, type t1){
+	assert(generic_type.num_type_parameters == 1);
+	type r = generic_type;
+	r.types = get_mem_types(sizeof(type));
+	r.types[0] = t1;
+	return r;
+}
+
+
+type instance_type_2(type generic_type, type t1, type t2){
+	assert(generic_type.num_type_parameters == 2);
+	type r = generic_type;
+	r.types = get_mem_types(2*sizeof(type));
+	r.types[0] = t1;
+	r.types[1] = t2;
+	return r;
+}
+
+type get_parameter_type(type generic_type, int index){
+	assert(index >=0 && index < generic_type.num_type_parameters);
+	return generic_type.types[index];
 }
 
 // int type
@@ -79,7 +126,7 @@ void * int_pointer_from_value(int a,memory_heap * heap) {
 }
 
 
-type int_type = {sizeof(int),int_tostring,int_equals,int_hashcode,int_naturalorder,int_pointer,int_copy,"int_type"};
+type int_type = {0,NULL,sizeof(int),int_tostring,int_equals,int_hashcode,int_naturalorder,int_pointer,int_copy,"int_type"};
 
 // long type
 
@@ -136,7 +183,7 @@ void * long_pointer_from_value(long a,memory_heap * heap) {
 
 
 
-type long_type = {sizeof(long),long_tostring,long_equals,long_hashcode,
+type long_type = {0,NULL,sizeof(long),long_tostring,long_equals,long_hashcode,
 		long_naturalorder,long_pointer, long_copy,"long_type"};
 
 
@@ -194,7 +241,7 @@ void * float_pointer_from_value(float a,memory_heap * heap) {
 
 
 
-type float_type = {sizeof(float),float_tostring,float_equals,float_hashcode,
+type float_type = {0,NULL,sizeof(float),float_tostring,float_equals,float_hashcode,
 		float_naturalorder,float_pointer, float_copy,"float_type"};
 
 //double type
@@ -252,7 +299,7 @@ void * double_pointer_from_value(double a,memory_heap * heap) {
 
 
 
-type double_type = {sizeof(double),double_tostring,double_equals,double_hashcode,
+type double_type = {0,NULL,sizeof(double),double_tostring,double_equals,double_hashcode,
 		double_naturalorder,double_pointer,double_copy,"double_type"};
 
 // string type
@@ -302,7 +349,7 @@ char * remove_eol(char * string){
 	return string;
 }
 
-type string_type = { 256, string_tostring,string_equals, string_hashcode,
+type string_type = {0,NULL,Tam_String, string_tostring,string_equals, string_hashcode,
 		string_naturalorder,string_pointer,string_copy,"string_type" };
 
 // tuple2 type
@@ -351,38 +398,13 @@ void * tuple2_copy(void * target, const void * source) {
 	return e_target;
 }
 
-void  * tuple2_int_pointer_from_value(int key, int value,memory_heap * heap){
-	tuple2 * element = (tuple2 *) malloc(sizeof(tuple2));
-	element->key_type = int_type;
-	element->value_type = int_type;
-	void * pkey = int_pointer_from_value(key,heap);
-	void * pvalue = int_pointer_from_value(value,heap);
-	element->key = pkey;
-	element->value = pvalue;
-	memory_heap_add(heap, element);
-	return element;
-}
 
-void * tuple2_double_pointer_from_value(double key, double value,memory_heap * heap) {
-	tuple2 * element = (tuple2 *) malloc(sizeof(tuple2));
-	element->key_type = double_type;
-	element->value_type = double_type;
-	void * pkey = double_pointer_from_value(key,heap);
-	void * pvalue = double_pointer_from_value(value,heap);
-	element->key = pkey;
-	element->value = pvalue;
-	memory_heap_add(heap, element);
-	return element;
-}
-
-type tuple2_type = {sizeof(tuple2),tuple2_tostring,tuple2_equals,tuple2_hashcode,
+type tuple2_type = {2,NULL,sizeof(tuple2),tuple2_tostring,tuple2_equals,tuple2_hashcode,
 		tuple2_naturalorder,tuple2_pointer,tuple2_copy,"tuple2_type"};
 
-type tuple2_int_type = {sizeof(tuple2_int),NULL,NULL,NULL,
-		NULL,NULL,NULL,"tuple2_int_type"};
 
-type tuple2_double_type = {sizeof(tuple2_double),NULL,NULL,NULL,
-		NULL,NULL,NULL,"tuple2_double_type"};
+
+
 
 //optional type
 
@@ -430,16 +452,17 @@ void * optional_copy(void * target, const void * source) {
 	return e_target;
 }
 
-type optional_type = {sizeof(optional),optional_tostring,optional_equals,optional_hashcode,
+
+type optional_type = {1,NULL,sizeof(optional),optional_tostring,optional_equals,optional_hashcode,
 		optional_naturalorder,optional_pointer,optional_copy,"optional_type"};
 
 // void * type
 
-type void_star_type = {sizeof(void *),NULL,NULL,NULL,NULL,NULL,NULL,"void_star_type"};
+type void_star_type = {0,NULL,sizeof(void *),NULL,NULL,NULL,NULL,NULL,NULL,"void_star_type"};
 
 // unkown type
 
-type unkown_type = {sizeof(void *),NULL,NULL,NULL,NULL,NULL,NULL,"unkown_type"};
+type unkown_type = {0,NULL,sizeof(void *),NULL,NULL,NULL,NULL,NULL,NULL,"unkown_type"};
 
 
 double punto_distancia_al_origen(const punto p){
@@ -501,5 +524,5 @@ Cuadrante pt_cuadrante(const punto p) {
 	return r;
 }
 
-type punto_type = {sizeof(punto), punto_tostring,punto_equals, punto_hashcode,
+type punto_type = {0,NULL,sizeof(punto), punto_tostring,punto_equals, punto_hashcode,
 		punto_naturalorder,punto_pointer,punto_copy,"punto_type" };

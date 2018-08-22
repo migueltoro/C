@@ -11,7 +11,6 @@
 #include "basic_types.h"
 
 typedef struct {
-	int is_first;
 	int number;
 	char * separator;
 	char * prefix;
@@ -20,6 +19,9 @@ typedef struct {
 
 string_buffer string_buffer_create(char * separator, char * prefix,char * sufix);
 void string_buffer_add(string_buffer * buffer, char * string);
+void string_buffer_add_prefix(string_buffer * buffer);
+void string_buffer_add_sufix(string_buffer * buffer);
+void string_buffer_add_separator(string_buffer * buffer);
 void string_buffer_close(string_buffer * buffer);
 void string_buffer_free(string_buffer * buffer);
 

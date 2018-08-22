@@ -19,7 +19,7 @@ memory_heap * get_tree_memory(){
 }
 
 void * get_mem_tree(int size){
-	return tam_memory(get_tree_memory(),size);
+	return memory_heap_tam_memory(get_tree_memory(),size);
 }
 
 void * get_int_tree(int a){
@@ -31,27 +31,27 @@ void * get_long_tree(long a){
 }
 
 void * get_value_tree(int size, void * value){
-	return value_memory(get_tree_memory(),size, value);
+	return memory_heap_memory_for_value(get_tree_memory(),size, value);
 }
 
 void binary_tree_memory_clear(){
 	memory_heap_free(&tree_memory);
 }
 
-type binary_tree_type = {sizeof(binary_tree),NULL,NULL,NULL,NULL,NULL,NULL,"binary_tree_type"};
+type binary_tree_type = {1,NULL,sizeof(binary_tree),NULL,NULL,NULL,NULL,NULL,NULL,"binary_tree_type"};
 
 binary_tree * tree_empty(type label_type) {
-	binary_tree tree = {Empty_Tree,label_type,NULL,NULL,NULL};
+	binary_tree tree = {label_type,Empty_Tree,NULL,NULL,NULL};
 	return (binary_tree *) get_value_tree(sizeof(binary_tree),&tree);
 }
 
-binary_tree * tree_leaf(void * label, type label_type) {
-	binary_tree tree = {Leaf_Tree,label_type,label,NULL,NULL};
+binary_tree * tree_leaf(type label_type, void * label) {
+	binary_tree tree = {label_type,Leaf_Tree,label,NULL,NULL};
 	return (binary_tree *) get_value_tree(sizeof(binary_tree),&tree);
 }
 
 binary_tree * tree_binary(void * label, binary_tree * left, binary_tree * right){
-	binary_tree tree = {Binary_Tree,left->label_type,label,left,right};
+	binary_tree tree = {left->label_type,Binary_Tree,label,left,right};
 	return (binary_tree *) get_value_tree(sizeof(binary_tree),&tree);
 }
 
