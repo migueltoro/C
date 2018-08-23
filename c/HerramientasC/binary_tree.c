@@ -60,17 +60,17 @@ tree_type get_type(binary_tree * tree) {
 }
 
 void * get_label(binary_tree * tree){
-	assert(tree->tree_type != Empty_Tree);
+	assert(tree->tree_type != Empty_Tree && "el árbol es vacío");
 	return tree->label;
 }
 
 binary_tree * get_left(binary_tree * tree){
-	assert(tree->tree_type == Binary_Tree);
+	assert(tree->tree_type == Binary_Tree && "el árbol no es binario");
 	return tree->left;
 }
 
 binary_tree * get_right(binary_tree * tree){
-	assert(tree->tree_type == Binary_Tree);
+	assert(tree->tree_type == Binary_Tree && "el árbol no es binario");
 	return tree->right;
 }
 

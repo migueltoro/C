@@ -70,7 +70,7 @@ hash_table hash_table_create(type key, type value) {
 int rehash(hash_table * table) {
 	if (table->parameters.size < table->parameters.capacity_data) return 0;
 	_next_prime = _next_prime + 1;
-	assert(_next_prime < _nprimes);
+	assert(_next_prime < _nprimes && "se ha acabado los números primos disponibles");
 	parameters_hash_table old_parameters = table->parameters;
 	entry_data * old_data = table->data;
 	int * old_blocks = table->blocks;
@@ -79,12 +79,12 @@ int rehash(hash_table * table) {
 	table->parameters = new_initial_parameters;
 	ini_data(table);
 	for (int i = 0; i < old_parameters.capacity; i++) {
-		assert(i < old_parameters.capacity);
+		assert(i < old_parameters.capacity && "el índice no está en rango de los bloques disponibles");
 		int first = old_blocks[i];
 		if (first < 0) continue;
 		int j = first;
 		while (j >= 0) {
-			assert(j < old_parameters.capacity_data);
+			assert(j < old_parameters.capacity_data && "el índice no está en el rango del array de datos");
 			entry_data * data = old_data+j;
 			void * key = data->key;
 			void * value = data->value;
@@ -138,7 +138,7 @@ int get_index_block(hash_table table, void * key){
     table.key_type.tostring(mem,key);
     unsigned long int hash_index = hash(mem);
     int index = (int)(hash_index%(table.parameters.capacity));
-    assert(index >=0 && index < table.parameters.capacity);
+    assert(index >=0 && index < table.parameters.capacity && "no es el índice de un bloque posible");
     return index;
 }
 
@@ -168,7 +168,7 @@ int hash_table_contains(hash_table table, void * key) {
 }
 
 entry_data * get_entry_data(hash_table table, int index){
-	assert(index < table.parameters.capacity_data);
+	assert(index < table.parameters.capacity_data && "no es un índice a una entrada del array de datos");
 	return table.data+index;
 }
 

@@ -52,7 +52,7 @@ int type_equals(const type t1 , const type t2) {
 }
 
 type instance_type_1(type generic_type, type t1){
-	assert(generic_type.num_type_parameters == 1);
+	assert(generic_type.num_type_parameters == 1 && "el tipo genérico debe tener un paraámtro de tipo solamente");
 	type r = generic_type;
 	r.types = get_mem_types(sizeof(type));
 	r.types[0] = t1;
@@ -61,7 +61,7 @@ type instance_type_1(type generic_type, type t1){
 
 
 type instance_type_2(type generic_type, type t1, type t2){
-	assert(generic_type.num_type_parameters == 2);
+	assert(generic_type.num_type_parameters == 2 && "el tipo genérico debe tener dos paraámtros de tipo");
 	type r = generic_type;
 	r.types = get_mem_types(2*sizeof(type));
 	r.types[0] = t1;
@@ -70,7 +70,7 @@ type instance_type_2(type generic_type, type t1, type t2){
 }
 
 type get_parameter_type(type generic_type, int index){
-	assert(index >=0 && index < generic_type.num_type_parameters);
+	assert(index >=0 && index < generic_type.num_type_parameters  && "indice fuera de rango");
 	return generic_type.types[index];
 }
 
@@ -429,7 +429,7 @@ long optional_hashcode(const void * e){
 int optional_naturalorder(const void * e1,const  void * e2) {
 	optional op1 = *(optional *)e1;
 	optional op2 = *(optional *)e2;
-	assert(type_equals(op1.type,op2.type));
+	assert(type_equals(op1.type,op2.type) && "los tipos no son iguales");
 	int r;
 	if(op1.value == NULL && op2.value == NULL) r = 0;
 	else if(op1.value == NULL) r= 1;

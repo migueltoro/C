@@ -49,7 +49,7 @@ list list_empty(type element_type){
 
 
 void * list_get(const list list, const int index) {
-	assert(index < list.size);
+	assert(index < list.size && "index out of range");
 	return list.elements[index];
 }
 
@@ -80,4 +80,44 @@ void list_sort(list * ls, int (*comparator)(const void*, const void*)){
 
 void list_sort_naturalorder(list * ls) {
 	generic_qsort(ls->elements, 0, ls->size,ls->element_type.naturalorder);
+}
+
+
+typedef struct {
+	list * ls;
+}dependencies_list;
+
+bool list_stream_has_next(stream * current_stream, void * dependencies){
+	dependencies_list * d = (dependencies_list *) dependencies;
+	list * ls = d->ls;
+	return *(int *)current_stream->state < ls->size;
+}
+
+void * list_stream_see_next(stream * current_stream, void * dependencies){
+	dependencies_list * d = (dependencies_list *) dependencies;
+	list * ls = d->ls;
+	int index = (*(int*) current_stream->state);
+	return list_get(*ls,index);
+}
+
+void * list_stream_next(stream * current_stream, void * dependencies){
+	dependencies_list * d = (dependencies_list *) dependencies;
+	list * ls = d->ls;
+	int_type.copy(current_stream->auxiliary_state, current_stream->state);
+	int index = (*(int*) current_stream->state);
+	(*(int*) current_stream->state) = (*(int*) current_stream->state) + 1;
+	return list_get(*ls,index);
+}
+
+stream list_stream_(list * ls){
+	dependencies_list dp = {ls};
+	stream new_st = {
+			ls->element_type,
+			get_int_sm(0),
+			get_mem_sm(sizeof(int)),
+			list_stream_has_next,
+			list_stream_next,
+			list_stream_see_next,
+			get_value_sm(sizeof(dependencies_list), &dp)};
+	return new_st;
 }

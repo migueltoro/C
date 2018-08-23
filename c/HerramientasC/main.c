@@ -119,6 +119,39 @@ void test_quicksort(){
 	memory_heap_free(&heap);
 }
 
+
+
+bool le_200(void * in) {
+	double r = *(double*) in;
+	return r <= 200;
+}
+
+bool int_pair(void * in) {
+	int r = *(int*) in;
+	return r%2 == 0;
+}
+
+void * sqrt_d(void * out, void * in){
+	double r = *(double*) in;
+	double * p_out = (double *) out;
+	(* p_out) = sqrt(r);
+	return p_out;
+}
+
+void * double_to_int_module_7(void * out, void * in){
+	double r = *(double*) in;
+	int * p_out = (int *) out;
+	(* p_out) = ((int)r) % 7;
+	return p_out;
+}
+
+void * double_to_int(void * out, void * in) {
+	double r = *(double*) in;
+	int * p_out = (int *) out;
+	(*p_out) = ((int) r);
+	return p_out;
+}
+
 list complete_list(memory_heap heap) {
 	int tam = 30;
 	list ls = list_empty(double_type);
@@ -130,47 +163,33 @@ list complete_list(memory_heap heap) {
 	return ls;
 }
 
-
-bool le_200(void * in) {
-	double r = *(double*) in;
-	return r <= 200;
-}
-
-void * sqrt_d(void * out, void * in){
-	double r = *(double*) in;
-	double * p_out = (double *) out;
-	(* p_out) = sqrt(r);
-	return p_out;
-}
-
-void * to_int_module_7(void * out, void * in){
-	double r = *(double*) in;
-	int * p_out = (int *) out;
-	(* p_out) = ((int)r) % 7;
-	return p_out;
-}
-
-list ls;
-
-void * index_to_contain(void * out, void * in){
-	long index = *(long*) in;
-	double * p_out = (double *) out;
-	(* p_out) = *(double*)list_get(ls,index);
-	return p_out;
-}
-
 void test_list() {
 	printf("List test\n\n");
 	char mem[Tam_String];
-	string_buffer buffer = string_buffer_create(",","\n{","}\n");
+	string_buffer buffer = string_buffer_create(",", "\n{", "}\n");
 	memory_heap heap = memory_heap_create();
 	list ls = complete_list(heap);
-	print_array(&buffer,ls.elements,0,ls.size,ls.element_type);
+	print_array(&buffer, ls.elements, 0, ls.size, ls.element_type);
 	list_sort_naturalorder(&ls);
 	printf("\n\n");
-	print_array(&buffer,ls.elements,0,ls.size,ls.element_type);
-	printf("\n\n%s\n",ls.element_type.tostring(mem,list_get(ls,20)));
-	string_buffer_free(&buffer);
+	print_array(&buffer, ls.elements, 0, ls.size, ls.element_type);
+	printf("\n\n%s\n", ls.element_type.tostring(mem, list_get(ls, 20)));
+	printf("\nLista\n");
+	stream s1 = list_stream_(&ls);
+	string_buffer_close(&buffer);
+	stream_to_buffer(&buffer, &s1);
+	string_buffer_close(&buffer);
+	printf("\nLista Map\n");
+	s1 = list_stream_(&ls);
+	stream s2 = stream_map(&s1, int_type, double_to_int);
+	stream_to_buffer(&buffer, &s2);
+	string_buffer_close(&buffer);
+	printf("\nLista Map Filter\n");
+	s1 = list_stream_(&ls);
+	s2 = stream_map(&s1, int_type, double_to_int);
+	stream s3 = stream_filter(&s2, int_pair);
+	stream_to_buffer(&buffer, &s3);
+	string_buffer_close(&buffer);
 	memory_heap_free(&heap);
 	stream_memory_clear();
 }
@@ -239,18 +258,18 @@ void test_accumulator() {
 	st = stream_range_int(2,100,2);
 	long r2 = to_long accumulate_right(&st,&ac);
 	printf("left = %ld, right = %ld\n\n",r1,r2);
-	stream sti = stream_iterate_long(2, lt_500, siguientePrimo);
+	stream s1 = stream_iterate_long(2, lt_500, siguientePrimo);
 	printf("Secuencia de primos menores que 500\n\n");
-	stream_to_buffer(&buffer, &sti);
-	sti = stream_iterate_long(2, lt_500, siguientePrimo);
-	stream stf = stream_filter(&sti, ge_300);
+	stream_to_buffer(&buffer, &s1);
+	s1 = stream_iterate_long(2, lt_500, siguientePrimo);
+	stream s2 = stream_filter(&s1, ge_300);
 	printf("Secuencia de primos mayores que 300 y menores que 500\n\n");
-	stream_to_buffer(&buffer, &stf);
-	sti = stream_iterate_long(2, lt_500, siguientePrimo);
-	stf = stream_filter(&sti, ge_300);
-	stream stm = stream_map(&sti, long_type, square);
+	stream_to_buffer(&buffer, &s2);
+	s1 = stream_iterate_long(2, lt_500, siguientePrimo);
+	s2 = stream_filter(&s1, ge_300);
+	stream s3 = stream_map(&s2, long_type, square);
 	printf("Secuencia de los cuadrados de los primos menores que 300\n\n");
-	stream_to_buffer(&buffer, &stm);
+	stream_to_buffer(&buffer, &s3);
 }
 
 void test_tree(){
@@ -271,10 +290,10 @@ int main() {
 //test_string_buffer();
 //test_quicksort();
 //test_tuple2();
-test_list();
+//test_list();
 //test_hash_table();
 //test_file_stream();
-//test_accumulator();
+test_accumulator();
 //test_tree();
 }
 

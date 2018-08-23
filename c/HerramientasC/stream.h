@@ -17,11 +17,11 @@
 
 typedef struct st {
 	type state_type;
-//	type result_type;
 	void * state;
 	void * auxiliary_state;
 	bool (*has_next)(struct st * stream,void * dependencies);
 	void * (*next)(struct st * stream, void * dependencies);
+	void * (*see_next)(struct st * stream, void * dependencies);
 	void * dependencies;
 } stream;
 

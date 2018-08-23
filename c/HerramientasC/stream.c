@@ -51,30 +51,30 @@ int stream_equals(const void * e1, const void * e2) {
 	return  type_equals(tt1.state_type,tt2.state_type);
 }
 
-stream stream_create(type state_type,void * initial_state, bool (*has_next)(stream *, void *),
-		void * (*next)(stream *, void *), void * dependencies) {
-	stream st = {
-			state_type,
-			get_mem_sm(state_type.size_type),
-			get_mem_sm(state_type.size_type),
-			has_next,
-			next,
-			dependencies};
-	state_type.copy(st.state,initial_state);
-	return st;
-}
+//stream stream_create(type state_type,void * initial_state, bool (*has_next)(stream *, void *),
+//		void * (*next)(stream *, void *), void * dependencies) {
+//	stream st = {
+//			state_type,
+//			get_mem_sm(state_type.size_type),
+//			get_mem_sm(state_type.size_type),
+//			has_next,
+//			next,
+//			dependencies};
+//	state_type.copy(st.state,initial_state);
+//	return st;
+//}
 
 int stream_has_next(stream * st) {
 	return st->has_next(st,st->dependencies);
 }
 
 void * stream_see_next(stream * st){
-	assert(stream_has_next(st));
-	return st->state;
+	assert(stream_has_next(st) && "no hay disponible un siguiente estado");
+	return st->see_next(st,st->dependencies);
 }
 
 void * stream_next(stream * st) {
-	assert(stream_has_next(st));
+	assert(stream_has_next(st) && "no hay disponible un siguiente estado");
 	return st->next(st,st->dependencies);
 }
 
@@ -99,11 +99,17 @@ bool stream_map_has_next(stream * current_stream, void * dependencies){
 	return stream_has_next(st);
 }
 
+void * stream_map_see_next(stream * current_stream, void * dependencies){
+	dependencies_map * d = (dependencies_map *) dependencies;
+	stream * st = d->depending_stream;
+    d->map_function(st->auxiliary_state,stream_see_next(st));
+    return st->auxiliary_state;
+}
+
 void * stream_map_next(stream * current_stream, void * dependencies) {
 	dependencies_map * d = (dependencies_map *) dependencies;
 	stream * depending_stream = d->depending_stream;
 	void * r = stream_next(depending_stream);
-	assert(*(long*)r<30);
 	d->map_function(current_stream->state, r);
 	return current_stream->state;
 }
@@ -118,6 +124,7 @@ stream stream_map(stream  * depending_stream, type type_map, void * (*map_functi
 			get_mem_sm(type_map.size_type),
 			stream_map_has_next,
 			stream_map_next,
+			stream_map_see_next,
 			get_value_sm(size, &dp)
 	};
 	return sm;
@@ -136,19 +143,26 @@ void next_depending_state(stream * current_stream, dependencies_filter * depende
 		if (dependencies->filter_predicate(r)) break;
 		stream_next(depending_stream);
 	}
-	if (!stream_has_next(depending_stream)) dependencies->has_next = false;
-	current_stream->state_type.copy(current_stream->state, depending_stream->state);
+	if(stream_has_next(depending_stream)){
+		current_stream->state_type.copy(current_stream->state, stream_see_next(depending_stream));
+	}
 }
 
 bool stream_filter_has_next(stream * current_stream, void * dependencies) {
 	dependencies_filter * d = (dependencies_filter *) dependencies;
-	return d->has_next;
+	stream * st = d->depending_stream;
+	return stream_has_next(st);
+}
+
+void * stream_filter_see_next(stream * current_stream, void * dependencies){
+    return current_stream->state;
 }
 
 void * stream_filter_next(stream * current_stream, void * dependencies) {
 	dependencies_filter * d = (dependencies_filter *) dependencies;
+	stream * depending_stream = d->depending_stream;
 	current_stream->state_type.copy(current_stream->auxiliary_state,current_stream->state);
-	stream_next(d->depending_stream);
+	stream_next(depending_stream);
 	next_depending_state(current_stream,d);
 	return current_stream->auxiliary_state;
 }
@@ -158,10 +172,11 @@ stream stream_filter(stream * depending_stream, bool (*filter_predicate)(void *)
 	dependencies_filter d = {depending_stream,filter_predicate,true};
 	stream new_st = {
 			depending_stream->state_type,
-			get_value_sm(sizeof(depending_stream->state_type.size_type), stream_see_next(d.depending_stream)),
+			get_mem_sm(depending_stream->state_type.size_type),
 			get_mem_sm(depending_stream->state_type.size_type),
 			stream_filter_has_next,
 			stream_filter_next,
+			stream_filter_see_next,
 			get_value_sm(sizeof(dependencies_filter), &d)
 	};
 	next_depending_state(&new_st,&d);
@@ -180,6 +195,10 @@ bool iterate_stream_has_next(stream * current_stream,void * dependencies){
 	return d->hash_next(current_stream->state);
 }
 
+void * iterate_stream_see_next(stream * current_stream, void * dependencies){
+    return current_stream->state;
+}
+
 void * iterate_stream_next(stream * current_stream, void * dependencies){
 	dependencies_iterate * d = (dependencies_iterate *) dependencies;
 	d->element_type.copy(current_stream->auxiliary_state,current_stream->state);
@@ -195,6 +214,7 @@ stream stream_iterate(type element_type, void * initial_value, bool (*has_next)(
 			dp.initial_value),
 			get_mem_sm(sizeof(element_type.size_type)),
 			iterate_stream_has_next,
+			iterate_stream_see_next,
 			iterate_stream_next, get_value_sm(sizeof(dependencies_iterate), &dp)
 	};
 	return new_st;
@@ -209,6 +229,10 @@ typedef struct {
 bool iterate_stream_has_next_long(stream * current_stream,void * dependencies){
 	dependencies_iterate_long * d = (dependencies_iterate_long *) dependencies;
 	return d->hash_next(*(long*)current_stream->state);
+}
+
+void * iterate_stream_see_next_long(stream * current_stream, void * dependencies){
+    return current_stream->state;
 }
 
 void * iterate_stream_next_long(stream * current_stream,void * dependencies){
@@ -226,6 +250,7 @@ stream stream_iterate_long(long initial_value, bool (*has_next)(long),long (*nex
 					get_mem_sm(sizeof(long_type.size_type)),
 					iterate_stream_has_next_long,
 					iterate_stream_next_long,
+					iterate_stream_see_next_long,
 					get_value_sm(sizeof(dependencies_iterate_long), &dp)
 	};
 	return new_st;
@@ -240,6 +265,10 @@ typedef struct {
 bool iterate_stream_has_next_double(stream * current_stream,void * dependencies){
 	dependencies_iterate_double * d = (dependencies_iterate_double *) dependencies;
 	return d->hash_next(*(double*)current_stream->state);
+}
+
+void * iterate_stream_see_next_double(stream * current_stream, void * dependencies){
+    return current_stream->state;
 }
 
 void * iterate_stream_next_double(stream * current_stream, void * dependencies) {
@@ -257,6 +286,7 @@ stream stream_iterate_double(double initial_value, bool (*has_next)(double),doub
 					get_mem_sm(sizeof(double_type.size_type)),
 					iterate_stream_has_next_double,
 					iterate_stream_next_double,
+					iterate_stream_see_next_double,
 					get_value_sm(sizeof(dependencies_iterate_double), &dp)};
 		return new_st;
 }
@@ -274,6 +304,10 @@ bool range_stream_has_next(stream * current_stream, void * dependencies){
 	return *(long *)current_stream->state < d->b;
 }
 
+void * range_stream_see_next(stream * current_stream, void * dependencies){
+    return current_stream->state;
+}
+
 void * range_stream_next(stream * current_stream, void * dependencies){
 	dependencies_range * d = (dependencies_range *) dependencies;
 	long_type.copy(current_stream->auxiliary_state, current_stream->state);
@@ -289,6 +323,7 @@ stream stream_range_int(long a, long b, long c){
 			get_mem_sm(sizeof(long)),
 			range_stream_has_next,
 			range_stream_next,
+			range_stream_see_next,
 			get_value_sm(sizeof(dependencies_range), &dp)};
 	return new_st;
 }
@@ -314,6 +349,10 @@ bool file_stream_has_next(stream * current_stream,void * dependencies){
 	return dp->has_next;
 }
 
+void * file_stream_see_next(stream * current_stream, void * dependencies){
+    return current_stream->state;
+}
+
 void * file_stream_next(stream * current_stream,void * dependencies){
 	dependencies_file * dp = (dependencies_file *) dependencies;
 	dp->is_done = 0;
@@ -323,7 +362,7 @@ void * file_stream_next(stream * current_stream,void * dependencies){
 
 stream file_stream(char * file) {
 	FILE * st = fopen(file,"r");
-	assert(st != NULL);
+	assert(st != NULL && "no se encuentra el fichero");
 	dependencies_file dp = {st,0,1};
 	stream s_file = {
 			string_type,
@@ -331,6 +370,7 @@ stream file_stream(char * file) {
 			memory_heap_tam_memory(get_stream_memory(),Tam_String),
 			file_stream_has_next,
 			file_stream_next,
+			file_stream_see_next,
 			get_value_sm(sizeof(dependencies_file), &dp)};
 	return s_file;
 }
