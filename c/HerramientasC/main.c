@@ -14,6 +14,8 @@
 #include "hash_table.h"
 #include "accumulator.h"
 #include "binary_tree.h"
+#include "generator.h"
+#include "test_generator.h"
 
 
 bool is_multiple_3(int source){
@@ -213,13 +215,17 @@ hash_table complete_table(memory_heap heap) {
 	return ht;
 }
 
+
+
 void test_hash_table() {
 	printf("Hash Table test\n\n");
-	string_buffer buffer = string_buffer_create("","\n{","}\n");
+	string_buffer buffer = string_buffer_create("", "\n{", "}\n");
 	memory_heap heap = memory_heap_create();
 	hash_table ht = complete_table(heap);
-	hash_table_tostring(&buffer,ht);
-	string_buffer_free(&buffer);
+	hash_table_tostring(&buffer, &ht);
+	string_buffer_close(&buffer);
+	printf("\n\nEntradas\n\n");
+	hash_table_entries_buffer(&ht,&buffer);
 	memory_heap_free(&heap);
 	hash_table_free(&ht);
 }
@@ -286,14 +292,24 @@ void test_tree(){
 	binary_tree_memory_clear();
 }
 
+void test_generator() {
+	parameters_test pp = {10,200,5,50,100,5,0,0};
+	generator ge = get_generator_test(&pp);
+	value_test * v = (value_test *) ge.values;
+	while (ge.iterate_function(&ge)) {
+		printf("%.1lf\n", v->x);
+	}
+}
+
 int main() {
 //test_string_buffer();
 //test_quicksort();
 //test_tuple2();
 //test_list();
-//test_hash_table();
+test_hash_table();
 //test_file_stream();
-test_accumulator();
+//test_accumulator();
 //test_tree();
+//test_generator();
 }
 
