@@ -16,7 +16,7 @@
 
 
 typedef struct st {
-	type state_type;
+	type * state_type;
 	void * state;
 	void * auxiliary_state;
 	bool (*has_next)(struct st * stream,void * dependencies);
@@ -28,10 +28,10 @@ typedef struct st {
 int stream_equals(const void * e1, const void * e2);
 //stream stream_create(type state_type,void * initial, bool (*has_next)(stream *,void *),
 //			void * (*next)(stream *,void *), void * dependencies);
-stream stream_map(stream * st, type type_map, void * (*map_function)(void * out, void * in));
+stream stream_map(stream * st, type * type_map, void * (*map_function)(void * out, void * in));
 stream stream_filter(stream * st, bool (*map_filter)(void * in));
 stream stream_range_int(long a, long b, long c);
-stream stream_iterate(type element_type, void * initial_value, bool (*hash_next)(void * element),
+stream stream_iterate(type * element_type, void * initial_value, bool (*hash_next)(void * element),
 		void * (*next)(void * state));
 stream stream_iterate_long(long initial_value, bool (*hash_next)(long), long (*next)(long));
 stream stream_iterate_double(double initial_value, bool (*hash_next)(double), double (*next)(double state));

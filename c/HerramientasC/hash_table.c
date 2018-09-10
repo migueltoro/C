@@ -59,10 +59,11 @@ void ini_data(hash_table * table) {
 	get_entry_data(table,capacity_data -1)->next = -1;
 }
 
-hash_table hash_table_create(type key, type value) {
+hash_table hash_table_create(type key_type, type value_type) {
     hash_table table;
-    table.key_type = key;
-    table.value_type = value;
+    table.key_type = key_type;
+    table.value_type = value_type;
+    table.entry_type = instance_type_2(tuple2_type,key_type,value_type);
     table.parameters = initial_parameters;
     ini_data(&table);
     return table;
@@ -118,7 +119,7 @@ string_buffer * hash_table_tostring(string_buffer * buffer, hash_table * table){
 			entry_data * entry = get_entry_data(table,j);
 			void * key = entry->key;
 			void * value = 	entry->value;
-			sprintf(mdata,"(%s,%s)",table->key_type.tostring(mkey,key),table->value_type.tostring(mvalue,value));
+			sprintf(mdata,"(%s,%s)",tostring(&table->key_type,mkey,key),tostring(&table->value_type,mvalue,value));
 			string_buffer_add(buffer,mdata);
 			j = entry->next;
 		}
@@ -137,7 +138,7 @@ string_buffer * hash_table_tostring(string_buffer * buffer, hash_table * table){
 
 int get_index_block(hash_table * table, void * key){
     char mem[256];
-    table->key_type.tostring(mem,key);
+    tostring(&table->key_type,mem,key);
     unsigned long int hash_index = hash(mem);
     int index = (int)(hash_index%(table->parameters.capacity));
     assert(index >=0 && index < table->parameters.capacity && "no es el índice de un bloque posible");
@@ -151,7 +152,7 @@ entry_data * find_entry_data(hash_table * table, int index_block, void * key) {
 	int next = table->blocks[index_block];
 	while (next > 0) {
 		s = get_entry_data(table, next);
-		if (table->key_type.equals(key, s->key)) {
+		if (equals(&table->key_type,key, s->key)) {
 			r = s;
 			break;
 		}
@@ -169,7 +170,7 @@ tuple2 * hash_table_get_entry(hash_table * table, void * key){
 	tuple2 e;
 	e.key = key;
 	e.value = hash_table_get(table,key);
-	return tuple2_type.pointer(&e,get_hash_table_memory());
+	return pointer(&tuple2_type,&e,get_hash_table_memory());
 }
 
 tuple2 * hash_table_get_entry_from_index(hash_table * table, int index_data){
@@ -177,7 +178,7 @@ tuple2 * hash_table_get_entry_from_index(hash_table * table, int index_data){
 	entry_data ed = table->data[index_data];
 	e.key = ed.key;
 	e.value = ed.value;
-	return tuple2_type.pointer(&e,get_hash_table_memory());
+	return pointer(&tuple2_type,&e,get_hash_table_memory());
 }
 
 int hash_table_contains(hash_table * table, void * key) {
@@ -274,7 +275,7 @@ void hash_table_entries_buffer(hash_table * table, string_buffer * buffer) {
 	string_buffer_add_prefix(buffer);
 	while (gg.iterate_function(&gg)) {
 		entry_data * e = ((hash_table_generator_values *) gg.values)->data;
-		sprintf(mem, "(%d,%.1lf)", *(int*) e->key, *(double*) e->value);
+		tostring(&table->entry_type,mem,e);
 		string_buffer_add(buffer, mem);
 	}
 	string_buffer_add_sufix(buffer);

@@ -47,8 +47,8 @@ void types_memory_clear(){
 }
 
 
-int type_equals(const type t1 , const type t2) {
-	return !strcmp(t1.id,t2.id) && t1.size_type == t2.size_type;
+int type_equals(type * t1 , type * t2) {
+	return !strcmp(t1->id,t2->id) && t1->size_type == t2->size_type;
 }
 
 type instance_type_1(type generic_type, type t1){
@@ -74,28 +74,86 @@ type get_parameter_type(type generic_type, int index){
 	return generic_type.types[index];
 }
 
+char * tostring(type * type, char * mem, const void * e){
+	return  type->tostring(type,mem,e);
+}
+long hashcode(type * type, const void * e){
+	return type->hashcode(type,e);
+}
+
+int equals(type * type, const void * e1, const void * e2){
+	return type->equals(type,e1,e2);
+}
+
+int naturalorder(type * type, const void * e1, const void * e2){
+	return type->naturalorder(type,e1,e2);
+}
+void * pointer(type * type, const void * value, memory_heap * heap){
+	return type->pointer(type,value,heap);
+}
+
+void * copy(type * type, void * target, const void * source){
+	return type->copy(type,target,source);
+}
+
+
+// data type
+
+char * data_tostring(char * mem, const void * e){
+	data * d = (data *) e;
+	return tostring(&d->type,mem,e);
+}
+
+long data_hashcode(const void * e){
+	data * d = (data *) e;
+	return hashcode(&d->type,e);
+}
+
+int data_equals(const void * e1, const void * e2){
+	data * d1 = (data *) e1;
+	data * d2 = (data *) e2;
+	return type_equals(&d1->type,&d2->type) && equals(&d1->type,e1,e2);
+}
+
+int data_naturalorder(const void * e1, const void * e2){
+	data * d1 = (data *) e1;
+	data * d2 = (data *) e2;
+	return naturalorder(&d1->type,d1,d2);
+}
+
+void * data_pointer(const void * value, memory_heap * heap){
+	data * d = (data *) value;
+	return pointer(&d->type,value,heap);
+}
+
+void * data_copy(void * target, const void * source){
+	data * d1 = (data *) target;
+	data * d2 = (data *) source;
+	return copy(&d1->type,d1,d2);
+}
+
 // int type
 
-char * int_tostring(char * mem, const void * e){
+char * int_tostring(type * type, char * mem, const void * e){
     int a = *(int *)e;
     sprintf(mem,"%d",a);
     return mem;
 }
 
-long int_hashcode(const void * e){
+long int_hashcode(type * type, const void * e){
     int a = *(int *)e;
     char mem[256];
     sprintf(mem,"%d",a);
     return hash(mem);
 }
 
-int int_equals(const void * e1, const void * e2){
+int int_equals(type * type, const void * e1, const void * e2){
     int a = *(int *)e1;
     int b = *(int *)e2;
     return a == b;
 }
 
-int int_naturalorder(const void * e1,const  void * e2){
+int int_naturalorder(type * type, const void * e1,const  void * e2){
     int a = *(int *)e1;
     int b = *(int *)e2;
     int r;
@@ -105,14 +163,14 @@ int int_naturalorder(const void * e1,const  void * e2){
     return r;
 }
 
-void * int_pointer(const void * value, memory_heap * heap){
+void * int_pointer(type * type, const void * value, memory_heap * heap){
 	int * element = (int *) malloc(sizeof(int));
 	*element = *(int *)value;
 	memory_heap_add(heap, element);
 	return element;
 }
 
-void * int_copy(void * target, const void * source) {
+void * int_copy(type * type, void * target, const void * source) {
 	int * e_target = (int *) target;
 	int * e_source = (int *) source;
 	*e_target = *e_source;
@@ -130,26 +188,26 @@ type int_type = {0,NULL,sizeof(int),int_tostring,int_equals,int_hashcode,int_nat
 
 // long type
 
-char * long_tostring(char * mem, const void * e){
+char * long_tostring(type * type, char * mem, const void * e){
     long a = *(long *)e;
     sprintf(mem,"%ld",a);
     return mem;
 }
 
-long long_hashcode(const void * e){
+long long_hashcode(type * type, const void * e){
     long a = *(long *)e;
     char mem[256];
     sprintf(mem,"%ld",a);
     return hash(mem);
 }
 
-int long_equals(const void * e1,const  void * e2){
+int long_equals(type * type, const void * e1,const  void * e2){
     long a = *(long *)e1;
     long b = *(long *)e2;
     return a == b;
 }
 
-int long_naturalorder(const void * e1,const  void * e2){
+int long_naturalorder(type * type, const void * e1,const  void * e2){
     long a = *(long *)e1;
     long b = *(long *)e2;
     long r;
@@ -159,14 +217,14 @@ int long_naturalorder(const void * e1,const  void * e2){
     return r;
 }
 
-void * long_pointer(const void * value, memory_heap * heap){
+void * long_pointer(type * type, const void * value, memory_heap * heap){
 	long * element = (long *) malloc(sizeof(long));
 	*element = *(long *)value;
 	memory_heap_add(heap, element);
 	return element;
 }
 
-void * long_copy(void * target, const void * source) {
+void * long_copy(type * type, void * target, const void * source) {
 	long * e_target = (long *) target;
 	long * e_source = (long *) source;
 	*e_target = *e_source;
@@ -189,26 +247,26 @@ type long_type = {0,NULL,sizeof(long),long_tostring,long_equals,long_hashcode,
 
 // float type
 
-char * float_tostring(char * mem, const void * e){
+char * float_tostring(type * type, char * mem, const void * e){
     float a = *(float *)e;
     sprintf(mem,"%.2f",a);
     return mem;
 }
 
-long float_hashcode(const void * e){
+long float_hashcode(type * type, const void * e){
     float a = *(float *)e;
     char mem[256];
     sprintf(mem,"%.2f",a);
     return hash(mem);
 }
 
-int float_equals(const void * e1, const void * e2){
+int float_equals(type * type, const void * e1, const void * e2){
     float a = *(float *)e1;
     float b = *(float *)e2;
     return a == b;
 }
 
-int float_naturalorder(const void * e1, const void * e2){
+int float_naturalorder(type * type, const void * e1, const void * e2){
     float a = *(float *)e1;
     float b = *(float *)e2;
     int r;
@@ -218,21 +276,21 @@ int float_naturalorder(const void * e1, const void * e2){
     return r;
 }
 
-void * float_pointer(const void * value, memory_heap * heap){
+void * float_pointer(type * type, const void * value, memory_heap * heap){
 	float * element = (float *) malloc(sizeof(float));
 	*element = *(float *)value;
 	memory_heap_add(heap, element);
 	return element;
 }
 
-void * float_copy(void * target, const void * source) {
+void * float_copy(type * type, void * target, const void * source) {
 	float * e_target = (float *) target;
 	float * e_source = (float *) source;
 	*e_target = *e_source;
 	return e_target;
 }
 
-void * float_pointer_from_value(float a,memory_heap * heap) {
+void * float_pointer_from_value(type * type, float a,memory_heap * heap) {
 	float * element = (float *) malloc(sizeof(float));
 	*element = a;
 	memory_heap_add(heap, element);
@@ -246,27 +304,27 @@ type float_type = {0,NULL,sizeof(float),float_tostring,float_equals,float_hashco
 
 //double type
 
-char * double_tostring(char * mem, const void * e){
+char * double_tostring(type * type, char * mem, const void * e){
     double a = *(double *)e;
     sprintf(mem,"%.2lf",a);
     return mem;
 }
 
 
-long double_hashcode(const void * e){
+long double_hashcode(type * type, const void * e){
     double a = *(double *)e;
     char mem[256];
     sprintf(mem,"%.2lf",a);
     return hash(mem);
 }
 
-int double_equals(const void * e1, const void * e2){
+int double_equals(type * type, const void * e1, const void * e2){
     double a = *(double *)e1;
     double b = *(double *)e2;
     return a == b;
 }
 
-int double_naturalorder(const void * e1, const void * e2){
+int double_naturalorder(type * type, const void * e1, const void * e2){
     double a = *(double *)e1;
     double b = *(double *)e2;
     int r;
@@ -276,21 +334,21 @@ int double_naturalorder(const void * e1, const void * e2){
     return r;
 }
 
-void * double_pointer(const void * value, memory_heap * heap){
+void * double_pointer(type * type, const void * value, memory_heap * heap){
 	double * element = (double *) malloc(sizeof(double));
 	*element = *(double *)value;
 	memory_heap_add(heap, element);
 	return element;
 }
 
-void * double_copy(void * target, const void * source) {
+void * double_copy(type * type, void * target, const void * source) {
 	double * e_target = (double *) target;
 	double * e_source = (double *) source;
 	*e_target = *e_source;
 	return e_target;
 }
 
-void * double_pointer_from_value(double a,memory_heap * heap) {
+void * double_pointer_from_value(type * type, double a,memory_heap * heap) {
 	double * element = (double *) malloc(sizeof(double));
 	*element = a;
 	memory_heap_add(heap, element);
@@ -304,36 +362,36 @@ type double_type = {0,NULL,sizeof(double),double_tostring,double_equals,double_h
 
 // string type
 
-char * string_tostring(char * mem, const void * e) {
+char * string_tostring(type * type, char * mem, const void * e) {
 	char * a = (char *) e;
 	return a;
 }
 
-long string_hashcode(const void * e) {
+long string_hashcode(type * type, const void * e) {
 	char * a = (char *) e;
 	return hash(a);
 }
 
-int string_equals(const void * e1, const void * e2) {
+int string_equals(type * type, const void * e1, const void * e2) {
 	char * a1 = (char *) e1;
 	char * a2 = (char *) e2;
 	return strcmp(a1, a2) == 0;
 }
 
-int string_naturalorder(const void * e1, const void * e2) {
+int string_naturalorder(type * type, const void * e1, const void * e2) {
 	char * a1 = (char *) e1;
 	char * a2 = (char *) e2;
 	return strcmp(a1, a2);
 }
 
-void * string_pointer(const void * value, memory_heap * heap){
+void * string_pointer(type * type, const void * value, memory_heap * heap){
 	char * element = (char *) malloc(Tam_String);
 	strcpy(element,value);
 	memory_heap_add(heap, element);
 	return element;
 }
 
-void * string_copy(void * target, const void * source) {
+void * string_copy(type * type, void * target, const void * source) {
 	char * e_target = (char *) target;
 	char * e_source = (char *) source;
 	strcpy(e_target,e_source);
@@ -354,44 +412,46 @@ type string_type = {0,NULL,Tam_String, string_tostring,string_equals, string_has
 
 // tuple2 type
 
-char * tuple2_tostring(char * mem, const void * t) {
+
+char * tuple2_tostring(type * type, char * mem, const void * t) {
 	char nmkey[256];
 	char nmvalue[256];
 	tuple2 tuple = *(tuple2 *)t;
-	sprintf(mem,"(%s,%s)",tuple.key_type.tostring(nmkey,tuple.key), tuple.value_type.tostring(nmvalue,tuple.value));
+	sprintf(mem,"(%s,%s)",
+			type->types[0].tostring(&type->types[0],nmkey,tuple.key),
+			type->types[1].tostring(&type->types[1],nmvalue,tuple.value));
     return mem;
 }
 
-int tuple2_equals(const void * t1, const void * t2){
+int tuple2_equals(type * type, const void * t1, const void * t2){
 	tuple2 tt1 = *(tuple2 *)t1;
 	tuple2 tt2 = *(tuple2 *)t2;
-	return  type_equals(tt1.key_type,tt2.key_type)
-			&& type_equals(tt1.value_type,tt2.value_type)
-			&& tt1.key_type.equals(tt1.key,tt2.key)
-			&& tt1.value_type.equals(tt1.value,tt2.value);
-}
-long tuple2_hashcode(const void * t) {
-	tuple2 tt = *(tuple2 *)t;
-    return tt.key_type.hashcode(tt.key)*31+tt.value_type.hashcode(tt.value);
+	return  type->types[0].equals(&type->types[0],tt1.key,tt2.key)
+			&& type->types[1].equals(&type->types[1],tt1.value,tt2.value);
 }
 
-int tuple2_naturalorder(const void * t1, const void * t2) {
+long tuple2_hashcode(type * type, const void * t) {
+	tuple2 tt = *(tuple2 *)t;
+    return hashcode(&type->types[0],t)*31+hashcode(&type->types[1],tt.value);
+}
+
+int tuple2_naturalorder(type * type, const void * t1, const void * t2) {
 	tuple2 tt1 = *(tuple2 *)t1;
 	tuple2 tt2 = *(tuple2 *)t2;
 	int r;
-	r = tt1.key_type.naturalorder(tt1.key,tt2.key);
-	if(r == 0) r = tt1.value_type.naturalorder(tt1.value,tt2.value);
+	r = naturalorder(&type->types[0],tt1.key,tt2.key);
+	if(r == 0) r = naturalorder(&type->types[1],tt1.value,tt2.value);
 	return r;
 }
 
-void * tuple2_pointer(const void * value, memory_heap * heap){
+void * tuple2_pointer(type * type, const void * value, memory_heap * heap){
 	tuple2 * element = (tuple2 *) malloc(sizeof(tuple2));
 	*element = *(tuple2 *)value;
 	memory_heap_add(heap, element);
 	return element;
 }
 
-void * tuple2_copy(void * target, const void * source) {
+void * tuple2_copy(type * type, void * target, const void * source) {
 	tuple2 * e_target = (tuple2 *) target;
 	tuple2 * e_source = (tuple2 *) source;
 	*e_target = *e_source;
@@ -403,53 +463,48 @@ type tuple2_type = {2,NULL,sizeof(tuple2),tuple2_tostring,tuple2_equals,tuple2_h
 		tuple2_naturalorder,tuple2_pointer,tuple2_copy,"tuple2_type"};
 
 
-
-
-
 //optional type
 
-char * optional_tostring(char * mem, const void * e){
+char * optional_tostring(type * type, char * mem, const void * e){
 	optional op = *(optional *)e;
 	if(op.value == NULL) sprintf(mem,"_");
-	else sprintf(mem,"%s",op.type.tostring(mem,op.value));
+	else sprintf(mem,"%s",tostring(&type->types[0],mem,op.value));
 	return mem;
 }
 
-int optional_equals(const void * e1, const void * e2){
+int optional_equals(type * type, const void * e1, const void * e2){
 	optional op1 = *(optional *)e1;
 	optional op2 = *(optional *)e2;
-	return (type_equals(op1.type,op2.type)  && (op1.value == NULL && op2.value == NULL)) ||
-			op1.type.equals(op1.value,op2.value);
-}
-long optional_hashcode(const void * e){
-	optional op = *(optional *)e;
-	return op.type.hashcode(op.value);
+	return (op1.value == NULL && op2.value == NULL) ||
+			equals(&type->types[0],op1.value,op2.value);
 }
 
-int optional_naturalorder(const void * e1,const  void * e2) {
+long optional_hashcode(type * type, const void * e){
+	optional op = *(optional *)e;
+	return hashcode(&type->types[0],op.value);
+}
+
+int optional_naturalorder(type * type, const void * e1,const  void * e2) {
 	optional op1 = *(optional *)e1;
 	optional op2 = *(optional *)e2;
-	assert(type_equals(op1.type,op2.type) && "los tipos no son iguales");
 	int r;
 	if(op1.value == NULL && op2.value == NULL) r = 0;
 	else if(op1.value == NULL) r= 1;
 	else if(op2.value == NULL) r = -1;
-	else r = op1.type.naturalorder(op1.value,op2.value);
+	else r = type->types[0].naturalorder(&type->types[0],op1.value,op2.value);
 	return r;
 }
 
-void * optional_pointer(const void * value, memory_heap * heap){
+void * optional_pointer(type * type, const void * value, memory_heap * heap){
 	optional * element = (optional *) malloc(sizeof(optional));
 	*element = *(optional *)value;
 	memory_heap_add(heap, element);
 	return element;
 }
 
-void * optional_copy(void * target, const void * source) {
-	optional * e_target = (optional *) target;
-	optional * e_source = (optional *) source;
-	*e_target = *e_source;
-	return e_target;
+void * optional_copy(type * type, void * target, const void * source) {
+	type->types[0].copy(&type->types[0],target,source);
+	return target;
 }
 
 
@@ -471,40 +526,40 @@ double punto_distancia_al_origen(const punto p){
 	return sqrt(x2+y2);
 }
 
-char * punto_tostring(char * mem, const void * p){
+char * punto_tostring(type * type, char * mem, const void * p){
 	punto np = *(punto *)p;
 	sprintf(mem,"(%lf,%lf)",np.x,np.y);
 	return mem;
 }
 
-int punto_equals(const void * p1, const void * p2){
+int punto_equals(type * type, const void * p1, const void * p2){
 	punto np1 = *(punto *)p1;
 	punto np2 = *(punto *)p2;
 	return np1.x == np2.x && np1.y == np2.y;
 }
 
-long punto_hashcode(const void * p){
+long punto_hashcode(type * type, const void * p){
 	char mem[256];
-	char * s = punto_tostring(mem,p);
+	char * s = punto_tostring(type,mem,p);
 	return hash(s);
 }
 
-int punto_naturalorder(const void * p1, const void * p2){
+int punto_naturalorder(type * type, const void * p1, const void * p2){
 	punto np1 = *(punto *)p1;
 	punto np2 = *(punto *)p2;
 	double d1 = punto_distancia_al_origen(np1);
 	double d2 = punto_distancia_al_origen(np2);
-	return double_type.naturalorder(&d1,&d2);
+	return naturalorder(&double_type,&d1,&d2);
 }
 
-void * punto_pointer(const void * value, memory_heap * heap){
+void * punto_pointer(type * type, const void * value, memory_heap * heap){
 	punto * element = (punto *) malloc(sizeof(punto));
 	*element = *(punto *)value;
 	memory_heap_add(heap, element);
 	return element;
 }
 
-void * punto_copy(void * target, const void * source) {
+void * punto_copy(type * type, void * target, const void * source) {
 	punto * e_target = (punto *) target;
 	punto * e_source = (punto *) source;
 	*e_target = *e_source;

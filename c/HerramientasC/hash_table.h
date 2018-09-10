@@ -31,6 +31,7 @@ typedef struct {
 typedef struct {
     type key_type;
     type value_type;
+    type entry_type;
     parameters_hash_table parameters;
     entry_data * data;
     int * blocks;

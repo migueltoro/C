@@ -39,8 +39,6 @@ void stream_memory_clear(){
 	memory_heap_free(&stream_memory);
 }
 
-type stream_type = {1,NULL,sizeof(stream),NULL,stream_equals,NULL,NULL,NULL,NULL,"stream_type"};
-
 int stream_has_next(stream * st);
 void * stream_see_next(stream * st);
 void * stream_next(stream * st);
@@ -50,19 +48,6 @@ int stream_equals(const void * e1, const void * e2) {
 	stream tt2 = *(stream *)e2;
 	return  type_equals(tt1.state_type,tt2.state_type);
 }
-
-//stream stream_create(type state_type,void * initial_state, bool (*has_next)(stream *, void *),
-//		void * (*next)(stream *, void *), void * dependencies) {
-//	stream st = {
-//			state_type,
-//			get_mem_sm(state_type.size_type),
-//			get_mem_sm(state_type.size_type),
-//			has_next,
-//			next,
-//			dependencies};
-//	state_type.copy(st.state,initial_state);
-//	return st;
-//}
 
 int stream_has_next(stream * st) {
 	return st->has_next(st,st->dependencies);
@@ -78,12 +63,14 @@ void * stream_next(stream * st) {
 	return st->next(st,st->dependencies);
 }
 
+type stream_type = {1,NULL,sizeof(stream),NULL,NULL,NULL,NULL,NULL,NULL,"stream_type"};
+
 void stream_to_buffer(string_buffer * buffer, stream * st) {
 	char nm[256];
 	string_buffer_add_prefix(buffer);
 	while(stream_has_next(st)){
 		void * r = stream_next(st);
-		string_buffer_add(buffer,st->state_type.tostring(nm,r));
+		string_buffer_add(buffer,tostring(st->state_type,nm,r));
 	}
 	string_buffer_add_sufix(buffer);
 	string_buffer_close(buffer);
@@ -115,13 +102,13 @@ void * stream_map_next(stream * current_stream, void * dependencies) {
 }
 
 
-stream stream_map(stream  * depending_stream, type type_map, void * (*map_function)(void * out, void * in)) {
+stream stream_map(stream  * depending_stream, type * type_map, void * (*map_function)(void * out, void * in)) {
 	dependencies_map dp = {depending_stream, map_function };
 	int size = sizeof(dependencies_map);
 	stream sm = {
 			type_map,
-			get_mem_sm(type_map.size_type),
-			get_mem_sm(type_map.size_type),
+			get_mem_sm(type_map->size_type),
+			get_mem_sm(type_map->size_type),
 			stream_map_has_next,
 			stream_map_next,
 			stream_map_see_next,
@@ -144,7 +131,7 @@ void next_depending_state(stream * current_stream, dependencies_filter * depende
 		stream_next(depending_stream);
 	}
 	if(stream_has_next(depending_stream)){
-		current_stream->state_type.copy(current_stream->state, stream_see_next(depending_stream));
+		copy(current_stream->state_type, current_stream->state, stream_see_next(depending_stream));
 	}
 }
 
@@ -161,7 +148,7 @@ void * stream_filter_see_next(stream * current_stream, void * dependencies){
 void * stream_filter_next(stream * current_stream, void * dependencies) {
 	dependencies_filter * d = (dependencies_filter *) dependencies;
 	stream * depending_stream = d->depending_stream;
-	current_stream->state_type.copy(current_stream->auxiliary_state,current_stream->state);
+	copy(current_stream->state_type, current_stream->auxiliary_state,current_stream->state);
 	stream_next(depending_stream);
 	next_depending_state(current_stream,d);
 	return current_stream->auxiliary_state;
@@ -172,8 +159,8 @@ stream stream_filter(stream * depending_stream, bool (*filter_predicate)(void *)
 	dependencies_filter d = {depending_stream,filter_predicate,true};
 	stream new_st = {
 			depending_stream->state_type,
-			get_mem_sm(depending_stream->state_type.size_type),
-			get_mem_sm(depending_stream->state_type.size_type),
+			get_mem_sm(depending_stream->state_type->size_type),
+			get_mem_sm(depending_stream->state_type->size_type),
 			stream_filter_has_next,
 			stream_filter_next,
 			stream_filter_see_next,
@@ -184,7 +171,7 @@ stream stream_filter(stream * depending_stream, bool (*filter_predicate)(void *)
 }
 
 typedef struct {
-	type element_type;
+	type * element_type;
 	void * initial_value;
 	bool (*hash_next)(void * element);
 	void * (*next)(void * state);
@@ -201,18 +188,18 @@ void * iterate_stream_see_next(stream * current_stream, void * dependencies){
 
 void * iterate_stream_next(stream * current_stream, void * dependencies){
 	dependencies_iterate * d = (dependencies_iterate *) dependencies;
-	d->element_type.copy(current_stream->auxiliary_state,current_stream->state);
+	copy(d->element_type,current_stream->auxiliary_state,current_stream->state);
 	d->next(current_stream->state);
 	return current_stream->auxiliary_state;
 }
 
-stream stream_iterate(type element_type, void * initial_value, bool (*has_next)(void * element), void * (*next)(void * state)) {
-	dependencies_iterate dp = { element_type, initial_value, has_next, next };
+stream stream_iterate(type * element_type, void * initial_value, bool (*has_next)(void * element), void * (*next)(void * state)) {
+	dependencies_iterate dp = {element_type, initial_value, has_next, next };
 	stream new_st = {
 			element_type,
-			get_value_sm(sizeof(element_type.size_type),
+			get_value_sm(sizeof(element_type->size_type),
 			dp.initial_value),
-			get_mem_sm(sizeof(element_type.size_type)),
+			get_mem_sm(sizeof(element_type->size_type)),
 			iterate_stream_has_next,
 			iterate_stream_see_next,
 			iterate_stream_next, get_value_sm(sizeof(dependencies_iterate), &dp)
@@ -237,7 +224,7 @@ void * iterate_stream_see_next_long(stream * current_stream, void * dependencies
 
 void * iterate_stream_next_long(stream * current_stream,void * dependencies){
 	dependencies_iterate_long * d = (dependencies_iterate_long*) dependencies;
-	long_type.copy(current_stream->auxiliary_state,current_stream->state);
+	copy(&long_type,current_stream->auxiliary_state,current_stream->state);
 	*(long*)current_stream->state = d->next(*(long*)current_stream->state);
 	return current_stream->auxiliary_state;
 }
@@ -245,7 +232,7 @@ void * iterate_stream_next_long(stream * current_stream,void * dependencies){
 stream stream_iterate_long(long initial_value, bool (*has_next)(long),long (*next)(long)){
 	dependencies_iterate_long dp = {initial_value,has_next,next};
 	stream new_st = {
-					long_type,
+					&long_type,
 					get_value_sm(sizeof(long_type.size_type),&initial_value),
 					get_mem_sm(sizeof(long_type.size_type)),
 					iterate_stream_has_next_long,
@@ -273,7 +260,7 @@ void * iterate_stream_see_next_double(stream * current_stream, void * dependenci
 
 void * iterate_stream_next_double(stream * current_stream, void * dependencies) {
 	dependencies_iterate_double * d = (dependencies_iterate_double*) dependencies;
-	double_type.copy(current_stream->auxiliary_state, current_stream->state);
+	copy(&double_type,current_stream->auxiliary_state, current_stream->state);
 	*(double*)current_stream->state = d->next(*(double*) current_stream->state);
 	return current_stream->auxiliary_state;
 }
@@ -281,7 +268,7 @@ void * iterate_stream_next_double(stream * current_stream, void * dependencies) 
 stream stream_iterate_double(double initial_value, bool (*has_next)(double),double (*next)(double)){
 	dependencies_iterate_double dp = {initial_value,has_next,next};
 			stream new_st = {
-					double_type,
+					&double_type,
 					get_value_sm(sizeof(double_type.size_type),&dp.initial_value),
 					get_mem_sm(sizeof(double_type.size_type)),
 					iterate_stream_has_next_double,
@@ -310,7 +297,7 @@ void * range_stream_see_next(stream * current_stream, void * dependencies){
 
 void * range_stream_next(stream * current_stream, void * dependencies){
 	dependencies_range * d = (dependencies_range *) dependencies;
-	long_type.copy(current_stream->auxiliary_state, current_stream->state);
+	copy(&long_type,current_stream->auxiliary_state, current_stream->state);
 	(*(long*) current_stream->state) = (*(long*) current_stream->state) +d->c;
 	return current_stream->auxiliary_state;
 }
@@ -318,7 +305,7 @@ void * range_stream_next(stream * current_stream, void * dependencies){
 stream stream_range_int(long a, long b, long c){
 	dependencies_range dp = {a,b,c};
 	stream new_st = {
-			int_type,
+			&int_type,
 			get_int_sm(a),
 			get_mem_sm(sizeof(long)),
 			range_stream_has_next,
@@ -365,7 +352,7 @@ stream file_stream(char * file) {
 	assert(st != NULL && "no se encuentra el fichero");
 	dependencies_file dp = {st,0,1};
 	stream s_file = {
-			string_type,
+			&string_type,
 			memory_heap_tam_memory(get_stream_memory(),Tam_String),
 			memory_heap_tam_memory(get_stream_memory(),Tam_String),
 			file_stream_has_next,

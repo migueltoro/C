@@ -17,8 +17,8 @@
 
 void * yields(void * value);
 
-void print_array(string_buffer * buffer, void * b[], int low, int height, type type);
+void print_array(string_buffer * buffer, void * b[], int low, int height, type * type);
 
-void generic_qsort(void **arr, int lo, int hi, int (*compare)(const void *, const void*));
+void generic_qsort(void **arr, int lo, int hi, type * type);
 
 #endif /* LIBRARY_H_ */

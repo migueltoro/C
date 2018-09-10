@@ -42,7 +42,7 @@ void grow_list(list * list) {
 	}
 }
 
-list list_empty(type element_type){
+list list_empty(type * element_type){
 	list r = {element_type,0,10,malloc(10*sizeof(void *))};
 	return r;
 }
@@ -66,7 +66,7 @@ void list_set(list * list, int index, void * element) {
 	if (index == list->size) list->size = list->size + 1;
 }
 
-list list_concat(const list ls1, const list ls2){
+list list_concat(list ls1, list ls2){
 	assert(type_equals(ls1.element_type,ls2.element_type));
 	list r = list_empty(ls1.element_type);
 	for(int i =0; i<ls1.size;i++) list_add(&r,list_get(ls1,i));
@@ -74,12 +74,14 @@ list list_concat(const list ls1, const list ls2){
 	return r;
 }
 
-void list_sort(list * ls, int (*comparator)(const void*, const void*)){
-	generic_qsort(ls->elements, 0, ls->size,comparator);
+void list_sort(list * ls, int (*comparator)(type *, const void*, const void*)){
+	type t;
+	t.naturalorder = comparator;
+	generic_qsort(ls->elements, 0, ls->size,&t);
 }
 
 void list_sort_naturalorder(list * ls) {
-	generic_qsort(ls->elements, 0, ls->size,ls->element_type.naturalorder);
+	generic_qsort(ls->elements, 0, ls->size,ls->element_type);
 }
 
 
@@ -103,7 +105,7 @@ void * list_stream_see_next(stream * current_stream, void * dependencies){
 void * list_stream_next(stream * current_stream, void * dependencies){
 	dependencies_list * d = (dependencies_list *) dependencies;
 	list * ls = d->ls;
-	int_type.copy(current_stream->auxiliary_state, current_stream->state);
+	int_type.copy(&int_type,current_stream->auxiliary_state, current_stream->state);
 	int index = (*(int*) current_stream->state);
 	(*(int*) current_stream->state) = (*(int*) current_stream->state) + 1;
 	return list_get(*ls,index);

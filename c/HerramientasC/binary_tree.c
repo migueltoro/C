@@ -40,12 +40,12 @@ void binary_tree_memory_clear(){
 
 type binary_tree_type = {1,NULL,sizeof(binary_tree),NULL,NULL,NULL,NULL,NULL,NULL,"binary_tree_type"};
 
-binary_tree * tree_empty(type label_type) {
+binary_tree * tree_empty(type * label_type) {
 	binary_tree tree = {label_type,Empty_Tree,NULL,NULL,NULL};
 	return (binary_tree *) get_value_tree(sizeof(binary_tree),&tree);
 }
 
-binary_tree * tree_leaf(type label_type, void * label) {
+binary_tree * tree_leaf(type * label_type, void * label) {
 	binary_tree tree = {label_type,Leaf_Tree,label,NULL,NULL};
 	return (binary_tree *) get_value_tree(sizeof(binary_tree),&tree);
 }
@@ -90,10 +90,10 @@ void tree_to_buffer(string_buffer * buffer, binary_tree * tree){
 		case Empty_Tree:
 			string_buffer_add(buffer,"_"); break;
 		case Leaf_Tree:
-			string_buffer_add(buffer,tree->label_type.tostring(mem,get_label(tree)));
+			string_buffer_add(buffer,tostring(tree->label_type,mem,get_label(tree)));
 			break;
 		case Binary_Tree:
-			string_buffer_add(buffer,tree->label_type.tostring(mem,get_label(tree)));
+			string_buffer_add(buffer,tostring(tree->label_type,mem,get_label(tree)));
 			string_buffer_add(buffer,"(");
 			tree_to_buffer(buffer,get_left(tree));
 			string_buffer_add(buffer,",");
