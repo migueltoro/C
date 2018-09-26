@@ -16,6 +16,7 @@
 #include "binary_tree.h"
 #include "generator.h"
 #include "test_generator.h"
+#include "ejemplos.h"
 
 
 bool is_multiple_3(int source){
@@ -301,6 +302,50 @@ void test_generator() {
 	stream_to_buffer(&buffer, &st);
 }
 
+bool impar(int e){
+	return e%2==1;
+}
+
+int compare(punto * p1, punto * p2){
+	int r;
+	if(p1->x > p2->y) r = 1;
+	else if (p1->x < p2->y) r = -1;
+	else  r = 0;
+	return r;
+}
+
+void test_ejemplos(){
+	double d1[] = {45.,56,90.,1.,23., 78.,76.};
+	double_list ls1 = create_double_list(d1,7,7);
+	double r1 = problema1(ls1);
+	printf("r1 = %lf\n",r1);
+
+	int d3[] = {45,57,10,1,23, 77,79};
+	int_list ls3 = create_int_list(d3,7,7);
+	bool r3 = problema3(ls3,impar);
+	printf("r3 = %s\n",r3?"true":"false");
+
+	bool r4 = problema4(ls3,impar);
+	printf("r4 = %s\n",r4?"true":"false");
+
+	int r5 =  problema5(ls3);
+	printf("r5 = %d\n",r5);
+
+	double r6 = problema6(ls1,10.);
+	printf("r6 = %lf\n",r6);
+
+	punto ap[] = {{1.,2.},{-1.,2.1},{3.1,2.1},{1.3,27.0},{1.,-2.}};
+	punto_list r2 = create_punto_list(ap,5,5);
+	double_list s = problema2(r2);
+	imprime_list_punto(r2,",","{","}");
+	printf("\n");
+	imprime_list_double(s,",","{","}");
+	printf("\n");
+
+	punto * p = problema8(r2,compare);
+	printf("(%.2lf,%.2lf)",p->x,p->y);
+}
+
 int main() {
 //test_string_buffer();
 //test_quicksort();
@@ -310,6 +355,7 @@ int main() {
 //test_file_stream();
 //test_accumulator();
 //test_tree();
-test_generator();
+//test_generator();
+test_ejemplos();
 }
 
