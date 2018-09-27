@@ -58,7 +58,7 @@ double_list problema2(punto_list ls){
 	return r;
 }
 
-double problema3(int_list ls, bool (*p)(int e)){
+bool problema3(int_list ls, bool (*p)(int e)){
 	bool b = true;
 	int i =0;
 	while(i<ls.size && b) {
@@ -68,7 +68,7 @@ double problema3(int_list ls, bool (*p)(int e)){
 	return b;
 }
 
-double problema4(int_list ls, bool (*p)(int e)){
+bool problema4(int_list ls, bool (*p)(int e)){
 	bool b = false;
 	int i =0;
 	while(i<ls.size && !b) {
@@ -107,12 +107,12 @@ void imprime_list_punto(punto_list ls, char * s, char * p, char * f) {  //proble
 	int n = 0;
 	printf("%s", p);
 	for (int i = 0; i < ls.size; i++) {
-		punto p = ls.data[i];
+		punto e = ls.data[i];
 		if (n == 0){
-			printf("(%.2lf,%.2lf)", p.x, p.y);
+			printf("(%.2lf,%.2lf)", e.x, e.y);
 			n++;
 		} else
-			printf("%s(%.2lf,%.2lf)", s, p.x, p.y);
+			printf("%s(%.2lf,%.2lf)", s, e.x, e.y);
 	}
 	printf("%s", f);
 }
@@ -121,12 +121,12 @@ void imprime_list_double(double_list ls, char * s, char * p, char * f) { //probl
 	int n = 0;
 	printf("%s", p);
 	for (int i = 0; i < ls.size; i++) {
-		double p = ls.data[i];
+		double e = ls.data[i];
 		if (n == 0){
-			printf("%.2lf", p);
+			printf("%.2lf", e);
 			n++;
 		} else
-			printf("%s%.2lf", s, p);
+			printf("%s%.2lf", s, e);
 	}
 	printf("%s", f);
 }
@@ -138,4 +138,15 @@ punto * problema8(punto_list ls, int (*compare)(punto *, punto *)) {
 		if(r == NULL || compare(p,r)>0) r = p;
 	}
 	return r;
+}
+
+bool es_primo(int n) {  //problema 18
+	int sq = (int) sqrt((double) n);
+	int e = 2;
+	bool a = false;
+	while (e <= sq && a) {
+		a = n%e==0;
+		e = e + 1;
+	}
+	return !a;
 }

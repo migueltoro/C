@@ -58,14 +58,16 @@ double problema1(double_list ls);
 
 double_list problema2(punto_list ls);
 
-double problema3(int_list ls, bool (*p)(int e));
+bool problema3(int_list ls, bool (*p)(int e));
 
-double problema4(int_list ls, bool (*p)(int e));
+bool problema4(int_list ls, bool (*p)(int e));
 
 double problema5(int_list ls);
 
 double problema6(double_list ls, double umbral);
 
 punto * problema8(punto_list ls, int (*cmp)(punto *,punto *));
+
+bool es_primo(int n);  //problema 18
 
 #endif /* EJEMPLOS_H_ */

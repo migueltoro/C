@@ -306,6 +306,10 @@ bool impar(int e){
 	return e%2==1;
 }
 
+bool impar_y_primo(int e){
+	return e%2==1 && es_primo(e);
+}
+
 int compare(punto * p1, punto * p2){
 	int r;
 	if(p1->x > p2->y) r = 1;
@@ -320,12 +324,12 @@ void test_ejemplos(){
 	double r1 = problema1(ls1);
 	printf("r1 = %lf\n",r1);
 
-	int d3[] = {45,57,10,1,23, 77,79};
+	int d3[] = {45,57,10,1,23,77,79};
 	int_list ls3 = create_int_list(d3,7,7);
 	bool r3 = problema3(ls3,impar);
 	printf("r3 = %s\n",r3?"true":"false");
 
-	bool r4 = problema4(ls3,impar);
+	bool r4 = problema4(ls3,impar_y_primo);
 	printf("r4 = %s\n",r4?"true":"false");
 
 	int r5 =  problema5(ls3);
