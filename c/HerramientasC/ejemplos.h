@@ -36,6 +36,16 @@ typedef struct {
 	punto * data;
 }punto_list;
 
+#define Tma_String 256
+
+typedef struct{
+	FILE * file;
+	bool is_done;
+	bool has_next;
+	char next[256];
+}file_iterator;
+
+
 double_list create_double_list(double * data, int tam, int size);
 
 double_list empty_double_list(int tam);
@@ -69,5 +79,13 @@ double problema6(double_list ls, double umbral);
 punto * problema8(punto_list ls, int (*cmp)(punto *,punto *));
 
 bool es_primo(int n);  //problema 18
+
+file_iterator open_file(char * file);
+
+bool has_next_line(file_iterator * it);
+
+char * next_line(file_iterator * it);
+
+punto_list list_punto_from_file(char * file);
 
 #endif /* EJEMPLOS_H_ */

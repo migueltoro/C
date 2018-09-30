@@ -348,6 +348,19 @@ void test_ejemplos(){
 
 	punto * p = problema8(r2,compare);
 	printf("(%.2lf,%.2lf)",p->x,p->y);
+
+	printf("\n\n");
+
+	file_iterator f = open_file("prueba.txt");
+	while(has_next_line(&f)){
+		printf("%s\n",next_line(&f));
+	}
+	fclose(f.file);
+
+	printf("\n\n");
+
+	punto_list r7 = list_punto_from_file("prueba.txt");
+	imprime_list_punto(r7,",","{","}");
 }
 
 int main() {
