@@ -86,6 +86,6 @@ bool has_next_line(file_iterator * it);
 
 char * next_line(file_iterator * it);
 
-punto_list list_punto_from_file(char * file);
+punto_list list_punto_from_file(char * file); //similar al problema 61 pero leyendo un punto por linea en vez de un entero
 
 #endif /* EJEMPLOS_H_ */
