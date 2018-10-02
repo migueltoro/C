@@ -361,6 +361,11 @@ void test_ejemplos(){
 
 	punto_list r7 = list_punto_from_file("prueba.txt");
 	imprime_list_punto(r7,",","{","}");
+
+	printf("\n\n");
+
+
+	printf("Es primo = %s\n",es_primo(29)?"true":"false");
 }
 
 int main() {

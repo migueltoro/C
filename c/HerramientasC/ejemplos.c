@@ -144,8 +144,8 @@ bool es_primo(int n) {  //problema 18
 	int sq = (int) sqrt((double) n);
 	int e = 2;
 	bool a = false;
-	while (e <= sq && a) {
-		a = n%e==0;
+	while (e <= sq && !a) {
+		a = (n%e==0);
 		e = e + 1;
 	}
 	return !a;
