@@ -193,3 +193,80 @@ punto_list list_punto_from_file(char * file) {
 	}
 	return r7;
 }
+
+punto_list_list empty_punto_list_list(int tam){
+	punto_list * d = (punto_list *) malloc(tam*sizeof(punto_list));
+	punto_list_list r = {tam,0,d};
+	return r;
+}
+
+Cuadrante punto_cuadrante(const punto p) {
+	Cuadrante r;
+	if(p.x >=0 && p.y>=0){
+		r = PRIMERO;
+	} else if(p.x < 0 && p.y>=0) {
+		r = SEGUNDO;
+	} else if(p.x < 0 && p.y<0) {
+		r = TERCERO;
+	} else {
+		r = CUARTO;
+	}
+	return r;
+}
+
+punto_list_list problema11(punto_list ls){
+	punto_list_list r = empty_punto_list_list(4);
+	punto p;
+	int c;
+	for(int i =0; i<4; i++) {
+		r.data[i] = empty_punto_list(50);
+		r.size = 4;
+	}
+	for(int i = 0; i <ls.size; i++){
+		p = ls.data[i];
+		c = punto_cuadrante(p);
+		int size = r.data[c].size;
+		r.data[c].data[size] = p;
+		r.data[c].size = r.data[c].size +1;
+	}
+	return r;
+}
+
+
+
+void imprime_list_list_punto(punto_list_list ls, char * s, char * p, char * f) {
+	int n = 0;
+	printf("%s", p);
+	for (int i = 0; i < ls.size; i++) {
+		if (n == 0) {
+			printf("Cuadrante %d =",i);
+			imprime_list_punto(ls.data[0], ",", "{", "}");
+			n++;
+		} else {
+			printf("\n%s",s);
+			printf("Cuadrante %d =",i);
+			imprime_list_punto(ls.data[i],  ",", "{", "}");
+		}
+	}
+	printf("%s", f);
+}
+
+long siguiente_primo(long a) {
+	long x;
+	for (x = a + 1; 1; x = x + 1) {
+		if (es_primo(x))
+			break;
+	}
+	return x;
+}
+
+void problema59(char * file,long n){
+	long i = 2;
+	FILE * st = fopen(file,"w");
+	assert(st != NULL && "no se encuentra el fichero");
+	while(i<n){
+		fprintf(st,"%ld\n",i);
+		i = siguiente_primo(i);
+	}
+	fclose(st);
+}

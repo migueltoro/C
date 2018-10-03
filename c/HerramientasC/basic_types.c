@@ -565,6 +565,7 @@ void * punto_copy(type * type, void * target, const void * source) {
 	*e_target = *e_source;
 	return e_target;
 }
+
 Cuadrante pt_cuadrante(const punto p) {
 	Cuadrante r;
 	if(p.x >=0 && p.y>=0){

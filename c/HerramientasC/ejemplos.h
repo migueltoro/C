@@ -30,11 +30,18 @@ typedef struct {
 	int * data;
 }int_list;
 
+
 typedef struct {
 	int tam;
 	int size;
 	punto * data;
 }punto_list;
+
+typedef struct {
+	int tam;
+	int size;
+	punto_list * data;
+}punto_list_list;
 
 #define Tma_String 256
 
@@ -78,6 +85,10 @@ double problema6(double_list ls, double umbral);
 
 punto * problema8(punto_list ls, int (*cmp)(punto *,punto *));
 
+punto_list_list problema11(punto_list ls);
+
+void imprime_list_list_punto(punto_list_list, char * s, char * p, char * f);
+
 bool es_primo(int n);  //problema 18
 
 file_iterator open_file(char * file);
@@ -87,5 +98,7 @@ bool has_next_line(file_iterator * it);
 char * next_line(file_iterator * it);
 
 punto_list list_punto_from_file(char * file); //similar al problema 61 pero leyendo un punto por linea en vez de un entero
+
+void problema59(char * file,long n);
 
 #endif /* EJEMPLOS_H_ */
