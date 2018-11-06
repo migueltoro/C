@@ -24,28 +24,24 @@ unsigned long int hash(const char * key);
 // int type
 
 char * int_tostring(const void * e, char * mem);
-long int_hashcode(const void * e);
 int int_equals(const void * e1, const void * e2);
 int int_naturalorder(const void * e1, const void * e2);
 
 // long type
 
 char * long_tostring(const void * e, char * mem);
-long long_hashcode(const void * e);
 int long_equals(const void * e1, const void * e2);
 int long_naturalorder(const void * e1, const void * e2);
 
 // float type
 
 char * float_tostring(const void * e, char * mem);
-long float_hashcode(const void * e);
 int float_equals(const void * e1, const void * e2);
 int float_naturalorder(const void * e1,const  void * e2);
 
 // double type
 
 char * double_tostring(const void * e, char * mem);
-long double_hashcode(const void * e);
 int double_equals(const void * e1, const void * e2);
 int double_naturalorder(const void * e1,const  void * e2);
 
@@ -53,8 +49,9 @@ int double_naturalorder(const void * e1,const  void * e2);
 
 #define Tam_String 256
 
+typedef char string[Tam_String];
+
 char * string_tostring(const void * e, char * mem);
-long string_hashcode(const void * e);
 int string_equals(const void * e1, const void * e2);
 int string_naturalorder(const void * e1,const  void * e2);
 
@@ -67,7 +64,6 @@ typedef struct{
 
 char * int_pair_tostring(const void * t, char * mem);
 int int_pair_equals(const void * t1, const void * t2);
-long int_pair_hashcode(const void * t);
 int int__naturalorder(const void * t1,const  void * t2);
 
 // punto
@@ -88,7 +84,6 @@ Cuadrante punto_cuadrante(const punto p);
 
 char * punto_tostring(const void * p, char * mem);
 int punto_equals(const void * p1, const void * p2);
-long punto_hashcode(const void * p);
 int punto_naturalorder(const void * t1,const  void * t2);
 
 

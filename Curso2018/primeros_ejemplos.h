@@ -31,6 +31,15 @@ typedef struct {
 }int_list;
 
 
+typedef char string[Tam_String];
+
+typedef struct {
+	int tam;
+	int size;
+	string * data;
+}string_list;
+
+
 typedef struct {
 	int tam;
 	int size;
@@ -54,6 +63,10 @@ int_list create_int_list(int * data, int tam, int size);
 int_list empty_int_list(int tam);
 
 void imprime_list_int(int_list, char * s, char * p, char * f); // problema 50
+
+string_list create_string_list(string * data, int tam, int size);
+
+void imprime_list_string(string_list);
 
 punto_list create_punto_list(punto * data, int tam, int size);
 

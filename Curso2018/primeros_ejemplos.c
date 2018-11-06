@@ -30,6 +30,12 @@ int_list empty_int_list(int tam){
 	return r;
 }
 
+string_list create_string_list(string * data, int tam, int size) {
+	string_list r = {tam,size,data};
+	return r;
+}
+
+
 punto_list create_punto_list(punto * data, int tam, int size){
 	punto_list r = {tam,size,data};
 	return r;
@@ -132,6 +138,19 @@ void imprime_list_double(double_list ls, char * s, char * p, char * f) { //probl
 	printf("%s", f);
 }
 
+void imprime_list_string(string_list ls) {
+	int n = 0;
+	printf("{");
+	for (int i = 0; i < ls.size; i++) {
+		if (n == 0) {
+			printf("%s", ls.data[i]);
+			n++;
+		} else
+			printf("%s%s", ",", ls.data[i]);
+	}
+	printf("}");
+}
+
 punto * problema8(punto_list ls, int (*compare)(const void *, const void *)) {
 	punto * r = NULL;
 	for (int i = 0; i < ls.size; i++) {
@@ -184,4 +203,5 @@ void imprime_list_list_punto(punto_list_list ls, char * s, char * p, char * f) {
 	}
 	printf("%s", f);
 }
+
 

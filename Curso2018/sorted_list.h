@@ -29,6 +29,7 @@ void swap_in_list(alist * ls, int a, int b);
 
 alist alist_empty();
 alist alist_empty_tam(int tam);
+alist alist_create(void * data, int size, int sizeElement);
 void * alist_get(alist * ls, const int index);
 void alist_add(alist * ls, void * element);
 char * alist_tostring(alist * ls, char * to_string(const void * source, char * mem), char * mem);

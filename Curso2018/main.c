@@ -20,6 +20,12 @@
 #include "binary_tree.h"
 
 void test_ejemplos() {
+	string as[] = {"Hola","Juan","Antonio","Pepe","Juan","Diaz"};
+	string_list ls5 = create_string_list(as,6,6);
+	imprime_list_string(ls5);
+
+	printf("\n\n");
+
 	double d1[] = { 45., 56, 90., 1., 23., 78., 76. };
 	double_list ls1 = create_double_list(d1, 7, 7);
 	double r1 = problema1(ls1);
@@ -77,7 +83,7 @@ void test_ejemplos() {
 	problema59("primos.txt", 100);
 }
 
-void test_gen_list() {
+void test_list() {
 	memory_heap hp = memory_heap_create();
 	char mem[500];
 	alist ls1 = alist_empty(sizeof(double));
@@ -100,7 +106,14 @@ void test_gen_list() {
 	s = alist_tostring(&ls3, double_tostring, mem);
 	printf("ls3 = %s\n", s);
 	memory_heap_free(&hp);
-
+	double d[] = {2.,3.,4.5,5.7,8.9,-3.1};
+	alist ls4 = alist_create(d,6,sizeof(double));
+	s = alist_tostring(&ls4, double_tostring, mem);
+	printf("ls4 = %s\n", s);
+	string as[] = {"Hola","Juan","Antonio","Pepe","Juan","Diaz"};
+	alist ls5 = alist_create(as,6,sizeof(string));
+	s = alist_tostring(&ls5, string_tostring, mem);
+	printf("ls5 = %s\n", s);
 }
 
 hash_table complete_table(memory_heap * hp) {
@@ -165,11 +178,11 @@ void test_tree(){
 }
 
 int main() {
-//  test_ejemplos();
+  test_ejemplos();
 //  printf("\n\n\n");
-// test_gen_list();
+// test_list();
 // printf("\n\n\n");
 // test_hash_table();
-	test_tree();
+//	test_tree();
 }
 

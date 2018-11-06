@@ -36,6 +36,17 @@ alist alist_empty_tam(int tam){
 	return r;
 }
 
+alist alist_create(void * data, int size, int sizeElement){
+	alist r = {0,size,malloc(size*sizeof(void *))};
+	char * d = (char *) data;
+	for(int i=0; i<size;i++){
+		r.elements[i] = d+i*sizeElement;
+	}
+	r.size = size;
+	r.tam = size;
+	return r;
+}
+
 void * alist_get(alist * list, const int index){
 	assert(index < list->size && "index out of range");
 	return list->elements[index];
