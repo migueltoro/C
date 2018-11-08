@@ -15,6 +15,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 #include <stdbool.h>
 #include "new_math.h"
 
@@ -86,5 +87,12 @@ char * punto_tostring(const void * p, char * mem);
 int punto_equals(const void * p1, const void * p2);
 int punto_naturalorder(const void * t1,const  void * t2);
 
+
+// time.h
+
+
+char * time_tostring(const void * p, char * mem);
+int time_equals(const void * p1, const void * p2);
+int time_naturalorder(const void * t1,const  void * t2);
 
 #endif /* TYPES_H_ */

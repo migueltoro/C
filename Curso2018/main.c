@@ -18,6 +18,7 @@
 #include "hash_table.h"
 #include "memory_heap.h"
 #include "binary_tree.h"
+#include "dates.h"
 
 void test_ejemplos() {
 	string as[] = {"Hola","Juan","Antonio","Pepe","Juan","Diaz"};
@@ -177,12 +178,56 @@ void test_tree(){
 	binary_tree_memory_free();
 }
 
+bool pd(void * t){
+	time_t e = create_time(1,1,1992);
+	return time_naturalorder(t,&e) >0;
+}
+
+memory_heap hp;
+
+void * add(void * t){
+	time_t e = *(time_t *)t;
+	time_t r = time_add_days(e,90);
+	return to_data(&r,sizeof(time_t),&hp);
+}
+
+void test_dates(){
+	hp = memory_heap_create();
+	char mem[1000];
+	time_t now = now_time();
+	time_t t1 = create_time(2,3,1990);
+	printf("%s\n",time_tostring(&now,NULL));
+	printf("%s\n",time_tostring(&t1,NULL));
+	time_t a[] = {
+		create_time(2,3,1991),
+		create_time(1,5,1995),
+		create_time(2,9,1989),
+		create_time(2,7,2001),
+		create_time(1,1,2019),
+		create_time(3,4,2010),
+		create_time(1,5,2013),
+	};
+	alist ls = alist_create(a,7,sizeof(time_t));
+	alist_sort(&ls,time_naturalorder);
+	char * s=  alist_tostring(&ls,time_tostring,mem);
+	printf("1: %s\n",s);
+	alist f = alist_filter(&ls,pd);
+	s=  alist_tostring(&f,time_tostring,mem);
+	printf("2: %s\n",s);
+	alist f2 = alist_map(&ls,add);
+	s=  alist_tostring(&f2,time_tostring,mem);
+	printf("3: %s\n",s);
+	memory_heap_free(&hp);
+
+}
+
 int main() {
-  test_ejemplos();
+// test_ejemplos();
 //  printf("\n\n\n");
 // test_list();
 // printf("\n\n\n");
 // test_hash_table();
 //	test_tree();
+test_dates();
 }
 

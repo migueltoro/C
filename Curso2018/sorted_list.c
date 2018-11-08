@@ -18,7 +18,7 @@ void swap_in_list(alist * ls, int a, int b){
 
 #define tam_default 20
 
-void gen_list_grow(alist * list) {
+void alist_grow(alist * list) {
 	if (list->size == list->tam) {
 		list->tam = 2 * list->tam;
 		list->elements = realloc(list->elements,list->tam *sizeof(void *));
@@ -53,9 +53,30 @@ void * alist_get(alist * list, const int index){
 }
 
 void alist_add(alist * list, void * element) {
-	gen_list_grow(list);
+	alist_grow(list);
 	list->elements[list->size] = element;
 	list->size = list->size + 1;
+}
+
+alist alist_filter(alist * ls, bool (*predicate)(void * e)){
+	alist r = alist_empty();
+	for(int i =0; i< ls->size; i++){
+		void * e = alist_get(ls,i);
+		if(predicate(e)){
+			alist_add(&r,e);
+		}
+	}
+	return r;
+}
+
+alist alist_map(alist * ls, void * (*f)(void * e)) {
+	alist r = alist_empty();
+	for (int i = 0; i < ls->size; i++) {
+		void * e = alist_get(ls, i);
+		void * t = f(e);
+		alist_add(&r, t);
+	}
+	return r;
 }
 
 char * alist_tostring(alist * list, char * to_string(const void * source, char * tp), char * mem) {

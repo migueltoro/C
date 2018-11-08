@@ -32,6 +32,8 @@ alist alist_empty_tam(int tam);
 alist alist_create(void * data, int size, int sizeElement);
 void * alist_get(alist * ls, const int index);
 void alist_add(alist * ls, void * element);
+alist alist_filter(alist * ls, bool (*predicate)(void * e));
+alist alist_map(alist * ls, void * (*f)(void * e));
 char * alist_tostring(alist * ls, char * to_string(const void * source, char * mem), char * mem);
 void alist_free(alist * ls);
 int_pair bh(alist * ls, void * pivot, int i, int j, int (*order)(const void * e1, const void * e2));
