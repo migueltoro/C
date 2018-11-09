@@ -36,7 +36,7 @@ char * next_line(file_iterator * it){
 
 punto_list list_punto_from_file(char * file) {
 	punto_list r7 = empty_punto_list(200);
-	file_iterator f  = open_file("prueba.txt");
+	file_iterator f  = open_file(file);
 	while (has_next_line(&f)) {
 		assert(r7.size < r7.tam);
 		char * line = next_line(&f);

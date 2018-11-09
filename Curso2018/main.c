@@ -222,12 +222,12 @@ void test_dates(){
 }
 
 int main() {
-// test_ejemplos();
+ test_ejemplos();
 //  printf("\n\n\n");
 // test_list();
 // printf("\n\n\n");
 // test_hash_table();
 //	test_tree();
-test_dates();
+//test_dates();
 }
 
