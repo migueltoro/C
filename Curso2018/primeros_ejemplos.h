@@ -92,5 +92,8 @@ punto_list_list problema11(punto_list ls);
 
 void imprime_list_list_punto(punto_list_list, char * s, char * p, char * f);
 
+punto_list list_punto_from_file(char * file); //similar al problema 61 pero leyendo un punto por linea en vez de un entero
+
+void problema59(char * file,long n);
 
 #endif /* PRIMEROS_EJEMPLOS_H_ */

@@ -257,26 +257,3 @@ int punto_naturalorder(const void * p1, const void * p2){
 	return double_naturalorder(&d1,&d2);
 }
 
-
-char * time_tostring(const void * p, char * mem){
-	return remove_eol(ctime((time_t *)p));
-}
-
-int time_equals(const void * p1, const void * p2){
-	time_t t1 = *(time_t *) p1;
-	time_t t2 = *(time_t *) p2;
-	return t1 == t2;
-}
-
-int time_naturalorder(const void * p1,const  void * p2){
-	time_t t1 = *(time_t *) p1;
-	time_t t2 = *(time_t *) p2;
-	int d = difftime(t2,t1);
-	int r;
-	if(d>0) r = -1;
-	else if(d<0) r= +1;
-	else r= 0;
-	return r;
-}
-
-

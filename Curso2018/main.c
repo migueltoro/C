@@ -21,8 +21,9 @@
 #include "dates.h"
 
 void test_ejemplos() {
-	string as[] = {"Hola","Juan","Antonio","Pepe","Juan","Diaz"};
-	string_list ls5 = create_string_list(as,6,6);
+	string as[] = {"Hola","Juan","Antonio","Pepe","Juan","Diaz","Cristina","Alejandro"};
+	string_list ls5 = create_string_list(as,8,8);
+	qsort(as,8,sizeof(string),string_naturalorder);
 	imprime_list_string(ls5);
 
 	printf("\n\n");
@@ -46,8 +47,7 @@ void test_ejemplos() {
 	double r6 = problema6(ls1, 10.);
 	printf("r6 = %lf\n", r6);
 
-	punto ap[] = { { 1., 2. }, { -1., 2.1 }, { 3.1, 2.1 }, { 1.3, 27.0 }, { 1.,
-			-2. } };
+	punto ap[] = { { 1., 2. }, { -1., 2.1 }, { 3.1, 2.1 }, { 1.3, 27.0 }, { 1.,-2. } };
 	punto_list r2 = create_punto_list(ap, 5, 5);
 	double_list s = problema2(r2);
 	imprime_list_punto(r2, ",", "{", "}");
@@ -77,8 +77,7 @@ void test_ejemplos() {
 
 	printf("\n\n");
 
-	punto_list r8 = create_punto_list(ap, 5, 5);
-	punto_list_list r9 = problema11(r8);
+	punto_list_list r9 = problema11(r2);
 	imprime_list_list_punto(r9, "", "", "");
 
 	problema59("primos.txt", 100);
@@ -191,43 +190,51 @@ void * add(void * t){
 	return to_data(&r,sizeof(time_t),&hp);
 }
 
-void test_dates(){
+void test_dates() {
 	hp = memory_heap_create();
 	char mem[1000];
 	time_t now = now_time();
-	time_t t1 = create_time(2,3,1990);
-	printf("%s\n",time_tostring(&now,NULL));
-	printf("%s\n",time_tostring(&t1,NULL));
+	time_t t1 = create_time(2, 3, 1990);
+	printf("%s\n", time_tostring(&now, NULL));
+	printf("%s\n", time_tostring(&t1, NULL));
 	time_t a[] = {
-		create_time(2,3,1991),
-		create_time(1,5,1995),
-		create_time(2,9,1989),
-		create_time(2,7,2001),
-		create_time(1,1,2019),
-		create_time(3,4,2010),
-		create_time(1,5,2013),
-	};
-	alist ls = alist_create(a,7,sizeof(time_t));
-	alist_sort(&ls,time_naturalorder);
-	char * s=  alist_tostring(&ls,time_tostring,mem);
-	printf("1: %s\n",s);
-	alist f = alist_filter(&ls,pd);
-	s=  alist_tostring(&f,time_tostring,mem);
-	printf("2: %s\n",s);
-	alist f2 = alist_map(&ls,add);
-	s=  alist_tostring(&f2,time_tostring,mem);
-	printf("3: %s\n",s);
+			create_time(2, 3, 1991),
+			create_time(1, 5, 1995),
+			create_time(2, 9, 1989),
+			create_time(2, 7, 2001),
+			create_time(1, 1, 2019),
+			create_time(3, 4, 2010),
+			create_time(1, 5, 2013),
+			create_time(2, 4, 1992),
+			create_time(1, 5, 1996),
+			create_time(5, 10, 1991),
+			create_time(2, 4, 2002),
+			create_time(1, 1, 2016),
+			create_time(3, 1, 2011),
+			create_time(1, 3, 2012)};
+	alist ls = alist_create(a, 14, sizeof(time_t));
+	char * s = alist_tostring(&ls, time_tostring, mem);
+	printf("1: %s\n", s);
+	alist_sort(&ls, time_naturalorder);
+	s = alist_tostring(&ls, time_tostring, mem);
+	printf("2: %s\n", s);
+	alist f = alist_filter(&ls, pd);
+	s = alist_tostring(&f, time_tostring, mem);
+	printf("3: %s\n", s);
+	alist f2 = alist_map(&ls, add);
+	s = alist_tostring(&f2, time_tostring, mem);
+	printf("4: %s\n", s);
 	memory_heap_free(&hp);
 
 }
 
 int main() {
- test_ejemplos();
+//test_ejemplos();
 //  printf("\n\n\n");
 // test_list();
 // printf("\n\n\n");
 // test_hash_table();
 //	test_tree();
-//test_dates();
+test_dates();
 }
 
