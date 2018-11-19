@@ -24,45 +24,40 @@ unsigned long int hash(const char * key);
 
 // int type
 
+int int_parse(char * text);
 char * int_tostring(const void * e, char * mem);
 int int_equals(const void * e1, const void * e2);
 int int_naturalorder(const void * e1, const void * e2);
 
 // long type
 
+long long_parse(char * text);
 char * long_tostring(const void * e, char * mem);
 int long_equals(const void * e1, const void * e2);
 int long_naturalorder(const void * e1, const void * e2);
 
 // float type
 
+float float_parse(char * text);
 char * float_tostring(const void * e, char * mem);
 int float_equals(const void * e1, const void * e2);
 int float_naturalorder(const void * e1,const  void * e2);
 
 // double type
 
+double double_parse(char * text);
 char * double_tostring(const void * e, char * mem);
 int double_equals(const void * e1, const void * e2);
 int double_naturalorder(const void * e1,const  void * e2);
 
-// string type
-
-#define Tam_String 256
-
-typedef char string[Tam_String];
-
-char * string_tostring(const void * e, char * mem);
-int string_equals(const void * e1, const void * e2);
-int string_naturalorder(const void * e1,const  void * e2);
-
-char * remove_eol(char * string);
+// int_pair
 
 typedef struct{
 	int a;
 	int b;
 }int_pair;
 
+int_pair int_pair_parse(char * text);
 char * int_pair_tostring(const void * t, char * mem);
 int int_pair_equals(const void * t1, const void * t2);
 int int__naturalorder(const void * t1,const  void * t2);
@@ -81,8 +76,10 @@ typedef enum {PRIMERO,SEGUNDO,TERCERO,CUARTO} Cuadrante;
 double punto_distancia_al_origen(const punto p);
 int punto_ord_distancia_al_origen(const punto p1, const punto p2);
 
+
 Cuadrante punto_cuadrante(const punto p);
 
+punto punto_parse(char * text);
 char * punto_tostring(const void * p, char * mem);
 int punto_equals(const void * p1, const void * p2);
 int punto_naturalorder(const void * t1,const  void * t2);

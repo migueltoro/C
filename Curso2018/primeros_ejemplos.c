@@ -232,3 +232,67 @@ void problema59(char * file,long n){
 	}
 	fclose(st);
 }
+
+
+void test_primeros_ejemplos() {
+	string as[] = {"Hola","Juan","Antonio","Pepe","Juan","Diaz","Cristina","Alejandro"};
+	string_list ls5 = create_string_list(as,8,8);
+	qsort(as,8,sizeof(string),string_naturalorder);
+	imprime_list_string(ls5);
+
+	printf("\n\n");
+
+	double d1[] = { 45., 56, 90., 1., 23., 78., 76. };
+	double_list ls1 = create_double_list(d1, 7, 7);
+	double r1 = problema1(ls1);
+	printf("r1 = %lf\n", r1);
+
+	int d3[] = { 45, 57, 10, 1, 23, 77, 79 };
+	int_list ls3 = create_int_list(d3, 7, 7);
+	bool r3 = problema3(ls3, es_impar);
+	printf("r3 = %s\n", r3 ? "true" : "false");
+
+	bool r4 = problema4(ls3, es_impar);
+	printf("r4 = %s\n", r4 ? "true" : "false");
+
+	int r5 = problema5(ls3);
+	printf("r5 = %d\n", r5);
+
+	double r6 = problema6(ls1, 10.);
+	printf("r6 = %lf\n", r6);
+
+	punto ap[] = { { 1., 2. }, { -1., 2.1 }, { 3.1, 2.1 }, { 1.3, 27.0 }, { 1.,-2. } };
+	punto_list r2 = create_punto_list(ap, 5, 5);
+	double_list s = problema2(r2);
+	imprime_list_punto(r2, ",", "{", "}");
+	printf("\n");
+	imprime_list_double(s, ",", "{", "}");
+	printf("\n");
+
+	punto * p = problema8(r2, punto_naturalorder);
+	printf("(%.2lf,%.2lf)", p->x, p->y);
+
+	printf("\n\n");
+
+	file_iterator f = open_file("prueba.txt");
+	while (has_next_line(&f)) {
+		printf("%s\n", next_line(&f));
+	}
+	fclose(f.file);
+
+	printf("\n\n");
+
+	punto_list r7 = list_punto_from_file("prueba.txt");
+	imprime_list_punto(r7, ",", "{", "}");
+
+	printf("\n\n");
+
+	printf("Es primo = %s\n", es_primo(29) ? "true" : "false");
+
+	printf("\n\n");
+
+	punto_list_list r9 = problema11(r2);
+	imprime_list_list_punto(r9, "", "", "");
+
+	problema59("primos.txt", 100);
+}

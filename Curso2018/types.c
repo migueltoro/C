@@ -25,6 +25,12 @@ unsigned long int hash(const char *key) {
 
 // int type
 
+int int_parse(char * text){
+	int p;
+	sscanf(text,"%d",&p);
+	return p;
+}
+
 char * int_tostring(const void * e, char * mem){
     int a = *(int *)e;
     sprintf(mem,"%d",a);
@@ -56,6 +62,12 @@ int int_naturalorder(const void * e1,const  void * e2){
 
 // long type
 
+long long_parse(char * text){
+	long p;
+	sscanf(text,"%ld",&p);
+	return p;
+}
+
 char * long_tostring(const void * e, char * mem){
     long a = *(long *)e;
     sprintf(mem,"%ld",a);
@@ -86,6 +98,12 @@ int long_naturalorder(const void * e1,const  void * e2){
 }
 
 // float type
+
+float float_parse(char * text){
+	float p;
+	sscanf(text,"%f",&p);
+	return p;
+}
 
 char * float_tostring(const void * e, char * mem){
     float a = *(float *)e;
@@ -119,6 +137,12 @@ int float_naturalorder(const void * e1, const void * e2){
 
 //double type
 
+double double_parse(char * text){
+	double p;
+	sscanf(text,"%lf",&p);
+	return p;
+}
+
 char * double_tostring(const void * e, char * mem){
     double a = *(double *)e;
     sprintf(mem,"%0.2lf",a);
@@ -149,39 +173,11 @@ int double_naturalorder(const void * e1, const void * e2){
     return r;
 }
 
-// string type
-
-char * string_tostring(const void * e, char * mem) {
-	char * a = (char *) e;
-	return a;
+int_pair int_pair_parse(char * text){
+	int_pair p;
+	sscanf(text,"(%d,%d)",&p.a,&p.b);
+	return p;
 }
-
-long string_hashcode(const void * e) {
-	char * a = (char *) e;
-	return hash(a);
-}
-
-int string_equals(const void * e1, const void * e2) {
-	char * a1 = (char *) e1;
-	char * a2 = (char *) e2;
-	return strcmp(a1, a2) == 0;
-}
-
-int string_naturalorder(const void * e1, const void * e2) {
-	char * a1 = (char *) e1;
-	char * a2 = (char *) e2;
-	return strcmp(a1, a2);
-}
-
-
-char * remove_eol(char * string){
-	int len = strlen(string);
-	if (len>0) {
-		string[len-1] = '\0';
-	}
-	return string;
-}
-
 
 char * int_pair_tostring(const void * p, char * mem){
 	int_pair np = *(int_pair *)p;
@@ -224,6 +220,11 @@ Cuadrante punto_cuadrante(const punto p) {
 	return r;
 }
 
+punto punto_parse(char * text){
+	punto pt;
+	sscanf(text,"(%lf,%lf)",&pt.x,&pt.y);
+	return pt;
+}
 
 double punto_distancia_al_origen(const punto p){
 	double x2 = p.x*p.x;
@@ -236,6 +237,8 @@ char * punto_tostring(const void * p, char * mem){
 	sprintf(mem,"(%lf,%lf)",np.x,np.y);
 	return mem;
 }
+
+
 
 int punto_equals(const void * p1, const void * p2){
 	punto np1 = *(punto *)p1;

@@ -10,6 +10,7 @@
 
 #include "types.h"
 #include "sorted_list.h"
+#include "memory_heap.h"
 
 typedef struct {
 	void * key;

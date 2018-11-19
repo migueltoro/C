@@ -17,8 +17,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+
+#include "new_string.h"
 #include "types.h"
-#include "primeros_ejemplos.h"
+#include "sorted_list.h"
 
 typedef struct{
 	FILE * file;
@@ -28,10 +30,9 @@ typedef struct{
 }file_iterator;
 
 file_iterator open_file(char * file);
-
 bool has_next_line(file_iterator * it);
-
 char * next_line(file_iterator * it);
+void write_list_to_file(char * file, alist * list, char * to_string(const void * source, char * mem));
 
 
 #endif /* FILES_H_ */

@@ -219,3 +219,35 @@ void alist_sort_2(alist * ls, int i, int j, int (*order)(const void * e1, const 
 	}
 }
 
+void test_list() {
+	memory_heap hp = memory_heap_create();
+	char mem[500];
+	alist ls1 = alist_empty(sizeof(double));
+	for (int i = 0; i < 50; i++) {
+		double r = 1. * get_entero_aleatorio(0, 100);
+		alist_add(&ls1, to_data(&r,sizeof(double),&hp));
+	}
+	alist ls2 = alist_empty(sizeof(double));
+	for (int i = 0; i < 30; i++) {
+		double r = 1. * get_entero_aleatorio(0, 100);
+		alist_add(&ls2, to_data(&r,sizeof(double),&hp));
+	}
+	alist_sort(&ls1, double_naturalorder);
+	alist_sort(&ls2, double_naturalorder);
+	char * s = alist_tostring(&ls1, double_tostring, mem);
+	printf("ls1 = %s\n", s);
+	s = alist_tostring(&ls2, double_tostring, mem);
+	printf("ls2 = %s\n", s);
+	alist ls3 = merge_list(&ls1, &ls2, double_naturalorder);
+	s = alist_tostring(&ls3, double_tostring, mem);
+	printf("ls3 = %s\n", s);
+	memory_heap_free(&hp);
+	double d[] = {2.,3.,4.5,5.7,8.9,-3.1};
+	alist ls4 = alist_create(d,6,sizeof(double));
+	s = alist_tostring(&ls4, double_tostring, mem);
+	printf("ls4 = %s\n", s);
+	string as[] = {"Hola","Juan","Antonio","Pepe","Juan","Diaz"};
+	alist ls5 = alist_create(as,6,sizeof(string));
+	s = alist_tostring(&ls5, string_tostring, mem);
+	printf("ls5 = %s\n", s);
+}

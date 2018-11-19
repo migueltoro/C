@@ -10,6 +10,8 @@
 
 #include <time.h>
 #include "types.h"
+#include "sorted_list.h"
+#include "memory_heap.h"
 
 //struct tm {
 //   int tm_sec;         /* seconds,  range 0 to 59          */
@@ -23,9 +25,12 @@
 //   int tm_isdst;       /* daylight saving time             */
 //};
 
-time_t now_time();
-time_t create_time(int day, int month, int year);
-struct tm * calendar(time_t time);
+time_t time_now();
+time_t time_parse(char * text);
+time_t time_parse_hour(char * text);
+time_t time_create(int day, int month, int year);
+time_t time_create_hour(int day, int month, int year, int hour, int minute, int second);
+struct tm * time_calendar(time_t time);
 time_t time_add_days(time_t date, int days);
 time_t time_add_months(time_t date, int months);
 time_t time_add_years(time_t date, int years);

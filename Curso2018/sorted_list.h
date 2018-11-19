@@ -18,6 +18,8 @@
 #include <stdbool.h>
 #include "new_math.h"
 #include "types.h"
+#include "new_string.h"
+#include "memory_heap.h"
 
 typedef struct {
 	int size;

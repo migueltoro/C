@@ -202,3 +202,34 @@ void hash_table_free(hash_table * table){
 	free(table->data);
 }
 
+
+hash_table complete_table(memory_heap * hp) {
+	int tam = 100;
+	hash_table ht = hash_table_create(long_equals, long_tostring);
+	for (int i = 0; i < tam; i++) {
+		long a1 = i;
+		double a2 = get_double_aleatorio(0, 1000);
+		hash_table_put(&ht,to_data(&a1,sizeof(long),hp),  to_data(&a2,sizeof(double),hp));
+	}
+	for (int i = 2; i < tam; i++) {
+		long a1 = i;
+		double a2 = get_double_aleatorio(0, 1000);
+		hash_table_put(&ht,to_data(&a1,sizeof(long),hp),  to_data(&a2,sizeof(double),hp));
+	}
+	return ht;
+}
+
+void test_hash_table() {
+	memory_heap hp = memory_heap_create();
+	printf("Hash Table test\n\n");
+	hash_table ht = complete_table(&hp);
+	hash_table_tostring(&ht,double_tostring);
+	printf("\n2:\n");
+	long a1 = 31;
+	void * e = to_data(&a1,sizeof(long),&hp);
+	printf("\n3: contains = %s\n",hash_table_contains(&ht,e)?"true":"false");
+	hash_table_remove(&ht,e);
+	printf("\n4: contains = %s\n",hash_table_contains(&ht,e)?"true":"false");
+	memory_heap_free(&hp);
+	hash_table_free(&ht);
+}

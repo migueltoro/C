@@ -16,6 +16,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+
+#include "new_string.h"
 #include "types.h"
 
 typedef struct {
@@ -30,8 +32,6 @@ typedef struct {
 	int * data;
 }int_list;
 
-
-typedef char string[Tam_String];
 
 typedef struct {
 	int tam;
@@ -95,5 +95,7 @@ void imprime_list_list_punto(punto_list_list, char * s, char * p, char * f);
 punto_list list_punto_from_file(char * file); //similar al problema 61 pero leyendo un punto por linea en vez de un entero
 
 void problema59(char * file,long n);
+
+void test_primeros_ejemplos();
 
 #endif /* PRIMEROS_EJEMPLOS_H_ */

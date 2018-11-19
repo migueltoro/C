@@ -34,3 +34,12 @@ char * next_line(file_iterator * it){
 	return it->next;
 }
 
+void write_list_to_file(char * file, alist * list, char * tostring(const void * source, char * mem)) {
+	char mem[256];
+	FILE * f = fopen(file, "wt");
+	for (int i = 0; i < list->size; i++) {
+		fprintf(f, "%s\n", tostring(alist_get(list, i), mem));
+	}
+	fclose(f);
+}
+
