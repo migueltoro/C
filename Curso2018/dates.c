@@ -169,5 +169,10 @@ void test_dates() {
 	alist f2 = alist_map(&ls, add);
 	s = alist_tostring(&f2, time_tostring, mem);
 	printf("4: %s\n", s);
+	char tt[] = "17-11-2018";
+	time_t t = time_parse(tt);
+	printf("%s\n",time_tostring(&t,mem));
+	time_t t2 = time_parse_hour("17-11-2018  8:15:21");
+	printf("%s\n",time_tostring(&t2,mem));
 	memory_heap_free(&hp);
 }

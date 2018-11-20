@@ -29,13 +29,13 @@
 
 
 int main() {
-test_primeros_ejemplos();
+//test_primeros_ejemplos();
 // test_list();
 // test_hash_table();
 //	test_tree();
-// test_dates();
+ test_dates();
 // test_string();
 //test_ejercicio62();
-test_ejemplos();
+//test_ejemplos();
 }
 

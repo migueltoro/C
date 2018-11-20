@@ -77,11 +77,6 @@ void test_string(){
 	char pa[] = "(4,-9)";
 	int_pair pp = int_pair_parse(pa);
 	printf("%s\n",int_pair_tostring(&pp,mem));
-	char tt[] = "17-11-2018";
-	time_t t = time_parse(tt);
-	printf("%s\n",time_tostring(&t,mem));
-	time_t t2 = time_parse_hour("17-11-2018  8:15:21");
-	printf("%s\n",time_tostring(&t2,mem));
 	char tt2[] = "34 389 23.5 -37.90 (3,-5) (34.1,-67.8)";
 	char delimiters2[] = " ";
 	split(tt2,delimiters2,tokens,&ntokens);
