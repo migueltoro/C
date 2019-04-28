@@ -17,7 +17,8 @@
 #include <math.h>
 #include <time.h>
 #include <stdbool.h>
-#include "new_math.h"
+
+#include "math2.h"
 
 unsigned long int hash(const char * key);
 
@@ -84,5 +85,20 @@ char * punto_tostring(const void * p, char * mem);
 int punto_equals(const void * p1, const void * p2);
 int punto_naturalorder(const void * t1,const  void * t2);
 
+
+// string type
+
+#define Tam_String 256
+
+typedef char string[Tam_String];
+
+char * string_tostring(const void * e, char * mem);
+int string_equals(const void * e1, const void * e2);
+int string_naturalorder(const void * e1,const  void * e2);
+
+char * remove_eol(char * string);
+
+char ** split(char * text, const char * delimiters, char ** tokens, int * ntokens);
+void test_string();
 
 #endif /* TYPES_H_ */

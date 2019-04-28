@@ -8,8 +8,8 @@
 #ifndef HASH_TABLE_H_
 #define HASH_TABLE_H_
 
+#include "alist.h"
 #include "types.h"
-#include "sorted_list.h"
 #include "memory_heap.h"
 
 typedef struct {
@@ -30,14 +30,16 @@ typedef struct {
 	float load_factor_limit;
 } hash_table;
 
-hash_table hash_table_create(
+hash_table hash_table_empty(
 		int (*equals)(const void *, const void *),
 		char * (*tostring)(const void * e,char * mem));
+int hash_table_size(hash_table * table);
 void * hash_table_put(hash_table * table, void * key, void * value);
+void * hash_table_put_m(hash_table * table, void * key, void * value, int sizeKey, int sizeValue, memory_heap * hp);
 void * hash_table_remove(hash_table * table, void * key);
 void * hash_table_get(hash_table * table, void * key);
 bool hash_table_contains(hash_table * table, void * key);
 void hash_table_free(hash_table * table);
-void hash_table_tostring(hash_table * table, char * (*tostring_value)(const void * e,char * mem));
-
+void hash_table_toconsole(hash_table * table, char * (*tostring_value)(const void * e,char * mem));
+void test_hash_table();
 #endif /* HASH_TABLE_H_ */

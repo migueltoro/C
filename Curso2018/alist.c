@@ -5,7 +5,7 @@
  *      Author: migueltoro
  */
 
-#include "sorted_list.h"
+#include "alist.h"
 
 void swap_in_list(alist * ls, int a, int b);
 
@@ -36,7 +36,7 @@ alist alist_empty_tam(int tam){
 	return r;
 }
 
-alist alist_create(void * data, int size, int sizeElement){
+alist alist_of(void * data, int size, int sizeElement){
 	alist r = {0,size,malloc(size*sizeof(void *))};
 	char * d = (char *) data;
 	for(int i=0; i<size;i++){
@@ -52,10 +52,19 @@ void * alist_get(alist * list, const int index){
 	return list->elements[index];
 }
 
+int alist_size(alist * ls){
+	return ls->size;
+}
+
 void alist_add(alist * list, void * element) {
 	alist_grow(list);
 	list->elements[list->size] = element;
 	list->size = list->size + 1;
+}
+
+void alist_add_m(alist * ls, void * element,int sizeElement, memory_heap * hp){
+	void * e = to_data(element,sizeof(double),hp);
+	alist_add(ls,e);
 }
 
 alist alist_filter(alist * ls, bool (*predicate)(void * e)){
@@ -225,12 +234,12 @@ void test_list() {
 	alist ls1 = alist_empty(sizeof(double));
 	for (int i = 0; i < 50; i++) {
 		double r = 1. * get_entero_aleatorio(0, 100);
-		alist_add(&ls1, to_data(&r,sizeof(double),&hp));
+		alist_add_m(&ls1,&r,sizeof(double),&hp);
 	}
 	alist ls2 = alist_empty(sizeof(double));
 	for (int i = 0; i < 30; i++) {
 		double r = 1. * get_entero_aleatorio(0, 100);
-		alist_add(&ls2, to_data(&r,sizeof(double),&hp));
+		alist_add_m(&ls2, &r,sizeof(double),&hp);
 	}
 	alist_sort(&ls1, double_naturalorder);
 	alist_sort(&ls2, double_naturalorder);
@@ -243,11 +252,11 @@ void test_list() {
 	printf("ls3 = %s\n", s);
 	memory_heap_free(&hp);
 	double d[] = {2.,3.,4.5,5.7,8.9,-3.1};
-	alist ls4 = alist_create(d,6,sizeof(double));
+	alist ls4 = alist_of(d,6,sizeof(double));
 	s = alist_tostring(&ls4, double_tostring, mem);
 	printf("ls4 = %s\n", s);
 	string as[] = {"Hola","Juan","Antonio","Pepe","Juan","Diaz"};
-	alist ls5 = alist_create(as,6,sizeof(string));
+	alist ls5 = alist_of(as,6,sizeof(string));
 	s = alist_tostring(&ls5, string_tostring, mem);
 	printf("ls5 = %s\n", s);
 }

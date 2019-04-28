@@ -18,7 +18,7 @@ void ini_data(hash_table * table);
 int rehash(hash_table * table);
 void * hash_table_put_private(hash_table * table, void * key, void * value);
 
-hash_table hash_table_create(//int key_size, int value_size,
+hash_table hash_table_empty(//int key_size, int value_size,
 		int (*equals)(const void *, const void *),
 		char * (*tostring)(const void * e,char * mem)){
 	hash_table t;
@@ -68,11 +68,20 @@ int find_data_entry(hash_table * table, int index_block, void * key) {
 	return r;
 }
 
+int hash_table_size(hash_table * table){
+	return table->size;
+}
+
 void * hash_table_put(hash_table * table, void * key, void * value){
 	rehash(table);
 	return hash_table_put_private(table,key,value);
 }
 
+void * hash_table_put_m(hash_table * table, void * key, void * value, int sizeKey, int sizeValue, memory_heap * hp){
+	void * k = to_data(key,sizeof(sizeKey),hp);
+    void * v = to_data(value,sizeof(sizeValue),hp);
+    return hash_table_put(table,k,v);
+}
 
 void * hash_table_get(hash_table * table, void * key){
 	int index = get_index_block(table,key);
@@ -164,7 +173,7 @@ void * hash_table_remove(hash_table * table, void * key) {
 	return key;
 }
 
-void hash_table_tostring(hash_table * table, char * (*tostring_value)(const void * e,char * mem)){
+void hash_table_toconsole(hash_table * table, char * (*tostring_value)(const void * e,char * mem)){
 	printf("\n");
 	char mdata[500];
 	char mkey[256];
@@ -205,16 +214,17 @@ void hash_table_free(hash_table * table){
 
 hash_table complete_table(memory_heap * hp) {
 	int tam = 100;
-	hash_table ht = hash_table_create(long_equals, long_tostring);
+	hash_table ht = hash_table_empty(long_equals, long_tostring);
+	new_rand();
 	for (int i = 0; i < tam; i++) {
 		long a1 = i;
 		double a2 = get_double_aleatorio(0, 1000);
-		hash_table_put(&ht,to_data(&a1,sizeof(long),hp),  to_data(&a2,sizeof(double),hp));
+		hash_table_put_m(&ht,&a1,&a2,sizeof(long),sizeof(double),hp);
 	}
 	for (int i = 2; i < tam; i++) {
 		long a1 = i;
 		double a2 = get_double_aleatorio(0, 1000);
-		hash_table_put(&ht,to_data(&a1,sizeof(long),hp),  to_data(&a2,sizeof(double),hp));
+		hash_table_put_m(&ht,&a1,&a2,sizeof(long),sizeof(double),hp);
 	}
 	return ht;
 }
@@ -223,7 +233,7 @@ void test_hash_table() {
 	memory_heap hp = memory_heap_create();
 	printf("Hash Table test\n\n");
 	hash_table ht = complete_table(&hp);
-	hash_table_tostring(&ht,double_tostring);
+	hash_table_toconsole(&ht,double_tostring);
 	printf("\n2:\n");
 	long a1 = 31;
 	void * e = to_data(&a1,sizeof(long),&hp);

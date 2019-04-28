@@ -6,7 +6,7 @@
  */
 
 
-#include "new_math.h"
+#include "math2.h"
 
 /**
  * @param a Un entero
@@ -68,12 +68,19 @@ long siguiente_primo(long a) {
 	return x;
 }
 
+void new_rand(){
+	time_t t;
+	srand((unsigned) time(&t));
+}
+
+
 /**
  * @pre b &gt; a
  * @param a Límite inferior
  * @param b Límite Superior
  * @return Un entero aleatorio r tal que a &le; = r &lt; b
  */
+
 
 int get_entero_aleatorio(int a, int b) {
 	long valor;
@@ -92,7 +99,7 @@ int get_entero_aleatorio(int a, int b) {
  * @return Un double aleatorio que  está en el intervalo  a &le; = r &lt; b
  */
 double get_double_aleatorio(double a, double b) {
-	double r = ((double) get_entero_aleatorio(0, 1000)) / 1000.;
+	double r = ((double) rand() / (RAND_MAX));
 	r = a + (b - a) * r;
 	return r;
 }

@@ -17,9 +17,8 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include "new_string.h"
+#include "alist.h"
 #include "types.h"
-#include "sorted_list.h"
 #include "hash_table.h"
 #include "files.h"
 #include "memory_heap.h"

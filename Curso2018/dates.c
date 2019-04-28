@@ -157,7 +157,7 @@ void test_dates() {
 			time_create(1, 1, 2016),
 			time_create(3, 1, 2011),
 			time_create(1, 3, 2012)};
-	alist ls = alist_create(a, 14, sizeof(time_t));
+	alist ls = alist_of(a, 14, sizeof(time_t));
 	char * s = alist_tostring(&ls, time_tostring, mem);
 	printf("1: %s\n", s);
 	alist_sort(&ls, time_naturalorder);

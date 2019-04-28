@@ -15,12 +15,12 @@
 #include <stdlib.h>
 #include "files.h"
 #include "dates.h"
-#include "sorted_list.h"
 #include "types.h"
 #include "files.h"
 #include "memory_heap.h"
 #include "dates.h"
 #include "time.h"
+#include "alist.h"
 
 void test_ejercicio62();
 void tofileWHILE(char * file,time_t a,time_t b);

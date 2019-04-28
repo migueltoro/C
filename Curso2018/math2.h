@@ -5,13 +5,14 @@
  *      Author: migueltoro
  */
 
-#ifndef NEW_MATH_H_
-#define NEW_MATH_H_
+#ifndef MATH2_H_
+#define MATH2_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include <time.h>
 
 #ifndef MAX
 #define MAX(a,b) ((a)>(b)?(a):(b))
@@ -48,6 +49,11 @@ bool es_primo(long a);
  */
 long siguiente_primo(long a);
 /**
+ * Inicializa el generador de numeros aleatorios
+ */
+void new_rand();
+
+/**
  * @pre b &gt; a
  * @param a Límite inferior
  * @param b Límite Superior
@@ -68,4 +74,4 @@ double get_double_aleatorio(double a, double b);
  */
 long mcd(long a, long b);
 
-#endif /* NEW_MATH_H_ */
+#endif /* MATH2_H_ */

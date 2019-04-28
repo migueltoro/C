@@ -8,8 +8,8 @@
 #ifndef BINARY_TREE_H_
 #define BINARY_TREE_H_
 
+#include "alist.h"
 #include "types.h"
-#include "sorted_list.h"
 
 typedef enum{Empty_Tree, Leaf_Tree, Binary_Tree} tree_type;
 

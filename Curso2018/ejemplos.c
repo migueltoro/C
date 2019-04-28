@@ -82,7 +82,7 @@ punto * n_problema8(alist ls, int (*cmp)(const void *, const void *)) {
 }
 
 hash_table n_problema11(alist ls){
-	hash_table r = hash_table_create(int_equals,int_tostring);
+	hash_table r = hash_table_empty(int_equals,int_tostring);
 	for (int i = 0; i < ls.size; i++) {
 		punto * p = (punto *) alist_get(&ls,i);
 		Cuadrante c = punto_cuadrante(*p);
@@ -130,7 +130,7 @@ void test_ejemplos(){
 	printf("\n\n");
 
 	double d1[] = { 45., 56, 90., 1., 23., 78., 76. };
-	alist ls1 = alist_create(d1, 7, sizeof(double));
+	alist ls1 = alist_of(d1, 7, sizeof(double));
 	double r1 = n_problema1(ls1);
 	printf("r1 = %lf\n", r1);
 
@@ -138,7 +138,7 @@ void test_ejemplos(){
 
 	char mem[256];
 	punto ap[] = { { 1., 2. }, { -1., 2.1 }, { 3.1, 2.1 }, { 1.3, 27.0 }, { 1.,-2. } };
-	alist r2 = alist_create(ap, 5, sizeof(punto));
+	alist r2 = alist_of(ap, 5, sizeof(punto));
 	alist rp = n_problema2(r2);
 	char * s = alist_tostring(&r2, punto_tostring,mem);
 	printf("%s\n",s);
@@ -148,7 +148,7 @@ void test_ejemplos(){
 	printf("\n\n");
 
 	int d3[] = {45, 57, 10, 1, 23, 77, 79};
-	alist ls3 = alist_create(d3, 7, sizeof(int));
+	alist ls3 = alist_of(d3, 7, sizeof(int));
 	bool r3 = n_problema3(ls3, es_impar);
 	printf("r3 = %s\n", r3 ? "true" : "false");
 

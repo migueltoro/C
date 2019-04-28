@@ -17,7 +17,6 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include "new_string.h"
 #include "types.h"
 
 typedef struct {
