@@ -34,12 +34,31 @@ char * next_line(file_iterator * it){
 	return it->next;
 }
 
-void write_list_to_file(char * file, alist * list, char * tostring(const void * source, char * mem)) {
+void write_list_to_file(char * file, list * list, char * tostring(const void * source, char * mem)) {
 	char mem[256];
 	FILE * f = fopen(file, "wt");
 	for (int i = 0; i < list->size; i++) {
-		fprintf(f, "%s\n", tostring(alist_get(list, i), mem));
+		fprintf(f, "%s\n", tostring(list_get(list, i), mem));
 	}
 	fclose(f);
+}
+
+list lines(char * file){
+	list r = list_empty();
+	file_iterator f = open_file(file);
+	while(has_next_line(&f)){
+		char * s = next_line(&f);
+		list_add(&r,s,Tam_String);
+	}
+	return r;
+}
+
+void test_files(){
+	char mem[500];
+	list ls = lines("prueba.txt");
+	char * s1 = list_get(&ls,2);
+	printf("s1 = %s\n", s1);
+	char * s = list_tostring(&ls,string_tostring,mem);
+	printf("ls1 = %s\n", s);
 }
 

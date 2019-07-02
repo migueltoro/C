@@ -13,17 +13,17 @@ memory_heap tree_memory;
 
 binary_tree * tree_empty() {
 	binary_tree tree = {Empty_Tree,NULL,NULL,NULL};
-	return (binary_tree *) to_data(&tree,sizeof(binary_tree),&tree_memory);
+	return (binary_tree *) memory_heap_to_data(&tree_memory,&tree,sizeof(binary_tree));
 }
 
 binary_tree * tree_leaf(void * label) {
 	binary_tree tree = {Leaf_Tree,label,NULL,NULL};
-	return (binary_tree *) to_data(&tree,sizeof(binary_tree),&tree_memory);
+	return (binary_tree *) memory_heap_to_data(&tree_memory,&tree,sizeof(binary_tree));
 }
 
 binary_tree * tree_binary(void * label, binary_tree * left, binary_tree * right){
 	binary_tree tree = {Binary_Tree,label,left,right};
-	return (binary_tree *) to_data(&tree,sizeof(binary_tree),&tree_memory);
+	return (binary_tree *) memory_heap_to_data(&tree_memory,&tree,sizeof(binary_tree));
 }
 
 tree_type get_type(binary_tree * tree) {
@@ -57,20 +57,20 @@ int tree_size(binary_tree * tree){
 
 
 
-void tree_to_list_private(binary_tree * tree, alist * ls);
+void tree_to_list_private(binary_tree * tree, list * ls);
 
-alist tree_to_list(binary_tree * tree){
-	alist ls = alist_empty();
+list tree_to_list(binary_tree * tree){
+	list ls = list_empty();
 	tree_to_list_private(tree,&ls);
 	return ls;
 }
 
-void tree_to_list_private(binary_tree * tree, alist * ls) {
+void tree_to_list_private(binary_tree * tree, list * ls) {
 	switch (tree->tree_type) {
 	case Empty_Tree: break;
-	case Leaf_Tree: alist_add(ls,get_label(tree)); break;
+	case Leaf_Tree: list_add_pointer(ls,get_label(tree)); break;
 	case Binary_Tree:
-		alist_add(ls,get_label(tree));
+		list_add_pointer(ls,get_label(tree));
 		tree_to_list_private(get_left(tree),ls);
 		tree_to_list_private(get_right(tree),ls);
 	}
@@ -109,11 +109,11 @@ void test_tree(){
 	binary_tree_memory_create();
 	char mem[500];
 
-	int a = 84; void * pa = to_data(&a,sizeof(int),&hp);
-	int b = 90; void * pb = to_data(&b,sizeof(int),&hp);
-	int c = 56; void * pc = to_data(&c,sizeof(int),&hp);
-	int d = 81; void * pd = to_data(&d,sizeof(int),&hp);
-	int e = 55; void * pe = to_data(&e,sizeof(int),&hp);
+	int a = 84; void * pa = memory_heap_to_data(&hp,&a,sizeof(int));
+	int b = 90; void * pb = memory_heap_to_data(&hp,&b,sizeof(int));
+	int c = 56; void * pc = memory_heap_to_data(&hp,&c,sizeof(int));
+	int d = 81; void * pd = memory_heap_to_data(&hp,&d,sizeof(int));
+	int e = 55; void * pe = memory_heap_to_data(&hp,&e,sizeof(int));
 
 	binary_tree * t0 = tree_empty();
 	binary_tree * t1 = tree_leaf(pc);
@@ -121,11 +121,11 @@ void test_tree(){
 	binary_tree * t3 = tree_binary(pb,t2,tree_leaf(pe));
 	binary_tree * t4 = tree_binary(pd,t3,t3);
 	printf("size = %d\n\n", tree_size(t4));
-	alist ls = tree_to_list(t4);
-	char * s = alist_tostring(&ls, int_tostring, mem);
+	list ls = tree_to_list(t4);
+	char * s = list_tostring(&ls, int_tostring, mem);
 	printf("ls = %s\n", s);
-	alist_sort(&ls,int_naturalorder);
-	s = alist_tostring(&ls, int_tostring, mem);
+	list_sort(&ls,int_naturalorder);
+	s = list_tostring(&ls, int_tostring, mem);
 	printf("ls = %s\n\n", s);
 	tree_tostring(t4,int_tostring);
 	printf("\n\n");

@@ -20,7 +20,8 @@
 #include "memory_heap.h"
 #include "dates.h"
 #include "time.h"
-#include "alist.h"
+
+#include "list.h"
 
 void test_ejercicio62();
 void tofileWHILE(char * file,time_t a,time_t b);

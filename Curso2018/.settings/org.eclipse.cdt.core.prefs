@@ -1,0 +1,12 @@
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1846037772/MINGW_HOME/delimiter=;
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1846037772/MINGW_HOME/operation=replace
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1846037772/MINGW_HOME/value=C\:\\MinGW\\
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1846037772/MSYS_HOME/delimiter=;
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1846037772/MSYS_HOME/operation=append
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1846037772/MSYS_HOME/value=C\:\\MinGW\\msys\\1.0
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1846037772/PATH/delimiter=;
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1846037772/PATH/operation=replace
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1846037772/PATH/value=${MINGW_HOME}\\bin;${MSYS_HOME}\\bin;${MSYS_HOME}\\usr\\bin;C\:\\Program Files (x86)\\Common Files\\Oracle\\Java\\javapath;C\:\\Program Files (x86)\\Intel\\iCLS Client\\;C\:\\Program Files\\Intel\\iCLS Client\\;C\:\\WINDOWS\\system32;C\:\\WINDOWS;C\:\\WINDOWS\\System32\\Wbem;C\:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C\:\\Program Files (x86)\\Intel\\Intel(R) Management Engine Components\\DAL;C\:\\Program Files\\Intel\\Intel(R) Management Engine Components\\DAL;C\:\\Program Files (x86)\\Intel\\Intel(R) Management Engine Components\\IPT;C\:\\Program Files\\Intel\\Intel(R) Management Engine Components\\IPT;C\:\\Program Files (x86)\\Skype\\Phone\\;C\:\\Program Files (x86)\\Calibre2\\;C\:\\WINDOWS\\System32\\OpenSSH\\;C\:\\Program Files\\Microsoft VS Code\\bin;C\:\\Program Files\\Intel\\WiFi\\bin\\;C\:\\Program Files\\Common Files\\Intel\\WirelessCommon\\;C\:\\Users\\migueltoro\\AppData\\Local\\Microsoft\\WindowsApps
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1846037772/append=true
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1846037772/appendContributed=true

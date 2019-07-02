@@ -132,7 +132,7 @@ memory_heap hp;
 void * add(void * t){
 	time_t e = *(time_t *)t;
 	time_t r = time_add_days(e,90);
-	return to_data(&r,sizeof(time_t),&hp);
+	return memory_heap_to_data(&hp,&r,sizeof(time_t));
 }
 
 void test_dates() {
@@ -157,17 +157,17 @@ void test_dates() {
 			time_create(1, 1, 2016),
 			time_create(3, 1, 2011),
 			time_create(1, 3, 2012)};
-	alist ls = alist_of(a, 14, sizeof(time_t));
-	char * s = alist_tostring(&ls, time_tostring, mem);
+	list ls = list_of(a, 14, sizeof(time_t));
+	char * s = list_tostring(&ls, time_tostring, mem);
 	printf("1: %s\n", s);
-	alist_sort(&ls, time_naturalorder);
-	s = alist_tostring(&ls, time_tostring, mem);
+	list_sort(&ls, time_naturalorder);
+	s = list_tostring(&ls, time_tostring, mem);
 	printf("2: %s\n", s);
-	alist f = alist_filter(&ls, pd);
-	s = alist_tostring(&f, time_tostring, mem);
+	list f = list_filter(&ls, pd,sizeof(time_t));
+	s = list_tostring(&f, time_tostring, mem);
 	printf("3: %s\n", s);
-	alist f2 = alist_map(&ls, add);
-	s = alist_tostring(&f2, time_tostring, mem);
+	list f2 = list_map(&ls, add,sizeof(time_t));
+	s = list_tostring(&f2, time_tostring, mem);
 	printf("4: %s\n", s);
 	char tt[] = "17-11-2018";
 	time_t t = time_parse(tt);

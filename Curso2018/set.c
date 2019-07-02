@@ -6,32 +6,33 @@
  */
 
 #include "set.h"
-#include "alist.h"
+
+#include "list.h"
 
 set set_empty(
 		int (*equals)(const void *, const void *),
 		char * (*tostring)(const void * e,char * mem)){
-	set st = {hash_table_empty(equals,tostring)};
+	set st = {hash_table_empty(equals,tostring),memory_heap_create()};
 	return st;
 }
 
-set set_of(alist * ls,
+set set_of(list * ls,
 		int (*equals)(const void *, const void *),
 		char * (*tostring)(const void * e,char * mem)){
 	set st = set_empty(equals,tostring);
 	for(int i =0;i <ls->size;i++){
-		set_add(&st,alist_get(ls,i));
+		set_add_pointer(&st,list_get(ls,i));
 	}
 	return st;
 }
 
-void set_add(set * st, void * element){
-	hash_table_put(&(st->hash_table),element,NULL);
+void set_add_pointer(set * st, void * element){
+	hash_table_put_pointer(&(st->hash_table),element,NULL);
 }
 
-void set_add_m(set * st, void * element, int sizeElement, memory_heap * hp){
-	void * e = to_data(element,sizeElement,hp);
-	set_add(st,e);
+void set_add(set * st, void * element, int sizeElement){
+	void * e = memory_heap_to_data(&(st->hp),element,sizeElement);
+	set_add_pointer(st,e);
 }
 
 int set_size(set * st){
@@ -72,18 +73,16 @@ void set_free(set * st){
 }
 
 void test_set() {
-	memory_heap hp = memory_heap_create();
 	int tam = 50;
 	char mem[1000];
 	new_rand();
 	set st = set_empty(double_equals, double_tostring);
 	for (int i = 0; i < tam; i++) {
 		double a2 = get_double_aleatorio(0, 1000)/2;
-		set_add_m(&st,&a2,sizeof(double), &hp);
+		set_add(&st,&a2,sizeof(double));
 	}
 	printf("%d",set_size(&st));
 	set_tostring(&st,double_tostring,mem);
 	printf("%s",mem);
-	memory_heap_free(&hp);
 	set_free(&st);
 }

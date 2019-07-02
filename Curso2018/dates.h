@@ -10,7 +10,7 @@
 
 #include <time.h>
 
-#include "alist.h"
+#include "list.h"
 #include "types.h"
 #include "memory_heap.h"
 
