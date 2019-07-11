@@ -6,13 +6,13 @@
  */
 
 
-#include "memory_heap.h"
+#include "../types/memory_heap.h"
 
 void grow_memory_heap(memory_heap * heap) {
 	if (heap->size == heap->tam) {
 		heap->tam = 2* heap->tam;
 		heap->elements = (void *) realloc(heap->elements, sizeof(void *)*heap->tam);
-		assert(heap->elements != NULL && "no se ha podido reubicar la memoria");
+//		assert(heap->elements != NULL && "no se ha podido reubicar la memoria");
 	}
 }
 

@@ -5,7 +5,7 @@
  *      Author: migueltoro
  */
 
-#include "list.h"
+#include "../types/list.h"
 
 void swap_in_list(list * ls, int a, int b);
 
@@ -26,21 +26,21 @@ void list_grow(list * list) {
 	}
 }
 
-list list_empty(){
-	list r = {0,tam_default,malloc(tam_default*sizeof(void *)),memory_heap_create()};
+list list_empty(type type_element){
+	list r = {type_element,0,tam_default,malloc(tam_default*sizeof(void *)),memory_heap_create()};
 	return r;
 }
 
-list list_empty_tam(int tam){
-	list r = {0,tam,malloc(tam*sizeof(void *)),memory_heap_create()};
+list list_empty_tam(type type_element,int tam){
+	list r = {type_element,0,tam,malloc(tam*sizeof(void *)),memory_heap_create()};
 	return r;
 }
 
-list list_of(void * data, int size, int sizeElement){
-	list r = {0,size,malloc(size*sizeof(void *)),memory_heap_create()};
+list list_of(void * data, int size, type type_element){
+	list r = {type_element,0,size,malloc(size*sizeof(void *)),memory_heap_create()};
 	char * d = (char *) data;
 	for(int i=0; i<size;i++){
-		r.elements[i] = d+i*sizeElement;
+		r.elements[i] = d+i*r.type_element.size;
 	}
 	r.size = size;
 	r.tam = size;
@@ -62,42 +62,86 @@ void list_add_pointer(list * list, void * element) {
 	list->size = list->size + 1;
 }
 
-void list_add(list * ls, void * element, int size_element){
-	void * e = memory_heap_to_data(&(ls->hp),element,size_element);
+void list_add(list * ls, void * element){
+	void * e = memory_heap_to_data(&(ls->hp),element,ls->type_element.size);
 	list_add_pointer(ls,e);
 }
 
 list list_filter(list * ls, bool (*predicate)(void * e), int sizeElement){
-	list r = list_empty();
+	list r = list_empty(ls->type_element);
 	for(int i =0; i< ls->size; i++){
 		void * e = list_get(ls,i);
 		if(predicate(e)){
-			list_add(&r,e,sizeElement);
+			list_add(&r,e);
 		}
 	}
 	return r;
 }
 
-list list_map(list * ls, void * (*f)(void * e), int sizeElement) {
-	list r = list_empty();
+list list_map(list * ls, void * (*f)(void * e), type type_element) {
+	list r = list_empty(type_element);
 	for (int i = 0; i < ls->size; i++) {
 		void * e = list_get(ls, i);
 		void * t = f(e);
-		list_add(&r, t, sizeElement);
+		list_add(&r, t);
 	}
 	return r;
 }
 
-char * list_tostring(list * list, char * to_string(const void * source, char * tp), char * mem) {
-	char nm[256];
-	strcpy(mem,"{");
-	for(int i = 0; i < list->size; i++) {
-		char * r = to_string(list->elements[i],nm);
-		if(i>0) strcat(mem,",");
-		strcat(mem,r);
+
+typedef struct{
+	list * ls;
+	int i;
+}dependencies_list;
+
+bool iterable_list_has_next(iterable * current_iterable) {
+	dependencies_list * dp = (dependencies_list *) current_iterable->dependencies;
+	return dp->i < list_size(dp->ls);
+}
+
+void * iterable_list_see_next(iterable * current_iterable){
+	dependencies_list * dp = (dependencies_list *) current_iterable->dependencies;
+    return list_get(dp->ls,dp->i);
+}
+
+void * iterable_list_next(iterable * current_iterable){
+	dependencies_list * dp = (dependencies_list *) current_iterable->dependencies;
+	int old_i = dp->i;
+	dp->i = dp->i +1;
+	return list_get(dp->ls,old_i);
+}
+
+iterable list_iterable(list * ls){
+	dependencies_list dl = {ls,0};
+	int size_dl = sizeof(dependencies_list);
+	iterable s_list = create_iterable(sizeof(void *),iterable_list_has_next,iterable_list_next,iterable_list_see_next,&dl,size_dl);
+	return s_list;
+}
+
+char * list_tostring(list * ls, char * mem){
+	iterable st = list_iterable(ls);
+	return iterable_tostring(&st,ls->type_element.tostring,mem);
+}
+
+
+void write_list_to_file(char * file, list * list, char * tostring(const void * source, char * mem)) {
+	char mem[256];
+	FILE * f = fopen(file, "wt");
+	for (int i = 0; i < list->size; i++) {
+		fprintf(f, "%s\n", tostring(list_get(list, i), mem));
 	}
-	strcat(mem,"}");
-	return mem;
+	fclose(f);
+}
+
+list lines(char * file){
+	list r = list_empty(string_type);
+	iterable f = file_iterable(file);
+	while(iterable_has_next(&f)){
+		char * s = iterable_next(&f);
+		remove_eol(s);
+		list_add(&r,s);
+	}
+	return r;
 }
 
 void list_free(list * list){
@@ -106,7 +150,7 @@ void list_free(list * list){
 }
 
 list merge_list(list * ls1, list * ls2, int (*order)(const void * e1, const void * e2)) {
-	list ls3 = list_empty();
+	list ls3 = list_empty(ls1->type_element);
 	int s1 = ls1->size;
 	int k1 = 0;
 	int s2 = ls2->size;
@@ -135,13 +179,13 @@ list merge_list(list * ls1, list * ls2, int (*order)(const void * e1, const void
 	return ls3;
 }
 
-int bs2(list * ls, int i,int j, void * key, int (*order)(const void * e1, const void * e2));
+int bs_g(list * ls, int i,int j, void * key, int (*order)(const void * e1, const void * e2));
 
 int bs(list * ls, void* key, int (*order)(const void * e1, const void * e2)){
-		return bs2(ls,0,ls->size,key,order);
+		return bs_g(ls,0,ls->size,key,order);
 }
 
-int bs2(list * ls, int i,int j, void* key, int (*order)(const void * e1, const void * e2)) {
+int bs_g(list * ls, int i, int j, void* key, int (*order)(const void * e1, const void * e2)) {
 	assert(j >= i);
 	int r;
 	int k;
@@ -153,9 +197,9 @@ int bs2(list * ls, int i,int j, void* key, int (*order)(const void * e1, const v
 		if (r1 == 0) {
 			r = k;
 		} else if (r1 < 0) {
-			r = bs2(ls, i, k, key, order);
+			r = bs_g(ls, i, k, key, order);
 		} else {
-			r = bs2(ls, k + 1, j, key, order);
+			r = bs_g(ls, k + 1, j, key, order);
 		}
 	}
 	return r;
@@ -201,7 +245,7 @@ int_pair bh(list * ls, void * pivot, int i, int j, int (*order)(const void * e1,
 }
 
 
-void basic_sort(list * ls, int inf, int sup, int (*order)(const void * e1, const void * e2)) {
+void basic_sort_g(list * ls, int inf, int sup, int (*order)(const void * e1, const void * e2)) {
 	for (int i = inf; i < sup; i++) {
 		for (int j = i + 1; j < sup; j++) {
 			if (order(list_get(ls, i), list_get(ls, j)) > 0) {
@@ -211,51 +255,73 @@ void basic_sort(list * ls, int inf, int sup, int (*order)(const void * e1, const
 	}
 }
 
-void list_sort_2(list * ls, int i, int j, int (*order)(const void * e1, const void * e2));
-
-void list_sort(list * ls, int (*order)(const void * e1, const void * e2)){
-	list_sort_2(ls,0,ls->size,order);
+void basic_sort(list * ls, int (*order)(const void * e1, const void * e2)){
+	return basic_sort_g(ls,0,ls->size,order);
 }
 
-void list_sort_2(list * ls, int i, int j, int (*order)(const void * e1, const void * e2)) {
+void list_sort_g(list * ls, int i, int j, int (*order)(const void * e1, const void * e2));
+
+void list_sort(list * ls, int (*order)(const void * e1, const void * e2)){
+	list_sort_g(ls,0,ls->size,order);
+}
+
+void list_sort_g(list * ls, int i, int j, int (*order)(const void * e1, const void * e2)) {
 	assert(j >= i);
 	if (j - i <= 4) {
-		basic_sort(ls, i, j, order);
+		basic_sort_g(ls, i, j, order);
 	} else {
 		void * pivote = piv(ls,i,j);
 		int_pair p = bh(ls, pivote, i, j, order);
-		list_sort_2(ls, i, p.a, order);
-		list_sort_2(ls, p.b, j, order);
+		list_sort_g(ls, i, p.a, order);
+		list_sort_g(ls, p.b, j, order);
 	}
+}
+
+int string_naturalorder_punt(const void * e1, const void * e2) {
+	void ** r1 = (void **) e1;
+	void ** r2 = (void **) e2;
+	char * a1 = (char *) * r1;
+	char * a2 = (char *) * r2;
+	return strcmp(a1, a2);
 }
 
 void test_list() {
 	char mem[500];
-	list ls1 = list_empty(sizeof(double));
+	list ls1 = list_empty(double_type);
 	for (int i = 0; i < 50; i++) {
 		double r = 1. * get_entero_aleatorio(0, 100);
-		list_add(&ls1,&r,sizeof(double));
+		list_add(&ls1,&r);
 	}
-	list ls2 = list_empty(sizeof(double));
+	list ls2 = list_empty(double_type);
 	for (int i = 0; i < 30; i++) {
 		double r = 1. * get_entero_aleatorio(0, 100);
-		list_add(&ls2, &r,sizeof(double));
+		list_add(&ls2, &r);
 	}
+	double a = -340.51;
+	list_add(&ls2, &a);
+	list_add(&ls1, &a);
 	list_sort(&ls1, double_naturalorder);
 	list_sort(&ls2, double_naturalorder);
-	char * s = list_tostring(&ls1, double_tostring, mem);
+	char * s = list_tostring(&ls1, mem);
 	printf("ls1 = %s\n", s);
-	s = list_tostring(&ls2, double_tostring, mem);
+	s = list_tostring(&ls2, mem);
 	printf("ls2 = %s\n", s);
 	list ls3 = merge_list(&ls1, &ls2, double_naturalorder);
-	s = list_tostring(&ls3, double_tostring, mem);
+	s = list_tostring(&ls3, mem);
 	printf("ls3 = %s\n", s);
 	double d[] = {2.,3.,4.5,5.7,8.9,-3.1};
-	list ls4 = list_of(d,6,sizeof(double));
-	s = list_tostring(&ls4, double_tostring, mem);
+	list ls4 = list_of(d,6,double_type);
+	s = list_tostring(&ls4, mem);
 	printf("ls4 = %s\n", s);
 	string as[] = {"Hola","Juan","Antonio","Pepe","Juan","Diaz"};
-	list ls5 = list_of(as,6,sizeof(string));
-	s = list_tostring(&ls5, string_tostring, mem);
+	list ls5 = list_of(as,6,string_type);
+//	list_sort(&ls5, string_naturalorder);
+	qsort(ls5.elements, ls5.size, sizeof(void *),string_naturalorder_punt);
+	s = list_tostring(&ls5,  mem);
 	printf("ls5 = %s\n", s);
+	list ls = lines("ficheros/prueba.txt");
+	char * s1 = list_get(&ls,2);
+	printf("s1 = %s\n", s1);
+	s = list_tostring(&ls,mem);
+	printf("ls1 = %s\n", s);
 }

@@ -6,8 +6,8 @@
  */
 
 
-#include "math2.h"
-
+#include "../types/math2.h"
+;
 /**
  * @param a Un entero
  * @return Si es par

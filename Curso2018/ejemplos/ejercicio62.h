@@ -13,15 +13,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "files.h"
-#include "dates.h"
-#include "types.h"
-#include "files.h"
-#include "memory_heap.h"
-#include "dates.h"
-#include "time.h"
 
-#include "list.h"
+#include "../types/dates.h"
+#include "../types/types.h"
+#include "../types/memory_heap.h"
+
+#include "../types/iterables.h"
+#include "../types/list.h"
+
 
 void test_ejercicio62();
 void tofileWHILE(char * file,time_t a,time_t b);

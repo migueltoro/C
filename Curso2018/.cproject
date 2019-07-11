@@ -84,6 +84,16 @@
                         </toolChain>
                         					
                     </folderInfo>
+                    					
+                    <sourceEntries>
+                        						
+                        <entry excluding="prueba|ejemplos|types" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        						
+                        <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ejemplos"/>
+                        						
+                        <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="types"/>
+                        					
+                    </sourceEntries>
                     				
                 </configuration>
                 			
@@ -174,6 +184,16 @@
                         </toolChain>
                         					
                     </folderInfo>
+                    					
+                    <sourceEntries>
+                        						
+                        <entry excluding="prueba|ejemplos|types" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        						
+                        <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ejemplos"/>
+                        						
+                        <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="types"/>
+                        					
+                    </sourceEntries>
                     				
                 </configuration>
                 			

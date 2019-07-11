@@ -5,7 +5,7 @@
  *      Author: migueltoro
  */
 
-#include "dates.h"
+#include "../types/dates.h"
 
 
 time_t time_now(){
@@ -46,6 +46,16 @@ time_t time_parse(char * text){
 	int year;
 	sscanf(text,"%d-%d-%d",&day,&month,&year);
 	return time_create(day,month,year);
+}
+
+void * time_parse_g(void * out, char * text){
+	int day;
+	int month;
+	int year;
+	sscanf(text,"%d-%d-%d",&day,&month,&year);
+	time_t t = time_create(day,month,year);
+	*(time_t *) out = t;
+	return out;
 }
 
 time_t time_parse_hour(char * text){
@@ -104,7 +114,7 @@ char * time_tostring(const void * p, char * mem){
 	return (char *)remove_eol(ctime((time_t *)p));
 }
 
-int time_equals(const void * p1, const void * p2){
+bool time_equals(const void * p1, const void * p2){
 	time_t t1 = *(time_t *) p1;
 	time_t t2 = *(time_t *) p2;
 	return t1 == t2;
@@ -120,6 +130,19 @@ int time_naturalorder(const void * p1,const  void * p2){
 	else r= 0;
 	return r;
 }
+
+void * time_copy(void * out, void * in){
+	*(time_t *) out = *(time_t *) in;
+	return out;
+}
+
+void * time_pointer_copy(void * out, void * in){
+	*(time_t **) out = (time_t *) in;
+	return out;
+}
+
+
+type time_type = {time_equals,time_tostring,time_naturalorder,time_copy,time_pointer_copy,time_parse_g,sizeof(time_t)};
 
 
 bool pd(void * t){
@@ -157,17 +180,17 @@ void test_dates() {
 			time_create(1, 1, 2016),
 			time_create(3, 1, 2011),
 			time_create(1, 3, 2012)};
-	list ls = list_of(a, 14, sizeof(time_t));
-	char * s = list_tostring(&ls, time_tostring, mem);
+	list ls = list_of(a, 14, time_type);
+	char * s = list_tostring(&ls, mem);
 	printf("1: %s\n", s);
 	list_sort(&ls, time_naturalorder);
-	s = list_tostring(&ls, time_tostring, mem);
+	s = list_tostring(&ls, mem);
 	printf("2: %s\n", s);
 	list f = list_filter(&ls, pd,sizeof(time_t));
-	s = list_tostring(&f, time_tostring, mem);
+	s = list_tostring(&f, mem);
 	printf("3: %s\n", s);
-	list f2 = list_map(&ls, add,sizeof(time_t));
-	s = list_tostring(&f2, time_tostring, mem);
+	list f2 = list_map(&ls, add,time_type);
+	s = list_tostring(&f2, mem);
 	printf("4: %s\n", s);
 	char tt[] = "17-11-2018";
 	time_t t = time_parse(tt);

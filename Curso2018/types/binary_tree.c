@@ -6,8 +6,8 @@
  */
 
 
-#include "binary_tree.h"
-#include "memory_heap.h"
+#include "../types/binary_tree.h"
+#include "../types/memory_heap.h"
 
 memory_heap tree_memory;
 
@@ -59,8 +59,8 @@ int tree_size(binary_tree * tree){
 
 void tree_to_list_private(binary_tree * tree, list * ls);
 
-list tree_to_list(binary_tree * tree){
-	list ls = list_empty();
+list tree_to_list(binary_tree * tree, type type_element){
+	list ls = list_empty(type_element);
 	tree_to_list_private(tree,&ls);
 	return ls;
 }
@@ -121,11 +121,11 @@ void test_tree(){
 	binary_tree * t3 = tree_binary(pb,t2,tree_leaf(pe));
 	binary_tree * t4 = tree_binary(pd,t3,t3);
 	printf("size = %d\n\n", tree_size(t4));
-	list ls = tree_to_list(t4);
-	char * s = list_tostring(&ls, int_tostring, mem);
+	list ls = tree_to_list(t4,int_type);
+	char * s = list_tostring(&ls, mem);
 	printf("ls = %s\n", s);
 	list_sort(&ls,int_naturalorder);
-	s = list_tostring(&ls, int_tostring, mem);
+	s = list_tostring(&ls, mem);
 	printf("ls = %s\n\n", s);
 	tree_tostring(t4,int_tostring);
 	printf("\n\n");

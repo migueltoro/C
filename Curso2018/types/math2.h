@@ -74,4 +74,5 @@ double get_double_aleatorio(double a, double b);
  */
 long mcd(long a, long b);
 
+
 #endif /* MATH2_H_ */

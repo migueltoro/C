@@ -10,9 +10,9 @@
 
 #include <time.h>
 
-#include "list.h"
-#include "types.h"
-#include "memory_heap.h"
+#include "../types/list.h"
+#include "../types/memory_heap.h"
+#include "../types/types.h"
 
 //struct tm {
 //   int tm_sec;         /* seconds,  range 0 to 59          */
@@ -40,8 +40,10 @@ time_t time_minus_months(time_t date, int months);
 time_t time_minus_years(time_t date, int years);
 
 char * time_tostring(const void * p, char * mem);
-int time_equals(const void * p1, const void * p2);
+bool time_equals(const void * p1, const void * p2);
 int time_naturalorder(const void * t1,const  void * t2);
+
+extern type time_type;
 
 void test_dates();
 

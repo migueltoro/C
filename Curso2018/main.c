@@ -11,36 +11,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "primeros_ejemplos.h"
-#include "ejemplos.h"
-#include "types.h"
-#include "files.h"
-#include "hash_table.h"
-#include "memory_heap.h"
-#include "binary_tree.h"
-#include "dates.h"
-#include "ejercicio62.h"
-#include "list.h"
-#include "set.h"
-#include "iterables.h"
-
-
-
-
-
+#include "ejemplos/ejemplos.h"
+#include "types/types.h"
+#include "ejemplos/ejercicio62.h"
+#include "types/accumulators.h"
+#include "types/binary_tree.h"
+#include "types/dates.h"
+#include "types/hash_table.h"
+#include "types/iterables.h"
+#include "types/list.h"
+#include "types/memory_heap.h"
+#include "types/set.h"
 
 
 int main() {
-//test_primeros_ejemplos();
+//test_ejemplos();
 //test_list();
 //test_hash_table();
 //test_tree();
 //test_dates();
 //test_string();
 //test_ejercicio62();
-//test_ejemplos();
 //test_set();
-//test_files();
-test_iterables();
+//test_iterables();
+//test_iterables2();
+//test_types();
+test_accumulators();
 }
 

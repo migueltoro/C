@@ -11,10 +11,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stddef.h>
-#include <assert.h>
 #include <stdlib.h>
+#include "../types/preconditions.h"
 
-
+;
 typedef struct {
 	int size;
 	int tam;

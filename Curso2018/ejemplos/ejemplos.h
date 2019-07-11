@@ -17,11 +17,14 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include "types.h"
-#include "hash_table.h"
-#include "files.h"
-#include "list.h"
-#include "memory_heap.h"
+
+#include "../types/types.h"
+#include "../types/memory_heap.h"
+#include "../types/iterables.h"
+#include "../types/hash_table.h"
+#include "../types/list.h"
+
+
 
 double n_problema1(list ls);
 

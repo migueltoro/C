@@ -29,23 +29,22 @@ void test_ejercicio62() {
 }
 
 list leeIterativo(char * file, time_t a, time_t b) {
-	file_iterator fichero = open_file(file);
-	list lista = list_empty();
-	while (has_next_line(&fichero)) {
-		char * linea = next_line(&fichero);
+	iterable f = file_iterable(file);
+	list lista = list_empty(time_type);
+	while (iterable_has_next(&f)) {
+		char * linea = iterable_next(&f);
 		time_t fecha = time_parse(linea);
 		if (time_naturalorder(&fecha, &a) > 0 && time_naturalorder(&b, &fecha) > 0) {
-			list_add_pointer(&lista, to_data_time(&fecha));
+			list_add(&lista, &fecha);
 		}
 	}
-	fclose(fichero.file);
 	return lista;
 }
 
-void rec(file_iterator * f, list * lis, time_t a, time_t b) {
-	if (!has_next_line(f)) {
+void rec(iterable * f, list * lis, time_t a, time_t b) {
+	if (!iterable_has_next(f)) {
 	} else {
-		char * linea = next_line(f);
+		char * linea = iterable_next(f);
 		time_t fecha = time_parse(linea);
 		if (time_naturalorder(&fecha, &a) > 0 && time_naturalorder(&b, &fecha) > 0) {
 			list_add_pointer(lis, to_data_time(&fecha));
@@ -55,10 +54,9 @@ void rec(file_iterator * f, list * lis, time_t a, time_t b) {
 }
 
 list leeRecursivo(char * file, time_t a, time_t b) {
-	file_iterator fichero = open_file(file);
-	list lista = list_empty();
-	rec(&fichero,&lista,a,b);
-	fclose(fichero.file);
+	iterable f = file_iterable(file);
+	list lista = list_empty(time_type);
+	rec(&f,&lista,a,b);
 	return lista;
 }
 
