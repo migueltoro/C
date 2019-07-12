@@ -68,6 +68,7 @@ set iterable_to_set(iterable * st, type type_element);
 hash_table iterable_counting(iterable * st, void * (*f_key)(void * out, void * in), type key_type);
 hash_table iterable_grouping(iterable * st, void * (*f_key)(void * out, void * in), type key_type, type element);
 
+accumulator string_buffer_accumulator();
 
 void test_accumulators();
 #endif /* ACCUMULATORS_H_ */

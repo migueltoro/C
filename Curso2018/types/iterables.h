@@ -22,6 +22,7 @@
 #include "../types/math2.h"
 #include "../types/memory_heap.h"
 #include "../types/types.h"
+#include "../types/preconditions.h"
 
 
 typedef struct st {
@@ -44,9 +45,11 @@ iterable iterable_range_double(double a, double b, double c);
 iterable iterable_iterate(int size_state,void * initial_value, bool (*hash_next)(void * element), void * (*next)(void * out, void * in));
 iterable file_iterable(char * file);
 iterable split_iterable(char * text, const char * delimiters);
+void * string_to_iterable(void * out_iterable, void * in_string);
 
-iterable iterable_map(iterable * st, int size_state, void * (*map_function)(void * out, void * in));
+iterable iterable_map(iterable * st, int size_state, void * (*map_function)(void * out, const void * in));
 iterable iterable_filter(iterable * st, int size_state, bool (*map_filter)(void * in));
+iterable iterable_flatmap(iterable * st, int size_state, void * (*map_function)(void * out, void * in));
 
 char * iterable_tostring(iterable * st, char * (*tostring)(const void * e, char * mem), char * mem);
 char * iterable_tostring_sep(iterable * st, char * (*tostring)(const void * e, char * mem),

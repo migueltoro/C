@@ -23,6 +23,7 @@
 #include "../types/types.h"
 
 typedef struct {
+	bool is_view;
 	type type_element;
 	int size;
 	int tam;
@@ -35,6 +36,7 @@ void swap_in_list(list * ls, int a, int b);
 list list_empty(type element);
 list list_empty_tam(type element, int tam);
 list list_of(void * data, int size, type type_element);
+list list_sublist(list * ls, int a, int b);
 void * list_get(list * ls, const int index);
 int list_size(list * ls);
 void list_add_pointer(list * ls, void * element);

@@ -17,6 +17,6 @@
 void check_argument(bool condition, char * file, int line, char * message);
 void * check_not_null(void * reference, char * file, int line, char * message);
 int check_element_index(int index, int size, char * file, int line);
-int checkPositionIndex(int index, int size, char * file,int line);
+int check_position_index(int index, int size, char * file,int line);
 
 #endif /* PRECONDITIONS_H_ */

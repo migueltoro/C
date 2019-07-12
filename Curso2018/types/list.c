@@ -27,23 +27,31 @@ void list_grow(list * list) {
 }
 
 list list_empty(type type_element){
-	list r = {type_element,0,tam_default,malloc(tam_default*sizeof(void *)),memory_heap_create()};
+	list r = {false,type_element,0,tam_default,malloc(tam_default*sizeof(void *)),memory_heap_create()};
 	return r;
 }
 
 list list_empty_tam(type type_element,int tam){
-	list r = {type_element,0,tam,malloc(tam*sizeof(void *)),memory_heap_create()};
+	list r = {false,type_element,0,tam,malloc(tam*sizeof(void *)),memory_heap_create()};
 	return r;
 }
 
 list list_of(void * data, int size, type type_element){
-	list r = {type_element,0,size,malloc(size*sizeof(void *)),memory_heap_create()};
+	list r = {false,type_element,0,size,malloc(size*sizeof(void *)),memory_heap_create()};
 	char * d = (char *) data;
 	for(int i=0; i<size;i++){
 		r.elements[i] = d+i*r.type_element.size;
 	}
 	r.size = size;
 	r.tam = size;
+	return r;
+}
+
+list list_sublist(list * ls, int a, int b){
+	check_position_index(a,ls->size,__FILE__,__LINE__);
+	check_position_index(b,ls->size,__FILE__,__LINE__);
+	check_argument(b>a,__FILE__,__LINE__,"limites inconsistentes");
+	list r = {true,ls->type_element,b-a,b-a,ls->elements+a,ls->hp};
 	return r;
 }
 
@@ -57,12 +65,14 @@ int list_size(list * ls){
 }
 
 void list_add_pointer(list * list, void * element) {
+	check_argument(!list->is_view,__FILE__,__LINE__,"no se puede modificar una vista");
 	list_grow(list);
 	list->elements[list->size] = element;
 	list->size = list->size + 1;
 }
 
 void list_add(list * ls, void * element){
+	check_argument(!ls->is_view,__FILE__,__LINE__,"no se puede modificar una vista");
 	void * e = memory_heap_to_data(&(ls->hp),element,ls->type_element.size);
 	list_add_pointer(ls,e);
 }
@@ -286,26 +296,30 @@ int string_naturalorder_punt(const void * e1, const void * e2) {
 }
 
 void test_list() {
-	char mem[500];
+	char mem[1000];
 	list ls1 = list_empty(double_type);
 	for (int i = 0; i < 50; i++) {
 		double r = 1. * get_entero_aleatorio(0, 100);
 		list_add(&ls1,&r);
 	}
 	list ls2 = list_empty(double_type);
-	for (int i = 0; i < 30; i++) {
+	for (int i = 0; i < 50; i++) {
 		double r = 1. * get_entero_aleatorio(0, 100);
 		list_add(&ls2, &r);
 	}
 	double a = -340.51;
 	list_add(&ls2, &a);
 	list_add(&ls1, &a);
+	list ls2s = list_sublist(&ls2,10,20);
 	list_sort(&ls1, double_naturalorder);
-	list_sort(&ls2, double_naturalorder);
+	list_sort(&ls2s, double_naturalorder);
+
 	char * s = list_tostring(&ls1, mem);
 	printf("ls1 = %s\n", s);
 	s = list_tostring(&ls2, mem);
 	printf("ls2 = %s\n", s);
+	s = list_tostring(&ls2s, mem);
+	printf("ls2s = %s\n", s);
 	list ls3 = merge_list(&ls1, &ls2, double_naturalorder);
 	s = list_tostring(&ls3, mem);
 	printf("ls3 = %s\n", s);

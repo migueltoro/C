@@ -26,7 +26,7 @@
 
 int main() {
 //test_ejemplos();
-//test_list();
+test_list();
 //test_hash_table();
 //test_tree();
 //test_dates();
@@ -34,8 +34,7 @@ int main() {
 //test_ejercicio62();
 //test_set();
 //test_iterables();
-//test_iterables2();
 //test_types();
-test_accumulators();
+//test_accumulators();
 }
 

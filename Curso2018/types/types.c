@@ -547,6 +547,78 @@ char ** split(char * text, const char * delimiters, char ** tokens, int * ntoken
 	return tokens;
 }
 
+bool string_empty(void * in){
+	char * s = (char *) in;
+	return strlen(s) == 0;
+}
+
+void * string_concat(void * out, const void * in){
+	char * e = (char *) in;
+	char * s = (char *) out;
+	strcat(s,e);
+	return out;
+}
+
+// buffer string
+
+#define INITIAL_TAM 250
+#define INC_TAM 250
+
+string_buffer string_buffer_empty(){
+	void * data = malloc(INITIAL_TAM);
+	string_buffer buffer = {INITIAL_TAM,0,data};
+	return buffer;
+}
+
+string_buffer string_buffer_create(const char * initial){
+	string_buffer bf = string_buffer_empty();
+	string_buffer_add_string(&bf,initial);
+	return bf;
+}
+
+void * string_buffer_add_string(string_buffer * buffer, const char * s) {
+	check_not_null(s,__FILE__,__LINE__,"Cadena null");
+	int n = strlen(s);
+	if(buffer->size+n>buffer->tam){
+		void * r = realloc(buffer->data,MAX(buffer->size+n,buffer->tam+INC_TAM));
+		check_not_null(r,__FILE__,__LINE__,"No ha sido posible aumentar la memoria");
+		buffer->data = (char *) r;
+	}
+	if(buffer->size == 0) strcpy(buffer->data,s);
+	else strcat(buffer->data,s);
+	buffer->size = buffer->size +n;
+	return buffer->data;
+}
+
+void * string_buffer_add_string_g(void * buffer_out, const void * in_string){
+	string_buffer * buffer = (string_buffer *) buffer_out;
+	char * s = (char *) in_string;
+	return string_buffer_add_string(buffer,s);
+}
+
+void * string_buffer_add(void * out, const void * in){
+	string_buffer * buffer = (string_buffer *) out;
+	char * s = ((string_buffer *)in)->data;
+	return string_buffer_add_string(buffer,s);
+}
+
+char * string_buffer_tostring(const void * in, char * mem){
+	string_buffer * buffer = (string_buffer *) in;
+	return buffer->data;
+}
+
+void string_buffer_free(string_buffer * buffer){
+	free(buffer->data);
+}
+
+void * string_to_buffer_string(void * out, const void *in){
+	char * s = (char *) in;
+	string_buffer * bf = (string_buffer *) out;
+	*bf = string_buffer_empty();
+	string_buffer_add_string(bf,s);
+	return out;
+}
+
 // optional type
 
 void * optional_parse_g(void * out, char * text){
@@ -614,12 +686,16 @@ type none_type = {NULL,NULL,NULL,NULL,NULL,NULL,0};
 // utilities
 
 void * copy(void * out, void * in, int size){
-	if(in != NULL) memcpy(out,in,size);
-	else out = NULL;
+	check_not_null(in,__FILE__,__LINE__,"puntero null");
+	check_not_null(out,__FILE__,__LINE__,"puntero null");
+	memcpy(out,in,size);
 	return out;
 }
 
 void * swap(void * out, void * in, int size){
+	check_not_null(in,__FILE__,__LINE__,"puntero null");
+	check_not_null(out,__FILE__,__LINE__,"puntero null");
+	check_argument(size>0,__FILE__,__LINE__,"size debe ser mayor que cero");
 	void * tmp = malloc(size);
 	memcpy(tmp,in,size);
 	memcpy(in,out,size);

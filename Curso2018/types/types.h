@@ -19,7 +19,8 @@
 #include <float.h>
 
 #include "../types/math2.h"
-;
+#include "../types/preconditions.h"
+
 unsigned long int hash(const char * key);
 
 typedef struct{
@@ -185,6 +186,26 @@ extern type string_type;
 char * remove_eol(char * string);
 
 char ** split(char * text, const char * delimiters, char ** tokens, int * ntokens);
+bool string_empty(void * in);
+void * string_concat(void * out_string, const void * in_string);
+
+// string buffer
+
+typedef struct {
+	int tam;
+	int size;
+	char * data;
+} string_buffer;
+
+string_buffer string_buffer_empty();
+string_buffer string_buffer_create(const char * initial);
+void * string_buffer_add_string(string_buffer * buffer, const char * in_string);
+void * string_buffer_add_string_g(void * buffer_out, const void * in_string);
+void * string_buffer_add(void * buffer_out, const void * buffer_in);
+void * string_to_buffer_string(void * buffer_out, const void * string_in);
+char * buffer_string_tostring(string_buffer * buffer, char * mem);
+void string_buffer_free(string_buffer * buffer);
+char * string_buffer_tostring(const void * in, char * mem);
 
 // optional type
 
