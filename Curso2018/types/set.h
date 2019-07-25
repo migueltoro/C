@@ -33,6 +33,7 @@ char * set_tostring(set * st, char * mem);
 iterable set_iterable(set * st);
 
 void set_free(set * st);
+void set_free_2(set * st, void (*f)(void * in));
 
 set complete_set();
 void test_set();

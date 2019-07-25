@@ -74,10 +74,4 @@ double get_double_aleatorio(double a, double b);
  */
 long mcd(long a, long b);
 
-
-void * int_sum(void * out, const void * in);
-void * long_sum(void * out, const void * in);
-void * float_sum(void * out, const void * in);
-void * double_sum(void * out, const void * in);
-
 #endif /* MATH2_H_ */

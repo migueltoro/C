@@ -7,15 +7,16 @@
 
 #include "../types/iterables.h"
 
-iterable create_iterable(
+iterable iterable_create(
 		int size_state,
 		bool (*has_next)(struct st * iterable),
 		void * (*next)(struct st * iterable),
 		void * (*see_next)(struct st * iterable),
+		void (*free_dependencies)(void * in),
 		void * dependencies,
 		int size_dependencies);
 
-void copy_state_to_auxiliary(iterable * st){
+void iterable_copy_state_to_auxiliary(iterable * st){
 	memcpy(st->auxiliary_state,st->state,st->size_state);
 }
 
@@ -33,18 +34,28 @@ void * iterable_next(iterable * st) {
 	return st->next(st);
 }
 
-iterable create_iterable(
+iterable iterable_create(
 		int size_state,
 		bool (*has_next)(struct st * iterable),
 		void * (*next)(struct st * iterable),
 		void * (*see_next)(struct st * iterable),
+		void (*free_dependencies)(void * in),
 		void * dependencies,
 		int size_dependencies){
-	memory_heap hp = memory_heap_create();
-	void * state = memory_heap_get_memory(&hp,size_state);
-	void * auxiliary_state = memory_heap_get_memory(&hp,size_state);
-	void * dp = memory_heap_to_data(&hp,dependencies,size_dependencies);
-	iterable r = {hp,size_state,state,auxiliary_state,has_next,next,see_next,dp};
+	void * state = malloc(size_state);
+	void * auxiliary_state = malloc(size_state);
+	void * dp = copy_and_mem(dependencies,size_dependencies);
+	iterable r = {size_state,size_dependencies,state,auxiliary_state,has_next,next,see_next,free_dependencies,dp};
+	return r;
+}
+
+bool has_next_false(iterable * st){
+	return false;
+}
+
+
+iterable iterable_empty(){
+	iterable r = {0,0,NULL,NULL,has_next_false,NULL,NULL,NULL,NULL};
 	return r;
 }
 
@@ -77,13 +88,12 @@ void * iterable_map_next(iterable * current_iterable) {
 iterable iterable_map(iterable * depending_iterable, int size_state, void * (*map_function)(void * out, const void * in)) {
 	dependencies_map dp = {depending_iterable, map_function};
 	int size_dp = sizeof(dependencies_map);
-	iterable r = create_iterable(size_state,iterable_map_has_next,iterable_map_next,iterable_map_see_next,&dp,size_dp);
+	iterable r = iterable_create(size_state,iterable_map_has_next,iterable_map_next,iterable_map_see_next,NULL,&dp,size_dp);
 	return r;
 }
 
 
 typedef struct{
-	bool empty;
 	iterable actual_iterable;
 	iterable * depending_iterable;
 	void * (*map_function)(void * target, void * source);
@@ -92,8 +102,7 @@ typedef struct{
 bool iterable_flatmap_has_next(iterable * current_iterable){
 	dependencies_flatmap * d = (dependencies_flatmap *) current_iterable->dependencies;
 	iterable act = d->actual_iterable;
-	iterable * dep = d->depending_iterable;
-	return !d->empty &&(iterable_has_next(&act) || iterable_has_next(dep));
+	return iterable_has_next(&act);
 }
 
 void * iterable_flatmap_see_next(iterable * current_iterable){
@@ -105,24 +114,30 @@ void * iterable_flatmap_see_next(iterable * current_iterable){
 void * iterable_flatmap_next(iterable * current_iterable) {
 	dependencies_flatmap * d = (dependencies_flatmap *) current_iterable->dependencies;
 	iterable * depending_iterable = d->depending_iterable;
-	iterable actual_iterable = d->actual_iterable;
-	if(!iterable_has_next(&actual_iterable)){
-		d->map_function(&actual_iterable,iterable_next(depending_iterable));
+	copy(current_iterable->auxiliary_state,iterable_next(&d->actual_iterable),current_iterable->size_state);
+	while(!iterable_has_next(&d->actual_iterable)){
+		if(iterable_has_next(depending_iterable)){
+			iterable_free(&d->actual_iterable);
+			d->map_function(&d->actual_iterable,iterable_next(depending_iterable));
+		}
+		else break;
 	}
-	return iterable_next(&actual_iterable);
+	return current_iterable->auxiliary_state;
 }
 
 
-iterable iterable_flatmap(iterable * depending_iterable, int size_state, void * (*map_function)(void * out, void * in)) {
-	iterable rm;
-	dependencies_flatmap dp = {true,rm,depending_iterable, map_function};
+iterable iterable_flatmap(iterable * depending_iterable, int size_state,
+		void * (*map_function)(void * out, void * in)) {
+	iterable actual_iterable;
+	dependencies_flatmap dp = {actual_iterable, depending_iterable, map_function};
 	int size_dp = sizeof(dependencies_flatmap);
-	iterable r = create_iterable(0,iterable_flatmap_has_next,iterable_flatmap_next,iterable_flatmap_see_next,&dp,size_dp);
-	if(iterable_has_next(depending_iterable)){
-		map_function(&dp.actual_iterable,iterable_next(depending_iterable));
-		dp.empty = false;
-		r = create_iterable(size_state,iterable_flatmap_has_next,iterable_flatmap_next,iterable_flatmap_see_next,&dp,size_dp);
-	}
+	do {
+		if(iterable_has_next(depending_iterable))
+			map_function(&dp.actual_iterable, iterable_next(depending_iterable));
+		else break;
+	} while (!iterable_has_next(&dp.actual_iterable) && iterable_has_next(depending_iterable));
+	iterable r = iterable_create(size_state, iterable_flatmap_has_next,
+			iterable_flatmap_next, iterable_flatmap_see_next, NULL, &dp, size_dp);
 	return r;
 }
 
@@ -159,7 +174,7 @@ void * iterable_filter_see_next(iterable * current_iterable){
 void * iterable_filter_next(iterable * current_iterable) {
 	dependencies_filter * d = (dependencies_filter *) current_iterable->dependencies;
 	iterable * depending_iterable = d->depending_iterable;
-	copy_state_to_auxiliary(current_iterable);
+	iterable_copy_state_to_auxiliary(current_iterable);
 	iterable_next(depending_iterable);
 	next_depending_state(current_iterable);
 	return current_iterable->auxiliary_state;
@@ -169,9 +184,61 @@ void * iterable_filter_next(iterable * current_iterable) {
 iterable iterable_filter(iterable * depending_iterable, int size_state, bool (*filter_predicate)(void *)) {
 	dependencies_filter df = {depending_iterable,filter_predicate,true};
 	int size_df = sizeof(dependencies_filter);
-	iterable new_st = create_iterable(size_state,iterable_filter_has_next,iterable_filter_next,iterable_filter_see_next,&df,size_df);
+	iterable new_st = iterable_create(size_state,iterable_filter_has_next,iterable_filter_next,iterable_filter_see_next,NULL,&df,size_df);
 	next_depending_state(&new_st);
 	return new_st;
+}
+
+void * _old_f_consecutive_pair;
+void * _new_f_consecutive_pair;
+int _size_f_consecutive_pair;
+
+char * pair_long_long(pair * p, char * mem);
+
+pair * _f_consecutive_pair(pair * out, void * in) {
+	if(out!=NULL){
+		copy(_old_f_consecutive_pair,_new_f_consecutive_pair,_size_f_consecutive_pair);
+		pair p = {_old_f_consecutive_pair,in};
+		*out = p;
+
+	}
+	copy(_new_f_consecutive_pair,in,_size_f_consecutive_pair);
+	return out;
+}
+
+iterable iterable_consecutive_pairs(iterable * st,int size_element){
+	_size_f_consecutive_pair = size_element;
+	free(_old_f_consecutive_pair);
+	free(_new_f_consecutive_pair);
+	_old_f_consecutive_pair = malloc(size_element);
+	_new_f_consecutive_pair = malloc(size_element);
+	iterable r = iterable_empty();
+	if(iterable_has_next(st)) {
+		void * e = iterable_next(st);
+		_f_consecutive_pair(NULL,e);
+	}
+	if(iterable_has_next(st)) {
+		r = iterable_map(st,sizeof(pair),_f_consecutive_pair);
+	}
+	return r;
+}
+
+pair_enumerate * _f_pair_enumerate(pair_enumerate * out, void * in) {
+	static int n;
+	if (in == NULL) {
+		n = 0;
+		return out;
+	}
+	pair_enumerate p = {in, n };
+	*out = p;
+	n = n+1;
+	return out;
+}
+
+iterable iterable_enumerate(iterable * st){
+	_f_pair_enumerate(NULL,NULL);
+	iterable r = iterable_map(st,sizeof(pair_enumerate),_f_pair_enumerate);
+	return r;
 }
 
 typedef struct {
@@ -191,7 +258,7 @@ void * iterable_range_long_see_next(iterable * current_iterable){
 
 void * iterable_range_long_next(iterable * current_iterable){
 	dependencies_range_long * d = (dependencies_range_long *) current_iterable->dependencies;
-	copy_state_to_auxiliary(current_iterable);
+	iterable_copy_state_to_auxiliary(current_iterable);
 	*((long*) current_iterable->state) = *((long*) current_iterable->state) +d->c;
 	return current_iterable->auxiliary_state;
 }
@@ -199,7 +266,7 @@ void * iterable_range_long_next(iterable * current_iterable){
 iterable iterable_range_long(long a, long b, long c){
 	dependencies_range_long dr = {a,b,c};
 	int size_dr = sizeof(dependencies_range_long);
-	iterable new_st = create_iterable(sizeof(double),iterable_range_long_has_next,iterable_range_long_next,iterable_range_long_see_next,&dr,size_dr);
+	iterable new_st = iterable_create(sizeof(double),iterable_range_long_has_next,iterable_range_long_next,iterable_range_long_see_next,NULL,&dr,size_dr);
 	*((long*) new_st.state) = a;
 	return new_st;
 }
@@ -221,7 +288,7 @@ void * iterable_range_double_see_next(iterable * current_iterable){
 
 void * iterable_range_double_next(iterable * current_iterable){
 	dependencies_range_double * d = (dependencies_range_double *) current_iterable->dependencies;
-	copy_state_to_auxiliary(current_iterable);
+	iterable_copy_state_to_auxiliary(current_iterable);
 	*((double*) current_iterable->state) = *((double*) current_iterable->state) +d->c;
 	return current_iterable->auxiliary_state;
 }
@@ -229,7 +296,7 @@ void * iterable_range_double_next(iterable * current_iterable){
 iterable iterable_range_double(double a, double b, double c){
 	dependencies_range_double dr = {a,b,c};
 	int size_dr = sizeof(dependencies_range_double);
-	iterable new_st = create_iterable(sizeof(double),iterable_range_double_has_next,iterable_range_double_next,iterable_range_double_see_next,&dr,size_dr);
+	iterable new_st = iterable_create(sizeof(double),iterable_range_double_has_next,iterable_range_double_next,iterable_range_double_see_next,NULL,&dr,size_dr);
 	*((double*) new_st.state) = a;
 	return new_st;
 }
@@ -252,7 +319,7 @@ void * iterable_iterate_see_next(iterable * current_iterable){
 
 void * iterable_iterate_next(iterable * current_iterable){
 	dependencies_iterate * d = (dependencies_iterate *) current_iterable->dependencies;
-	copy_state_to_auxiliary(current_iterable);
+	iterable_copy_state_to_auxiliary(current_iterable);
 	d->has_next(current_iterable->state, current_iterable->state);
 	return current_iterable->auxiliary_state;
 }
@@ -263,17 +330,18 @@ iterable iterable_iterate(int size_state,
 		void * (*next)(void * out, void * in)) {
 	dependencies_iterate di = {initial_value, has_next, next};
 	int size_di = sizeof(dependencies_iterate);
-	iterable new_st = create_iterable(size_state,iterable_iterate_has_next,
-			iterable_iterate_next,iterable_iterate_see_next,&di,size_di);
+	iterable new_st = iterable_create(size_state,iterable_iterate_has_next,
+			iterable_iterate_next,iterable_iterate_see_next,NULL,&di,size_di);
 	copy(new_st.state,initial_value,size_state);
 	return new_st;
 }
 
-
 typedef struct{
 	char * text;
+	int size_text;
 	char * token;
-	char delimiters[Tam_String];
+	char * delimiters;
+	int size_delimiters;
 }dependencies_split;
 
 bool iterable_split_has_next(iterable * current_iterable) {
@@ -293,24 +361,35 @@ void * iterable_split_next(iterable * current_iterable){
 	return old;
 }
 
-iterable split_iterable(char * text, const char * delimiters){
-	int ln = strlen(text);
-	dependencies_split ds;
-	ds.text = malloc(ln+10);
-	strcpy(ds.text,text);
-	strcpy(ds.delimiters,delimiters);
-	ds.token = strtok(ds.text,ds.delimiters);
-	int size_ds = sizeof(dependencies_split);
-	iterable s_list = create_iterable(Tam_String,iterable_split_has_next,iterable_split_next,iterable_split_see_next,&ds,size_ds);
-	return s_list;
+void create_dependencies_split(dependencies_split * ds){
+	ds->text = malloc(ds->size_text);
+	ds->delimiters = malloc(ds->size_delimiters);
 }
 
-void * string_to_iterable(void * out, void * in){
-	iterable * s = (iterable *) out;
-	char * s_in = (char *) in;
-	char delimiters[] = " ,;.()";
-	iterable it = split_iterable(s_in,delimiters);
-	*s = it;
+void dependencies_split_free(dependencies_split * ds){
+	free(ds->text);
+	free(ds->delimiters);
+	free(ds);
+}
+
+
+iterable split_iterable_pchar(char * text, const char * delimiters) {
+	dependencies_split ds;
+	ds.size_text = strlen(text)+2;
+	ds.size_delimiters = strlen(delimiters)+2;
+	create_dependencies_split(&ds);
+	int size_ds = sizeof(dependencies_split);
+	strcpy(ds.text,text);
+	strcpy(ds.delimiters,delimiters);
+	ds.token = strtok(ds.text,delimiters);
+	iterable r = iterable_create(0, iterable_split_has_next,
+			iterable_split_next, iterable_split_see_next,dependencies_split_free, &ds, size_ds);
+	return r;
+}
+
+
+iterable * pchar_to_iterable_pchar(iterable * out, char * text){
+	*out = split_iterable_pchar(text," ,;.()");
 	return out;
 }
 
@@ -318,6 +397,10 @@ typedef struct{
 	FILE * file;
 	bool has_next;
 }dependencies_file;
+
+void free_dependencies_file(dependencies_file * df){
+	fclose(df->file);
+}
 
 bool iterable_file_has_next(iterable * current_iterable) {
 	dependencies_file * dp = (dependencies_file *) current_iterable->dependencies;
@@ -330,21 +413,22 @@ void * iterable_file_see_next(iterable * current_iterable){
 
 void * iterable_file_next(iterable * current_iterable){
 	dependencies_file * dp = (dependencies_file *) current_iterable->dependencies;
-	copy_state_to_auxiliary(current_iterable);
+	iterable_copy_state_to_auxiliary(current_iterable);
 	char * r = fgets(current_iterable->state, Tam_String, dp->file);
 	dp->has_next = r!=NULL;
-	remove_eol(current_iterable->auxiliary_state);
+	remove_eol_s(current_iterable->auxiliary_state);
 	return current_iterable->auxiliary_state;
 }
 
 
-iterable file_iterable(char * file) {
+iterable file_iterable_pchar(char * file) {
 	FILE * st = fopen(file,"r");
 	char  ms[Tam_String] = "no se encuentra el fichero ";
 	check_not_null(st,__FILE__,__LINE__,strcat(ms,file));
 	dependencies_file df = {st,false};
 	int size_df = sizeof(dependencies_file);
-	iterable s_file = create_iterable(Tam_String,iterable_file_has_next,iterable_file_next,iterable_file_see_next,&df,size_df);
+	iterable s_file = iterable_create(Tam_String,iterable_file_has_next,iterable_file_next,
+			iterable_file_see_next,free_dependencies_file,&df,size_df);
 	char * r = fgets(s_file.state,Tam_String,((dependencies_file *)s_file.dependencies)->file);
 	((dependencies_file *)s_file.dependencies)->has_next = r!=NULL;
 	return s_file;
@@ -381,7 +465,7 @@ char * iterable_tostring_sep(iterable * st,
 }
 
 void iterable_toconsole(iterable * st, char * (*tostring)(const void * e, char * mem)){
-	return iterable_toconsole_sep(st,tostring,",", "{", "}");
+	iterable_toconsole_sep(st,tostring,",", "{", "}");
 }
 
 void iterable_toconsole_sep(iterable * st, char * (*tostring)(const void * e, char * mem),
@@ -408,54 +492,133 @@ void write_iterable_to_file(char * file, iterable * st, char * tostring(const vo
 	fclose(f);
 }
 
-
 void iterable_free(iterable * st) {
 	free(st->state);
 	free(st->auxiliary_state);
-	free(st->dependencies);
-	memory_heap_free(&(st->hp));
+	if(st->free_dependencies != NULL) st->free_dependencies(st->dependencies);
+	else free(st->dependencies);
 }
 
-bool multiplo(void * in){
-	long p = to_long(in);
-	return p%7 == 0;
+
+bool multiplo(long * in){
+	return (*in)%7 == 0;
 }
 
-void * fm(void * out, const void * in){
-	char * s = (char *) in;
-	punto p = punto_parse(s);
-	*to_punto_pointer(out) = p;
-	return out;
-}
 
-bool ft(void * in){
-	punto p = to_punto(in);
-	Cuadrante c = punto_cuadrante(p);
+bool ft(punto * in){
+	Cuadrante c = punto_cuadrante(in);
 	return c == PRIMERO;
 }
 
+long * cuadrado(long * out,long * in){
+	*out = (*in)*(*in);
+	return out;
+}
+
+char * pair_long_long(pair * p, char * mem){
+	sprintf(mem,"(%ld,%ld)",*(long*) p->key, *(long*) p->value);
+	return mem;
+}
+
+char * pair_enumerate_long(pair_enumerate * p, char * mem){
+	sprintf(mem,"(%ld,%d)",*(long*) p->key, p->n);
+	return mem;
+}
+
+char * pair_enumerate_pchar(pair_enumerate * p, char * mem){
+	sprintf(mem,"(%s,%d)",(char*) p->key, p->n);
+	return mem;
+}
+
+char * pair_pchar_pchar(pair * p, char * mem){
+	sprintf(mem,"(%s,%s)",(char*) p->key, (char *) p->value);
+	return mem;
+}
 
 void test_iterables() {
 	char mem[500];
 	iterable r = iterable_range_long(0, 500, 2);
 	iterable f = iterable_filter(&r, sizeof(long), multiplo);
+	iterable s = iterable_map(&f,sizeof(long),cuadrado);
 	printf("\n");
-	iterable_toconsole(&f, long_tostring);
+	iterable_toconsole(&s, long_tostring);
 	printf("\n_______________\n");
 	char delimiters[] = " ,;.";
 	char text[] = "El    Gobierno abre la puerta a no;llevar los Presupuestos.Generales de 2019 al Congreso si no logra los apoyos suficientes para sacarlos adelante. Esa opción que ya deslizaron fuentes próximas al presidente la ha confirmado la portavoz, Isabel Celaá, en la rueda de prensa posterior a la reunión del gabinete en la que ha asegurado que el Consejo de Ministras tomará la decisión sobre llevar o no las cuentas públicas al Parlamento una vez concluyan las negociaciones de la ministra María Jesús Montero. ";
-	iterable sp = split_iterable(text,delimiters);
-	iterable_toconsole(&sp, string_tostring);
+	iterable sp = split_iterable_pchar(text,delimiters);
+	iterable_toconsole(&sp, pchar_tostring);
 	printf("\n_______________\n");
-	iterable fit = file_iterable("ficheros/prueba.txt");
-	iterable fmap = iterable_map(&fit,sizeof(punto),fm);
+	iterable fit = file_iterable_pchar("ficheros/prueba.txt");
+	iterable fmap = iterable_map(&fit,sizeof(punto),punto_parse);
 	iterable ff = iterable_filter(&fmap,sizeof(punto),ft);
-	char * s = iterable_tostring(&ff,punto_tostring,mem);
-	printf("\n%s\n",s);
-	fit = file_iterable("ficheros/prueba2.txt");
-	fmap = iterable_flatmap(&fit,Tam_String,string_to_iterable);
-	s = iterable_tostring(&fmap,string_tostring,mem);
-	printf("\n%s\n",s);
+	char * rs = iterable_tostring(&ff,punto_tostring,mem);
+	printf("\n%s\n",rs);
+	r = iterable_range_long(0, 9, 2);
+	iterable r2 = iterable_consecutive_pairs(&r,sizeof(long));
+	iterable_toconsole(&r2,pair_long_long);
+	printf("\n_______________\n");
+	r = iterable_range_long(0, 9, 2);
+	r2 = iterable_enumerate(&r);
+	iterable_toconsole(&r2,pair_enumerate_long);
+}
+
+void test_iterables2() {
+	char mem[500];
+	iterable r = iterable_range_long(0, 14, 2);
+	iterable r2 = r;
+	iterable r3 = r2;
+	printf("\n");
+	iterable_toconsole(&r3, long_tostring);
+	iterable fit = file_iterable_pchar("ficheros/prueba.txt");
+	iterable fmap = iterable_map(&fit,sizeof(punto),punto_parse);
+	iterable ff = iterable_filter(&fmap,sizeof(punto),ft);
+	iterable rr = ff;
+	char * rs = iterable_tostring(&ff,punto_tostring,mem);
+	printf("\n%s\n",rs);
+	iterable p1 = split_iterable_pchar("     En un lugar de la Mancha, de cuyo nombre no quiero"," ,;.");
+	iterable p2 = p1;
+	iterable_toconsole(&p1,pchar_tostring);
+	printf("\n_________________\n");
+	iterable p3;
+	char text[] = "El    Gobierno abre la puerta a no;llevar los Presupuestos.Generales de 2019 al Congreso si no logra los apoyos suficientes para sacarlos adelante. Esa opción que ya deslizaron fuentes próximas al presidente la ha confirmado la portavoz, Isabel Celaá, en la rueda de prensa posterior a la reunión del gabinete en la que ha asegurado que el Consejo de Ministras tomará la decisión sobre llevar o no las cuentas públicas al Parlamento una vez concluyan las negociaciones de la ministra María Jesús Montero. ";
+	pchar_to_iterable_pchar(&p3,text);
+	iterable_toconsole(&p3, pchar_tostring);
+	iterable_free(&p3);
+	printf("\n_________________\n");
+	char text2[] = "El    Gobierno abre la puerta a no;llevar los Presupuestos.Generales de 2019 al Congreso si no logra los apoyos suficientes para sacarlos adelante. Esa opción que ya deslizaron fuentes próximas al presidente la ha confirmado la portavoz, Isabel Celaá, en la rueda de prensa posterior a la reunión del gabinete en la que ha asegurado que el Consejo de Ministras tomará la decisión sobre llevar o no las cuentas públicas al Parlamento una vez concluyan las negociaciones de la ministra María Jesús Montero. ";
+	pchar_to_iterable_pchar(&p3,text2);
+	iterable it = iterable_consecutive_pairs(&p3,20);
+	iterable_toconsole(&it,pair_pchar_pchar);
+	printf("\n______________\n");
+	char text3[] = "El    Gobierno abre la puerta a no;llevar los Presupuestos.Generales de 2019 al Congreso si no logra los apoyos suficientes para sacarlos adelante. Esa opción que ya deslizaron fuentes próximas al presidente la ha confirmado la portavoz, Isabel Celaá, en la rueda de prensa posterior a la reunión del gabinete en la que ha asegurado que el Consejo de Ministras tomará la decisión sobre llevar o no las cuentas públicas al Parlamento una vez concluyan las negociaciones de la ministra María Jesús Montero. ";
+	pchar_to_iterable_pchar(&p3,text2);
+	iterable it2 = iterable_enumerate(&p3);
+	iterable_toconsole(&it2,pair_enumerate_pchar);
+}
+
+void test_iterables3(){
+	iterable fit = file_iterable_pchar("ficheros/prueba2.txt");
+	iterable fit2 = iterable_filter(&fit, Tam_String, pchar_not_all_space);
+	iterable fit3 = iterable_map(&fit2,Tam_String, remove_eol);
+	iterable fmap = iterable_flatmap(&fit3,Tam_String,pchar_to_iterable_pchar);
+	iterable_toconsole_sep(&fmap,pchar_tostring,",","{","}");
+	printf("\n_________________\n");
+	iterable git1 = file_iterable_pchar("ficheros/quijote.txt");
+	iterable git2 = iterable_filter(&git1,Tam_String, pchar_not_all_space);
+	iterable git3 = iterable_map(&git2,Tam_String,remove_eol);
+	iterable gmap = iterable_flatmap(&git3,Tam_String,pchar_to_iterable_pchar);
+	int n =0;
+	while(iterable_has_next(&gmap)){
+		n++;
+		char * s = (char *) iterable_next(&gmap);
+		printf("%s\n",s);
+	}
+	printf("Número de palabras %d",n);
+	iterable_free(&git1);
+	iterable_free(&git2);
+	iterable_free(&git3);
+	iterable_free(&gmap);
+	printf("\n_______________\n");
 }
 
 

@@ -64,7 +64,7 @@ void * iterable_set_next(iterable * current_iterable){
 iterable set_iterable(set * st){
 	dependencies_set ds = {hash_table_items_iterable(&st->hash_table)};
 	int size_ds = sizeof(dependencies_set);
-	iterable s_set = create_iterable(sizeof(void *),iterable_set_has_next,iterable_set_next,iterable_set_see_next,&ds,size_ds);
+	iterable s_set = iterable_create(sizeof(void *),iterable_set_has_next,iterable_set_next,iterable_set_see_next,NULL,&ds,size_ds);
 	return s_set;
 }
 

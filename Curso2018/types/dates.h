@@ -27,10 +27,11 @@
 //};
 
 time_t time_now();
-time_t time_parse(char * text);
+time_t time_parse_date(char * text);
 time_t time_parse_hour(char * text);
-time_t time_create(int day, int month, int year);
-time_t time_create_hour(int day, int month, int year, int hour, int minute, int second);
+time_t time_parse_day_hour(char * text);
+time_t time_create_date(int day, int month, int year);
+time_t time_create_date_hour(int day, int month, int year, int hour, int minute, int second);
 struct tm * time_calendar(time_t time);
 time_t time_add_days(time_t date, int days);
 time_t time_add_months(time_t date, int months);
@@ -39,7 +40,14 @@ time_t time_minus_days(time_t date, int days);
 time_t time_minus_months(time_t date, int months);
 time_t time_minus_years(time_t date, int years);
 
+double time_diff_seconds(time_t end, time_t start);
+double time_diff_minutes(time_t end, time_t start);
+double time_diff_hours(time_t end, time_t star);
+
 char * time_tostring(const void * p, char * mem);
+char * time_all_tostring(const void * p, char * mem);
+char * time_date_tostring(const void * p, char * mem);
+char * time_hours_tostring(const void * p, char * mem);
 bool time_equals(const void * p1, const void * p2);
 int time_naturalorder(const void * t1,const  void * t2);
 

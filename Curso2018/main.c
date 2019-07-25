@@ -22,11 +22,13 @@
 #include "types/list.h"
 #include "types/memory_heap.h"
 #include "types/set.h"
+#include "ruta/marca.h"
+#include "ruta/ruta.h"
 
 
 int main() {
 //test_ejemplos();
-test_list();
+//test_list();
 //test_hash_table();
 //test_tree();
 //test_dates();
@@ -34,7 +36,12 @@ test_list();
 //test_ejercicio62();
 //test_set();
 //test_iterables();
+//test_iterables2();
+//test_iterables3();
 //test_types();
 //test_accumulators();
+//test_marca();
+test_ruta();
+//test_palabras();
 }
 

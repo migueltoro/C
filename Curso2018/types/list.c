@@ -47,6 +47,15 @@ list list_of(void * data, int size, type type_element){
 	return r;
 }
 
+list list_of_pchar(char ** data, int size){
+	list ls = list_empty(string_type);
+	for(int i=0; i<size;i++){
+		string s = string_of_pchar(data[i]);
+		list_add(&ls,&s);
+	}
+	return ls;
+}
+
 list list_sublist(list * ls, int a, int b){
 	check_position_index(a,ls->size,__FILE__,__LINE__);
 	check_position_index(b,ls->size,__FILE__,__LINE__);
@@ -56,8 +65,12 @@ list list_sublist(list * ls, int a, int b){
 }
 
 void * list_get(list * list, const int index){
-	assert(index < list->size && "index out of range");
+	check_element_index(index,list->size,__FILE__,__LINE__);
 	return list->elements[index];
+}
+
+char * list_get_string(list * ls, const int index, char * mem){
+	return ls->type_element.tostring(list_get(ls,index),mem);
 }
 
 int list_size(list * ls){
@@ -88,12 +101,13 @@ list list_filter(list * ls, bool (*predicate)(void * e), int sizeElement){
 	return r;
 }
 
-list list_map(list * ls, void * (*f)(void * e), type type_element) {
+list list_map(list * ls, void * (*f)(void * out, void * in), type type_element) {
 	list r = list_empty(type_element);
 	for (int i = 0; i < ls->size; i++) {
 		void * e = list_get(ls, i);
-		void * t = f(e);
-		list_add(&r, t);
+		char temp[type_element.size];
+		f(temp,e);
+		list_add(&r, temp);
 	}
 	return r;
 }
@@ -124,7 +138,7 @@ void * iterable_list_next(iterable * current_iterable){
 iterable list_iterable(list * ls){
 	dependencies_list dl = {ls,0};
 	int size_dl = sizeof(dependencies_list);
-	iterable s_list = create_iterable(sizeof(void *),iterable_list_has_next,iterable_list_next,iterable_list_see_next,&dl,size_dl);
+	iterable s_list = iterable_create(sizeof(void *),iterable_list_has_next,iterable_list_next,iterable_list_see_next,NULL,&dl,size_dl);
 	return s_list;
 }
 
@@ -143,13 +157,14 @@ void write_list_to_file(char * file, list * list, char * tostring(const void * s
 	fclose(f);
 }
 
-list lines(char * file){
+list list_of_string_of_file(char * file){
 	list r = list_empty(string_type);
-	iterable f = file_iterable(file);
+	iterable f = file_iterable_pchar(file);
 	while(iterable_has_next(&f)){
 		char * s = iterable_next(&f);
-		remove_eol(s);
-		list_add(&r,s);
+		remove_eol_s(s);
+		string st = string_of_pchar(s);
+		list_add(&r,&st);
 	}
 	return r;
 }
@@ -157,6 +172,13 @@ list lines(char * file){
 void list_free(list * list){
 	free(list->elements);
 	memory_heap_free(&(list->hp));
+}
+
+void list_free_2(list * ls, void (*f)(void * in)){
+	for(int i = 0; i < ls->size; i++){
+		f(list_get(ls,i));
+	}
+	list_free(ls);
 }
 
 list merge_list(list * ls1, list * ls2, int (*order)(const void * e1, const void * e2)) {
@@ -313,29 +335,33 @@ void test_list() {
 	list ls2s = list_sublist(&ls2,10,20);
 	list_sort(&ls1, double_naturalorder);
 	list_sort(&ls2s, double_naturalorder);
-
 	char * s = list_tostring(&ls1, mem);
 	printf("ls1 = %s\n", s);
 	s = list_tostring(&ls2, mem);
 	printf("ls2 = %s\n", s);
 	s = list_tostring(&ls2s, mem);
 	printf("ls2s = %s\n", s);
-	list ls3 = merge_list(&ls1, &ls2, double_naturalorder);
+	list ls3 = merge_list(&ls1, &ls2s, double_naturalorder);
 	s = list_tostring(&ls3, mem);
 	printf("ls3 = %s\n", s);
 	double d[] = {2.,3.,4.5,5.7,8.9,-3.1};
 	list ls4 = list_of(d,6,double_type);
 	s = list_tostring(&ls4, mem);
 	printf("ls4 = %s\n", s);
-	string as[] = {"Hola","Juan","Antonio","Pepe","Juan","Diaz"};
-	list ls5 = list_of(as,6,string_type);
-//	list_sort(&ls5, string_naturalorder);
-	qsort(ls5.elements, ls5.size, sizeof(void *),string_naturalorder_punt);
+	char * as[] = {"Hola","Juan","Antonio","Pepe","Juan","Diaz"};
+	list ls5 = list_of_pchar(as,6);
+	list_sort(&ls5, string_naturalorder);
 	s = list_tostring(&ls5,  mem);
 	printf("ls5 = %s\n", s);
-	list ls = lines("ficheros/prueba.txt");
+	list ls = list_of_string_of_file("ficheros/prueba.txt");
 	char * s1 = list_get(&ls,2);
-	printf("s1 = %s\n", s1);
+	printf("s1 = %s\n", string_tostring(s1,mem));
 	s = list_tostring(&ls,mem);
 	printf("ls1 = %s\n", s);
+	list_free_2(&ls5,string_free);
+	list_free_2(&ls,string_free);
+	list_free(&ls1);
+	list_free(&ls2);
+	list_free(&ls3);
+	list_free(&ls4);
 }

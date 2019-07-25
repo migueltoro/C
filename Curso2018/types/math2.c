@@ -120,29 +120,3 @@ long mcd(long a, long b) {
 	}
 	return u;
 }
-
-void * int_sum(void * out, const void * in){
-	int * e = (int *) in;
-	int * s = (int *) out;
-	*s = *s + *e;
-	return out;
-}
-
-void * long_sum(void * out, const void * in){
-	long * e = (long *) in;
-	long * s = (long *) out;
-	*s = *s + *e;
-	return out;
-}
-void * float_sum(void * out, const void * in){
-	float * e = (float *) in;
-	float * s = (float *) out;
-	*s = *s + *e;
-	return out;
-}
-void * double_sum(void * out, const void * in){
-	double * e = (double *) in;
-	double * s = (double *) out;
-	*s = *s + *e;
-	return out;
-}

@@ -7,9 +7,9 @@
 
 #include "../types/hash_table.h"
 
-int _primes[] = {13, 23, 41, 61, 83, 151, 199, 263, 383, 503, 641, 769, 911, 1049, 1559};
+int _primes[] = {13, 23, 41, 61, 83, 151, 199, 263, 383, 503, 641, 769, 911, 1049, 1559, 1709, 2069,5923,11587,56527};
 int _next_prime = 0;
-int _nprimes = 15;
+int _nprimes = 20;
 
 
 int get_index_block(hash_table * table, void * key);
@@ -46,11 +46,8 @@ void ini_data(hash_table * table) {
 }
 
 int get_index_block(hash_table * table, void * key) {
-	char mem[256];
-	table->key_type.tostring(key, mem);
-	unsigned long int hash_index = hash(mem);
+	unsigned long int hash_index = hash_code(key,table->key_type);
 	int index = (int) (hash_index % (table->capacity_blocks));
-	check_argument(index >= 0 && index < table->capacity_blocks,__FILE__,__LINE__,"no es el índice de un bloque posible");
 	return index;
 }
 
@@ -134,7 +131,6 @@ int rehash(hash_table * table) {
 entry * ocupa_primera_libre(hash_table * table, int index) {
 	int first_free = table->first_free_data;
 	table->first_free_data = table->data[first_free].next;
-	table->size = table->size + 1;
 	if (table->blocks[index] < 0) {
 		table->data[first_free].next = -1;
 	} else {
@@ -187,7 +183,7 @@ typedef struct{
 	int nb;
 	int i;
 	int j;
-	bool first;
+//	bool first;
 }dependencies_hash_table;
 
 bool iterable_hash_table_has_next(iterable * current_iterable) {
@@ -196,6 +192,11 @@ bool iterable_hash_table_has_next(iterable * current_iterable) {
 }
 
 void * iterable_hash_table_see_next(iterable * current_iterable){
+	dependencies_hash_table * dp = (dependencies_hash_table *) current_iterable->dependencies;
+	hash_table * table = dp->ht;
+	pair * state = (pair *)current_iterable->state;
+	state->key = table->data[dp->j].key;
+	state->value = table->data[dp->j].value;
     return current_iterable->state;
 }
 
@@ -213,33 +214,21 @@ void next_state(dependencies_hash_table * dp){
 	dp->j = j;
 }
 
-void copy_from_table(iterable * current_iterable){
+void * iterable_hash_table_next(iterable * current_iterable){
 	dependencies_hash_table * dp = (dependencies_hash_table *) current_iterable->dependencies;
 	hash_table * table = dp->ht;
 	pair * state = (pair *)current_iterable->state;
 	state->key = table->data[dp->j].key;
 	state->value = table->data[dp->j].value;
-	check_not_null(state->key,__FILE__,__LINE__,"key null");
-//	assert(state->value != NULL);
-}
-
-void * iterable_hash_table_next(iterable * current_iterable){
-	dependencies_hash_table * dp = (dependencies_hash_table *) current_iterable->dependencies;
-	copy_state_to_auxiliary(current_iterable);
 	next_state(dp);
-	if(dp->i < dp->nb)
-		copy_from_table(current_iterable);
-	else
-		current_iterable->state = NULL;
-	return current_iterable->auxiliary_state;
+	return current_iterable->state;
 }
 
 iterable hash_table_items_iterable(hash_table * ht){
-	dependencies_hash_table dh = {ht,ht->capacity_blocks,0,-1,true};
+	dependencies_hash_table dh = {ht,ht->capacity_blocks,0,-1};
 	int size_dh = sizeof(dependencies_hash_table);
-	iterable s_hash_table = create_iterable(sizeof(pair),iterable_hash_table_has_next,iterable_hash_table_next,iterable_hash_table_see_next,&dh,size_dh);
+	iterable s_hash_table = iterable_create(sizeof(pair),iterable_hash_table_has_next,iterable_hash_table_next,iterable_hash_table_see_next,NULL,&dh,size_dh);
 	next_state(s_hash_table.dependencies);
-	copy_from_table(&s_hash_table);
 	return s_hash_table;
 }
 
@@ -259,9 +248,9 @@ void hash_table_toconsole(hash_table * table, char * (*tostring_value)(const voi
 	for(i = 0; i < table->capacity_blocks; i++){
 		int first = table->blocks[i];
 		if(first < 0) continue;
-		blocks_not_empty++;
 		j = first;
 		sprintf(mdata,"%d: ",i);
+		blocks_not_empty++;
 		printf("%s",mdata);
 		printf("[");
 		while(j>=0) {
@@ -274,8 +263,9 @@ void hash_table_toconsole(hash_table * table, char * (*tostring_value)(const voi
 		printf("]\n");
 	}
 	printf("}");
-	sprintf(mdata,"  Effective load factor = %f, capacity: %d, size: %d",
+	sprintf(mdata,"  Effective load factor = %f, blocks_not_empty = %d, capacity: %d, size: %d",
 			table->size/((double)blocks_not_empty),
+			blocks_not_empty,
 			table->capacity_blocks,
 			table->size
 			);
@@ -285,6 +275,15 @@ void hash_table_toconsole(hash_table * table, char * (*tostring_value)(const voi
 void hash_table_free(hash_table * table){
 	free(table->blocks);
 	free(table->data);
+}
+
+void hash_table_free_2(hash_table * table, void (*f_key)(void * in), void (*f_value)(void * in)){
+	for(int i =0; i < table->capacity_data; i++){
+		entry e = table->data[i];
+		f_key(e.key);
+		f_value(e.value);
+	}
+	hash_table_free(table);
 }
 
 
@@ -302,45 +301,69 @@ hash_table complete_table() {
 		double a2 = get_double_aleatorio(0, 1000);
 		hash_table_put(&ht,&a1,&a2);
 	}
-	long a1 = 31;
+	long a1 = 5;
 	hash_table_remove(&ht,&a1);
 	return ht;
 }
 
-bool multiplo_7(void * in){
-	long p = to_long(in);
-	return p%7 == 0;
+bool multiplo_7(long * in){
+	return (*in)%7 == 0;
 }
 
-char * tuple_it_tostring(const void * in, char * mem){
-	pair * t = (pair *) in;
-	char m[Tam_String];
-	sprintf(mem,"(%s,%s)",long_tostring(t->key,m),double_tostring(t->value,m));
+char * pair_long_double(const pair * in, char * mem){
+	char m1[Tam_String];
+	char m2[Tam_String];
+	sprintf(mem,"(%s,%s)",long_tostring(in->key,m1),double_tostring(in->value,m2));
 	return mem;
 }
 
-char * tuple_it_tostring_1(const void * in, char * mem){
-	pair * t = (pair *) in;
+char * pair_key_long(const pair * in, char * mem){
 	char m[Tam_String];
-	sprintf(mem,"%s",long_tostring(t->key,m));
+	sprintf(mem,"%s",long_tostring(in->key,m));
 	return mem;
 }
+
+
 
 void test_hash_table() {
+	char mem[Tam_String];
 	printf("Hash Table test\n\n");
+//	printf("2:\n");
 	hash_table ht = complete_table();
-	hash_table_toconsole(&ht,double_tostring);
-	printf("\n2:\n");
-	long a1 = 31;
-	bool r = hash_table_contains(&ht,&a1);
-	printf("\n3: contains = %s\n",bool_tostring(r));
-	hash_table_remove(&ht,&a1);
-	r = hash_table_contains(&ht,&a1);
-	printf("\n4: contains = %s\n",bool_tostring(r));
-	hash_table_toconsole(&ht,double_tostring);
-	printf("\n\n\n");
+//	hash_table_toconsole(&ht,double_tostring);
+//	long a1 = 31;
+//	bool r = hash_table_contains(&ht,&a1);
+//	printf("\n3: contains = %s\n",bool_tostring(r));
+//	hash_table_remove(&ht,&a1);
+//	r = hash_table_contains(&ht,&a1);
+//	printf("\n4: contains = %s\n",bool_tostring(r));
+//	printf("\n5: \n");
+//	hash_table_toconsole(&ht,double_tostring);
+//	printf("\n\n\n");
 	iterable iht = hash_table_items_iterable(&ht);
-	iterable_toconsole_sep(&iht,tuple_it_tostring,"\n","__________________\n","\n_______________\n");
+	printf("\n6: \n");
+	iterable_toconsole_sep(&iht,pair_long_double,",","{","}\n");
 	iht = hash_table_items_iterable(&ht);
-	iterable_toconsole_sep(&iht,tuple_it_tostring_1,"\n","__________________\n","\n_______________\n");
+	printf("\n7: \n");
+	iterable_toconsole_sep(&iht,pair_key_long,",","{","}\n");
+//	long k = 99;
+//	void * r4 = hash_table_get(&ht,&k);
+//	optional or4 = optional_of(r4,&double_type);
+//	printf("%ld,%s\n",k,optional_type.tostring(&or4,mem));
+//	hash_table_remove(&ht,&k);
+//	r4 = hash_table_get(&ht,&k);
+//	or4 = optional_of(r4,&double_type);
+//	printf("%ld,%s\n",k,optional_type.tostring(&or4,mem));
+//	printf("__________________\n");
+//	dependencies_hash_table dp = {&ht,ht.capacity_blocks,0,-1,true};
+//	next_state(&dp);
+//	int ss = 0;
+//	while(dp.i < dp.nb){
+//		ss=ss+1;
+////		printf("%d,%d\n",dp.i,dp.j);
+//		printf("(%ld,%lf),",*(long*)ht.data[dp.j].key,*(double*)ht.data[dp.j].value);
+//		next_state(&dp);
+//	}
+//	printf("\n%d,%d\n",ss,ht.size);
 }
+

@@ -30,7 +30,7 @@ bool n_problema3(list ls, bool (*p)(int e)) {
 	bool b = true;
 	int i = 0;
 	while (i < ls.size && b) {
-		b = p(to_int(list_get(&ls,i)));
+		b = p(*(int*) list_get(&ls,i));
 		i++;
 	}
 	return b;
@@ -40,7 +40,7 @@ bool n_problema4(list ls, bool (*p)(int e)) {
 	bool b = false;
 	int i = 0;
 	while (i < ls.size && !b) {
-		b = p(to_int(list_get(&ls,i)));
+		b = p(*(int*) list_get(&ls,i));
 		i++;
 	}
 	return b;
@@ -49,7 +49,7 @@ bool n_problema4(list ls, bool (*p)(int e)) {
 int n_problema5(list ls) {
 	int sum = 0;
 	for (int i = 0; i < ls.size; i++) {
-		int e = to_int(list_get(&ls,i));
+		int e = *(int*) list_get(&ls,i);
 		int t = e * e;
 		sum = sum + t;
 	}
@@ -61,7 +61,7 @@ double n_problema6(list ls, double umbral) {
 	int p = 0;
 	int i = 0;
 	while (i < ls.size && p == 0) {
-		double e = to_double(list_get(&ls,i));
+		double e = *(double *) list_get(&ls,i);
 		if (e > umbral) {
 			p++;
 			b = e;
@@ -74,7 +74,7 @@ double n_problema6(list ls, double umbral) {
 punto * n_problema8(list ls, int (*cmp)(const void *, const void *)) {
 	punto * r = NULL;
 	for (int i = 0; i < ls.size; i++) {
-		punto * p = to_punto_pointer(list_get(&ls,i));
+		punto * p = (punto *) list_get(&ls,i);
 		if (r == NULL || cmp(p, r) > 0)
 			r = p;
 	}
@@ -84,8 +84,8 @@ punto * n_problema8(list ls, int (*cmp)(const void *, const void *)) {
 hash_table n_problema11(list ls){
 	hash_table r = hash_table_empty(int_type,sizeof(list));
 	for (int i = 0; i < ls.size; i++) {
-		punto * p = to_punto_pointer(list_get(&ls,i));
-		Cuadrante c = punto_cuadrante(*p);
+		punto * p = (punto *) list_get(&ls,i);
+		Cuadrante c = punto_cuadrante(p);
 		if(hash_table_contains(&r,&c)){
 			list * ls = hash_table_get(&r,&c);
 			list_add(ls,p);
@@ -100,10 +100,10 @@ hash_table n_problema11(list ls){
 
 list n_problema61(char * file){
 	list r = list_empty(punto_type);
-	iterable f = file_iterable(file);
+	iterable f = file_iterable_pchar(file);
 	while(iterable_has_next(&f)){
 		char * s = (char *) iterable_next(&f);
-		punto e = punto_parse(s);
+		punto e = punto_parse_s(s);
 		list_add(&r,&e);
 	}
 	return r;
@@ -122,15 +122,12 @@ void n_problema59(char * file, long n) {
 
 int nn = 200;
 
-bool has_next_primo(void * in){
-	long r = to_long(in);
-	return r < nn;
+bool has_next_primo(long * in){
+	return *in < nn;
 }
 
-void * next_primo(void * out, void *in){
-	long r = to_long(in);
-	long r2 = siguiente_primo(r);
-	*(long*) out = r2;
+void * next_primo(long * out, long *in){
+	*out = siguiente_primo(*in);
 	return out;
 }
 

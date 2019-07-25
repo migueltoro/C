@@ -21,19 +21,19 @@ void * to_data_time(time_t * t){
 
 void test_ejercicio62() {
 	hp = memory_heap_create();
-	time_t a = time_create(28, 8, 2017);
-	time_t b = time_create(2, 11, 2018);
+	time_t a = time_create_date(28, 8, 2017);
+	time_t b = time_create_date(2, 11, 2018);
 	tofileWHILE("fechas.txt", a, b);
 	tofileRec("fechas.txt", a, b);
 	memory_heap_free(&hp);
 }
 
 list leeIterativo(char * file, time_t a, time_t b) {
-	iterable f = file_iterable(file);
+	iterable f = file_iterable_pchar(file);
 	list lista = list_empty(time_type);
 	while (iterable_has_next(&f)) {
 		char * linea = iterable_next(&f);
-		time_t fecha = time_parse(linea);
+		time_t fecha = time_parse_date(linea);
 		if (time_naturalorder(&fecha, &a) > 0 && time_naturalorder(&b, &fecha) > 0) {
 			list_add(&lista, &fecha);
 		}
@@ -45,7 +45,7 @@ void rec(iterable * f, list * lis, time_t a, time_t b) {
 	if (!iterable_has_next(f)) {
 	} else {
 		char * linea = iterable_next(f);
-		time_t fecha = time_parse(linea);
+		time_t fecha = time_parse_date(linea);
 		if (time_naturalorder(&fecha, &a) > 0 && time_naturalorder(&b, &fecha) > 0) {
 			list_add_pointer(lis, to_data_time(&fecha));
 		}
@@ -54,7 +54,7 @@ void rec(iterable * f, list * lis, time_t a, time_t b) {
 }
 
 list leeRecursivo(char * file, time_t a, time_t b) {
-	iterable f = file_iterable(file);
+	iterable f = file_iterable_pchar(file);
 	list lista = list_empty(time_type);
 	rec(&f,&lista,a,b);
 	return lista;

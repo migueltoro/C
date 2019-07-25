@@ -46,6 +46,7 @@ char * hash_table_items_tostring(hash_table * ht, char * (*value_tostring)(const
 
 
 void hash_table_free(hash_table * table);
+void hash_table_free_2(hash_table * table,void (*f_key)(void * in), void (*f_value)(void * in));
 
 hash_table complete_table();
 void test_hash_table();

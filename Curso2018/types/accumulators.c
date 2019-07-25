@@ -7,142 +7,157 @@
 
 #include "../types/accumulators.h"
 
-bool is_done_false_d(const void * base, void * dependencies){
-	return false;
+
+void * accumulate_left_e_r(iterable * st, void * base,void * result,
+		void * (*add)(void * out, const void * e),
+		bool isdone(void * in), void * (*f_result)(void * out, const void * in)) {
+
+	while (iterable_has_next(st) && !isdone(base)) {
+		void * e = iterable_next(st);
+		add(base, e);
+	}
+	return f_result(result, base);
 }
 
-bool is_done_false(const void * base){
-	return false;
+void * accumulate_left_r(iterable * st,
+		void * base,
+		void * result,
+		void * (*add)(void * out, const void * e), void * (*f_result)(void * out, const void * in)) {
+
+	while (iterable_has_next(st)) {
+		void * e = iterable_next(st);
+		add(base, e);
+	}
+	return f_result(result, base);
 }
 
-void * result_identity(void * result, const void * base, void * dependencies){
+void * accumulate_left_e(iterable * st, void * base,
+		void * (*add)(void * out, const void * e),
+		bool isdone(void * in)) {
+
+	while (iterable_has_next(st) && !isdone(base)) {
+		void * e = iterable_next(st);
+		add(base, e);
+	}
+	return base;
+}
+
+void * accumulate_left(iterable * st, void * base,
+		void * (*add)(void * out, const void * e)) {
+
+	while (iterable_has_next(st)) {
+		void * e = iterable_next(st);
+		add(base, e);
+	}
 	return base;
 }
 
 
-accumulator create_accumulator(
-		int size_state,
-		int size_result,
-		void * initial_value,
-		void * (*add)(void * base, const void * value, void * dependencies),
-		void * (*result)(void * rs, const void * base, void * dependencies),
-		bool (*isdone)(const void * base, void * dependencies),
-		int size_dependencies){
-	void * d = size_dependencies>0 ? malloc(size_dependencies): NULL;
-	accumulator ac = {size_state,size_result,malloc(size_state),malloc(size_result),add,result,isdone,d};
-	check_not_null(initial_value,__FILE__,__LINE__,"puntero null");
-	check_not_null(ac.state,__FILE__,__LINE__,"puntero null");
-	copy(ac.state,initial_value,size_state);
-	return ac;
-}
-
-void * accumulate_left(iterable * st, accumulator * ac){
-	while(iterable_has_next(st) && !ac->isdone(ac->state,ac->dependencies)){
+void accumulate_right_private(iterable * st, void * base, int size_element,
+		void * (*add)(void * out, const void * e)) {
+	if (iterable_has_next(st)) {
+		char se[size_element];
 		void * e = iterable_next(st);
-		ac->add(ac->state,e,ac->dependencies);
-	}
-	return ac->result(ac->result_value,ac->state,ac->dependencies);
-}
-
-void accumulate_right_private(iterable * st, accumulator * ac){
-	if(iterable_has_next(st)){
-		void * value = iterable_next(st);
-		void * vc = malloc(st->size_state);
-		copy(vc,value,st->size_state);
-		accumulate_right_private(st,ac);
-		if(!ac->isdone(ac->state,ac->dependencies))
-			ac->add(ac->state,vc,ac->dependencies);
-		free(vc);
+		copy(se, e, size_element);
+		accumulate_right_private(st, base, size_element, add);
+		add(base, se);
 	}
 }
 
-void * accumulate_right(iterable * st, accumulator * ac){
-	accumulate_right_private(st,ac);
-	return ac->result(ac->result_value,ac->state,ac->dependencies);
+void * accumulate_right(iterable * st, void * base, int size_element,
+		void * (*add)(void * out, const void * e)) {
+	accumulate_right_private(st,base,size_element,add);
+	return base;
 }
 
-accumulator accumulator_reduce(
-		int size_element,
-		void * first_element,
-		void * (*f)(void * out, const void * in),
-		bool (*isdone)(const void * in));
 
-void * reduce_left(iterable * st,void * (*f)(void * out, const void * in)){
-	return reduce_left_e(st,f,is_done_false);
+void * accumulate_right_r(iterable * st, void * base, void * result, int size_element,
+		void * (*add)(void * out, const void * e),
+		void * (f_result)(void * out, const void * e)) {
+	accumulate_right_private(st,base,size_element,add);
+	return f_result(result,base);
 }
 
-void * reduce_left_e(iterable * st,
-		void * (*f)(void * out, const void * in),
-		bool (*isdone)(const void * in)){
+
+void * reduce_left(iterable * st, void * base, int size_base,
+		void * (*add)(void * out, const void * e)) {
 	bool first = true;
-	accumulator ac;
-	while(iterable_has_next(st)){
+	while (iterable_has_next(st)) {
 		void * e = iterable_next(st);
-		if(first){
-			ac = accumulator_reduce(st->size_state,e,f,isdone);
+		if (first) {
+			copy(base, e, size_base);
 			first = false;
 		} else {
-			ac.add(ac.state,e,ac.dependencies);
+			add(base, e);
 		}
-		if(ac.isdone(ac.state,ac.dependencies)) break;
 	}
-	ac.result(ac.result_value,ac.state,ac.dependencies);
-	return ac.result_value;
+	return base;
+}
+
+void * reduce_left_e(iterable * st, void * base, int size_base,
+		void * (*add)(void * out, const void * e), bool isdone(void *)) {
+	bool first = true;
+	while (iterable_has_next(st)) {
+		void * e = iterable_next(st);
+		if (first) {
+			copy(base, e, size_base);
+			first = false;
+		} else {
+			add(base, e);
+			if (isdone(base)) break;
+		}
+	}
+	return base;
 }
 
 
-void reduce_right_private(iterable * st, accumulator * ac, bool * first,
-		void * (*f)(void * out, const void * in),
-		bool (*isdone)(const void * in)) {
+void reduce_right_private(iterable * st, void * base, int size_base,
+		void * (*add)(void * out, const void * e), bool * first) {
 	if (iterable_has_next(st)) {
-		void * value = iterable_next(st);
-		void * vc = malloc(st->size_state);
-		copy(vc, value, st->size_state);
-		reduce_right_private(st, ac,first,f,isdone);
-		if(*first){
-			*ac = accumulator_reduce(st->size_state,vc,f,isdone);
+		char se[size_base];
+		void * e = iterable_next(st);
+		copy(se, e, size_base);
+		reduce_right_private(st, base, size_base, add, first);
+		if (*first) {
+			copy(base, e, size_base);
+			* first = false;
+		} else {
+			add(base, se);
+		}
+	}
+}
+
+void * reduce_right(iterable * st, void * base, int size_base,
+		void * (*add)(void * out, const void * e)) {
+	bool first = true;
+	reduce_right_private(st, base, size_base, add, &first);
+	return base;
+}
+
+void reduce_right_e_private(iterable * st, void * base, int size_base,
+		void * (*add)(void * out, const void * e), bool isdone(void *),
+		bool * first) {
+	if (iterable_has_next(st)) {
+		char se[size_base];
+		void * e = iterable_next(st);
+		copy(se, e, size_base);
+		reduce_right_private(st, base, size_base, add, first);
+		if (*first) {
+			copy(base, e, size_base);
 			*first = false;
 		} else {
-			if (!ac->isdone(ac->state, ac->dependencies)){
-				ac->add(ac->state, vc, ac->dependencies);
-			}
+			if (!isdone(base)) add(base, se);
 		}
-		free(vc);
 	}
 }
 
-
-void * reduce_right(iterable * st,void * (*f)(void * out, const void * in)) {
-	return reduce_right_e(st,f,is_done_false);
-}
-
-void * reduce_right_e(iterable * st,
-		void * (*f)(void * out, const void * in),
-		bool (*isdone)(const void * in)) {
-	accumulator ac;
+void * reduce_right_e(iterable * st, void * base, int size_base,
+		void * (*add)(void * out, const void * e), bool isdone(void *)) {
 	bool first = true;
-	reduce_right_private(st, &ac,&first, f,isdone);
-	return ac.result_value;
+	reduce_right_e_private(st, base, size_base, add, isdone, &first);
+	return base;
 }
 
-
-void * iterable_min(iterable * st, int (*comparator)(const void * out, const void * in)){
-	void * r = NULL;
-	while(iterable_has_next(st)){
-		void * next = iterable_next(st);
-		if(r == NULL || comparator(next,r) < 0) r = next;
-	}
-	return r;
-}
-
-void * iterable_max(iterable * st, int (*comparator)(const void * out, const void * in)){
-	void * r = NULL;
-	while(iterable_has_next(st)){
-		void * next = iterable_next(st);
-		if(r == NULL || comparator(next,r) > 0) r = next;
-	}
-	return r;
-}
 
 list iterable_to_list(iterable * st, type type_element){
 	list r = list_empty(type_element);
@@ -161,6 +176,7 @@ set iterable_to_set(iterable * st, type type_element) {
 	}
 	return r;
 }
+
 
 hash_table iterable_counting(iterable * st,
 		void * (*f_key)(void * out, void * in),
@@ -204,29 +220,26 @@ hash_table iterable_grouping(iterable * st,
 
 estadisticos estadisticos_ini = {0,0,0,-DBL_MAX,DBL_MAX,0,0,0};
 
-void * add_estadisticos(void * out, const void * in, void * dependencies){
-	estadisticos * est = (estadisticos *) out;
+void * add_estadisticos(estadisticos * est, const void * in){
 	double e = *(double *) in;
 	est->num = est->num+1;
 	est->sum = est->sum + e;
 	est->sum_cuadrados = est->sum_cuadrados + e*e;
 	est->max = MAX(est->max,e);
 	est->min = MIN(est->min,e);
-	return out;
+	return est;
 }
 
-void * result_estadisticos(void * out, const void * in, void * dependencies){
-	estadisticos est_in = *(estadisticos *) in;
-	estadisticos * est_out = (estadisticos *) out;
-	est_out->num = est_in.num;
-	est_out->sum = est_in.sum;
-	est_out->sum_cuadrados = est_in.sum_cuadrados;
-	est_out->max = est_in.max;
-	est_out->min = est_in.min;
-	est_out->media = est_in.sum/est_in.num;
-	est_out->varianza = est_in.sum_cuadrados/est_in.num - est_out->media*est_out->media;
+void * result_estadisticos(estadisticos * est_out, const estadisticos * est_in){
+	est_out->num = est_in->num;
+	est_out->sum = est_in->sum;
+	est_out->sum_cuadrados = est_in->sum_cuadrados;
+	est_out->max = est_in->max;
+	est_out->min = est_in->min;
+	est_out->media = est_in->sum/est_in->num;
+	est_out->varianza = est_in->sum_cuadrados/est_in->num - est_out->media*est_out->media;
 	est_out->desviacion_tipica = sqrt(est_out->varianza);
-	return out;
+	return est_out;
 }
 
 char * estadisticos_tostring(void * in, char * mem){
@@ -237,18 +250,23 @@ char * estadisticos_tostring(void * in, char * mem){
 	return mem;
 }
 
-accumulator accumulator_estadisticos() {
-	accumulator ac = create_accumulator(
-			sizeof(estadisticos),
-			sizeof(estadisticos),
-			&estadisticos_ini,
-			add_estadisticos,
-			result_estadisticos,
-			is_done_false_d,
-			0);
-	return ac;
+void * iterable_min(iterable * st, int (*comparator)(const void * out, const void * in)){
+	void * r = NULL;
+	while(iterable_has_next(st)){
+		void * next = iterable_next(st);
+		if(r == NULL || comparator(next,r) < 0) r = next;
+	}
+	return r;
 }
 
+void * iterable_max(iterable * st, int (*comparator)(const void * out, const void * in)){
+	void * r = NULL;
+	while(iterable_has_next(st)){
+		void * next = iterable_next(st);
+		if(r == NULL || comparator(next,r) > 0) r = next;
+	}
+	return r;
+}
 
 bool iterable_all(iterable * st, bool (*p)(const void * in)){
 	bool r = true;
@@ -277,90 +295,76 @@ void * iterable_first(iterable * st, bool (*p)(const void * in)) {
 	return r;
 }
 
+double iterable_sum(iterable * st) {
+	double r = 0;
+	while (iterable_has_next(st)) {
+		void * e = iterable_next(st);
+		r = r+*(double *) e;
+	}
+	return r;
+}
 
-typedef struct{
-	void * (*f)(void * out, const void * in);
-	bool (*isdone)(const void * in);
-}reduce_dependencies;
+int iterable_size(iterable * st) {
+	int r = 0;
+	while (iterable_has_next(st)) {
+		iterable_next(st);
+		r = r+1;
+	}
+	return r;
+}
 
-void * add_reduce(void * out, const void * in, void * dependencies){
-	reduce_dependencies * dr = (reduce_dependencies * ) dependencies;
-	dr->f(out,in);
+double iterable_average(iterable * st) {
+	double r = 0;
+	int n = 0;
+	while (iterable_has_next(st)) {
+		void * e = iterable_next(st);
+		r =  r+*(double *) e;
+		n = n+1;
+	}
+	check_argument(n != 0, __FILE__, __LINE__, "el número de elementos es cero");
+	return r/n;
+}
+
+void * resto17(int * out, int * in){
+	*out = (*in)%17;
 	return out;
 }
 
-bool isdone_reduce(const void * in, void * dependencies){
-	reduce_dependencies * dr = (reduce_dependencies * ) dependencies;
-	return dr->isdone(in);
-}
-
-accumulator accumulator_reduce(int size_element, void * first_element,
-		void * (*f)(void * out, const void * in),
-		bool (*isdone)(const void * in)) {
-	accumulator ac = create_accumulator(size_element, 0, first_element,
-			add_reduce, result_identity, isdone_reduce,
-			sizeof(reduce_dependencies));
-	ac.result_value = ac.state;
-	((reduce_dependencies *) ac.dependencies)->f = f;
-	((reduce_dependencies *) ac.dependencies)->isdone = isdone;
-	return ac;
-}
-
-
-
-void * string_buffer_accumulator_add(void * out, const void * in, void * dependencies){
-	string_buffer_add_string_g(out,in);
-	return out;
-}
-
-accumulator string_buffer_accumulator() {
-	string_buffer bf = string_buffer_empty();
-	accumulator ac = create_accumulator(sizeof(string_buffer),0,&bf,
-		string_buffer_accumulator_add,
-		result_identity,
-		is_done_false_d,
-		0);
-	return ac;
-}
-
-
-void * resto17(void * out, void * in){
-	int e = to_int(in);
-	int r = e%7;
-	*(int *) out = r;
-	return out;
-}
-
-char * pair_long_double_tostring(const void * in, char * mem){
-	pair * t = (pair *) in;
+char * pair_long_double_tostring(const pair * in, char * mem){
 	char m[Tam_String];
-	sprintf(mem,"(%s,%s)",long_tostring(t->key,m),double_tostring(t->value,m));
+	sprintf(mem,"(%s,%s)",long_tostring(in->key,m),double_tostring(in->value,m));
 	return mem;
 }
 
-char * pair_int_long_tostring(const void * in, char * mem){
-	pair * t = (pair *) in;
+char * pair_int_long_tostring(const pair * in, char * mem){
 	char m[Tam_String];
-	sprintf(mem,"(%s,%s)",int_tostring(t->key,m),long_tostring(t->value,m));
+	sprintf(mem,"(%s,%s)",int_tostring(in->key,m),long_tostring(in->value,m));
 	return mem;
 }
 
 
-char * pair_long_list_tostring(const void * in, char * mem){
-	pair * t = (pair *) in;
+char * pair_long_list_tostring(const pair * in, char * mem){
 	char m[Tam_String];
-	sprintf(mem,"(%s,%s)",long_tostring(t->key,m),list_tostring(t->value,m));
+	sprintf(mem,"(%s,%s)",long_tostring(in->key,m),list_tostring(in->value,m));
 	return mem;
 }
 
-bool esmultiplo17(const void *in){
-	long e = *(long*)in;
-	return e%17 == 0;
+bool esmultiplo17(const long *in){
+	return (*in)%17 == 0;
 }
 
-bool esmultiplo44(const void *in){
-	long e = *(long*)in;
-	return e%44 == 0;
+bool esmultiplo44(const long *in){
+	return (*in)%44 == 0;
+}
+
+long * long_sum(long * out, long * in){
+	*out = *out + *in;
+	return out;
+}
+
+long * long_max(long * out, long * in){
+	*out = MAX(*out,*in);
+	return out;
 }
 
 
@@ -376,12 +380,11 @@ void test_accumulators(){
 	char * s2 = iterable_tostring_sep(&it,pair_long_list_tostring,"\n","__________________\n","\n_______________\n",mem);
 	printf("2:  \n%s",s2);
 	st = iterable_range_double(4,500,3);
-	accumulator a = accumulator_estadisticos();
-	estadisticos * e = (estadisticos *) accumulate_left(&st,&a);
+	estadisticos est= estadisticos_ini;
+	estadisticos est_r;
+	void * e = accumulate_left_r(&st,&est,&est_r,add_estadisticos,result_estadisticos);
 	printf("3:  \n%s\n",estadisticos_tostring(e,mem));
 	st = iterable_range_double(4,500,3);
-	e = (estadisticos *) accumulate_right(&st,&a);
-	printf("4:  \n%s\n",estadisticos_tostring(e,mem));
 	st = iterable_range_long(4,500,3);
 	bool r = iterable_all(&st,esmultiplo17);
 	printf("5:  \n%s\n",bool_tostring(r));
@@ -391,21 +394,27 @@ void test_accumulators(){
 	st = iterable_range_long(7,500,3);
 	long r1 = *(long *) iterable_first(&st,esmultiplo17);
 	printf("7:  \n%ld\n",r1);
+	double r7;
 	st = iterable_range_long(7, 500, 3);
-	r1 = *(long *) reduce_left(&st,long_sum);
-	printf("8:  \n%ld\n", r1);
+	reduce_left(&st,&r7,sizeof(double),long_sum);
+	printf("8:  \n%ld\n", r7);
 	st = iterable_range_long(7, 500, 3);
-	r1 = *(long *) reduce_right(&st,long_sum);
-	printf("9:  \n%ld\n", r1);
-	char delimiters[] = " ,;.";
-	char text[] = "El Gobierno abre la puerta a no;llevar los Presupuestos.Generales de 2019 al Congreso si no logra los apoyos suficientes para sacarlos adelante. Esa opción que ya deslizaron fuentes próximas al presidente la ha confirmado la portavoz, Isabel Celaá, en la rueda de prensa posterior a la reunión del gabinete en la que ha asegurado que el Consejo de Ministras tomará la decisión sobre llevar o no las cuentas públicas al Parlamento una vez concluyan las negociaciones de la ministra María Jesús Montero. ";
-	iterable sp = split_iterable(text,delimiters);
-	accumulator arc = string_buffer_accumulator();
-	void * r2 = accumulate_left(&sp,&arc);
-	printf("10:  \n%s\n",string_buffer_tostring(r2,NULL));
-	arc = string_buffer_accumulator();
-	sp = split_iterable(text,delimiters);
-	r2 = accumulate_right(&sp,&arc);
-	printf("11:  \n%s\n",string_buffer_tostring(r2,NULL));
-
+	reduce_right(&st,&r7,sizeof(double),long_sum);
+	printf("8.1:  \n%ld\n", r7);
+	st = iterable_range_long(7, 500, 3);
+	reduce_left(&st,&r7,sizeof(double),long_max);
+	printf("9:  \n%ld\n", r7);
+	st = iterable_range_long(7, 500, 3);
+	reduce_right(&st,&r7,sizeof(double),long_max);
+	printf("9.1:  \n%ld\n", r7);
+	char text[] = "El    Gobierno abre la puerta a no;llevar los Presupuestos.Generales de 2019 al Congreso si no logra los apoyos suficientes para sacarlos adelante. Esa opción que ya deslizaron fuentes próximas al presidente la ha confirmado la portavoz, Isabel Celaá, en la rueda de prensa posterior a la reunión del gabinete en la que ha asegurado que el Consejo de Ministras tomará la decisión sobre llevar o no las cuentas públicas al Parlamento una vez concluyan las negociaciones de la ministra María Jesús Montero. ";
+	iterable p3 = split_iterable_pchar(text," ;.");
+	string emp = string_empty();
+	void * sr = accumulate_left(&p3,&emp,string_add_pchar);
+	printf("10: %s\n",string_tostring(sr,mem));
+	p3 = split_iterable_pchar(text," ;.");
+	emp = string_empty();
+	sr = accumulate_right(&p3,&emp,30,string_add_pchar);
+	printf("11: %s\n",string_tostring(sr,mem));
 }
+
