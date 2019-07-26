@@ -23,8 +23,8 @@ unsigned long int hash(const char *key) {
 
 unsigned long int hash_code(void * in, type t){
 	char mem[256];
-	t.tostring(in, mem);
-	unsigned long int hash_index = hash(mem);
+	char * r = t.tostring(in, mem);
+	unsigned long int hash_index = hash(r);
 	return hash_index;
 }
 
@@ -248,9 +248,19 @@ int punto_naturalorder(const punto * p1, const punto * p2){
 
 type punto_type = {punto_equals,punto_tostring,punto_naturalorder,punto_parse,sizeof(punto)};
 
+// pair
+
+void * pair_to_key(void * out, pair * in){
+	return in->key;
+}
+
+void * pair_to_value(void * out, pair * in){
+	return in->value;
+}
+
 // pair type
 
-pair_t * pair_parse(pair_t * out, char * text){
+pair_t * pair_t_parse(pair_t * out, char * text){
 	char k[Tam_String];
 	char v[Tam_String];
 	sscanf(text,"(%s,%s)",k,v);
@@ -259,37 +269,38 @@ pair_t * pair_parse(pair_t * out, char * text){
 	return out;
 }
 
-char * pair_tostring(const pair_t * e, char * mem){
-	char m[Tam_String];
-	char * key = e->key_type->tostring(e->key,m);
-	char * value = e->value_type->tostring(e->value,m);
+char * pair_t_tostring(const pair_t * e, char * mem){
+	char m1[Tam_String];
+	char m2[Tam_String];
+	char * key = e->key_type->tostring(e->key,m1);
+	char * value = e->value_type->tostring(e->value,m2);
 	sprintf(mem,"(%s,%s)",key,value);
 	return mem;
 }
 
-bool pair_equals(const pair_t * e1, const pair_t * e2){
+bool pair_t_equals(const pair_t * e1, const pair_t * e2){
 	return e1->key_type->equals(e1->key,e2->key) &&
 		   e1->value_type->equals(e1->value,e2->value);
 }
 
-int pair_naturalorder(const pair_t * e1, const pair_t * e2){
+int pair_t_naturalorder(const pair_t * e1, const pair_t * e2){
 	int r = e1->key_type->order(e1->key,e2->key);
 	if(r==0) r = e2->value_type->order(e1->value,e2->value);
 	return r;
 }
 
 
-pair_t pair_of(pair * p, type * t1, type * t2){
+pair_t pair_t_of(pair * p, type * t1, type * t2){
 	pair_t r = {p->key,p->value,t1,t2};
 	return r;
 }
 
-pair_t pair_of_2(void * key, void * value, type * t1, type * t2){
+pair_t pair_t_of_2(void * key, void * value, type * t1, type * t2){
 	pair_t r = {key,value,t1,t2};
 	return r;
 }
 
-type pair_type = {pair_equals,pair_tostring,pair_naturalorder,pair_parse,sizeof(pair_t)};
+type pair_type = {pair_t_equals,pair_t_tostring,pair_t_naturalorder,pair_t_parse,sizeof(pair_t)};
 
 // string type
 

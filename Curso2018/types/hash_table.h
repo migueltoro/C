@@ -20,7 +20,7 @@ typedef struct {
 
 typedef struct {
 	type key_type;
-	int size_value;
+	type value_type;
     int * blocks;
 	entry * data;
 	int size;
@@ -31,7 +31,7 @@ typedef struct {
 	memory_heap hp;
 } hash_table;
 
-hash_table hash_table_empty(type key_type, int size_value);
+hash_table hash_table_empty(type key_type, type value_type);
 int hash_table_size(hash_table * table);
 void * hash_table_put_pointer(hash_table * table, void * key, void * value);
 void * hash_table_put(hash_table * table, void * key, void * value);
@@ -39,11 +39,12 @@ void * hash_table_remove(hash_table * table, void * key);
 void * hash_table_get(hash_table * table, void * key);
 bool hash_table_contains(hash_table * table, void * key);
 
-void hash_table_toconsole(hash_table * table, char * (*tostring_value)(const void * e,char * mem));
 
+char * hash_table_tostring(hash_table * table, char * mem);
 iterable hash_table_items_iterable(hash_table * ht);
-char * hash_table_items_tostring(hash_table * ht, char * (*value_tostring)(const void * e, char * mem), char * mem);
 
+
+void hash_table_toconsole(hash_table * table, char * (*tostring_value)(const void * e,char * mem));
 
 void hash_table_free(hash_table * table);
 void hash_table_free_2(hash_table * table,void (*f_key)(void * in), void (*f_value)(void * in));

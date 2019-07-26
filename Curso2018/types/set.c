@@ -6,16 +6,15 @@
  */
 
 #include "../types/set.h"
-
 #include "../types/list.h"
 
 set set_empty(type type_element){
-	set st = {hash_table_empty(type_element,0),memory_heap_create()};
+	set st = {hash_table_empty(type_element,null_type),memory_heap_create(),type_element};
 	return st;
 }
 
-set set_of(list * ls, type type_element){
-	set st = set_empty(type_element);
+set set_of(list * ls){
+	set st = set_empty(ls->type_element);
 	for(int i =0;i <ls->size;i++){
 		set_add_pointer(&st,list_get(ls,i));
 	}
@@ -31,6 +30,10 @@ void set_add(set * st, void * element){
 	set_add_pointer(st,e);
 }
 
+void set_remove(set * st, void * element){
+	hash_table_remove(&(st->hash_table),element);
+}
+
 int set_size(set * st){
 	return hash_table_size(&(st->hash_table));
 }
@@ -39,33 +42,11 @@ bool set_contains(set * st, void * element){
 	return hash_table_contains(&(st->hash_table),element);
 }
 
-
-typedef struct{
-	iterable st;
-}dependencies_set;
-
-bool iterable_set_has_next(iterable * current_iterable) {
-	dependencies_set * dp = (dependencies_set *) current_iterable->dependencies;
-	return iterable_has_next(&dp->st);
-}
-
-void * iterable_set_see_next(iterable * current_iterable){
-	dependencies_set * dp = (dependencies_set *) current_iterable->dependencies;
-	void * key = ((pair_t *)iterable_see_next(&dp->st))->key;
-	return key;
-}
-
-void * iterable_set_next(iterable * current_iterable){
-	dependencies_set * dp = (dependencies_set *) current_iterable->dependencies;
-	void * key = ((pair_t *)iterable_next(&dp->st))->key;
-	return key;
-}
-
 iterable set_iterable(set * st){
-	dependencies_set ds = {hash_table_items_iterable(&st->hash_table)};
-	int size_ds = sizeof(dependencies_set);
-	iterable s_set = iterable_create(sizeof(void *),iterable_set_has_next,iterable_set_next,iterable_set_see_next,NULL,&ds,size_ds);
-	return s_set;
+	iterable it = hash_table_items_iterable(&st->hash_table);
+	iterable * pit = memory_heap_to_data(&(st->hp),&it,sizeof(iterable));
+	iterable im = iterable_map(pit,0,pair_to_key);
+	return im;
 }
 
 char * set_tostring(set * st, char * mem){
@@ -91,12 +72,10 @@ void test_set() {
 	char mem[1000];
 	new_rand();
 	set st = complete_set();
-	printf("%d", set_size(&st));
+	printf("%d\n", set_size(&st));
 	set_tostring(&st, mem);
-	printf("%s", mem);
+	printf("%s\n", mem);
 	iterable is = set_iterable(&st);
-	iterable_toconsole_sep(&is, double_tostring, "\n", "__________________\n",
-			"\n_______________\n");
-	printf("%s", set_tostring(&st, mem));
+	iterable_toconsole_sep(&is,double_tostring, "\n", "__________________\n","\n_______________\n");
 	set_free(&st);
 }

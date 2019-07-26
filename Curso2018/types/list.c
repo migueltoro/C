@@ -77,6 +77,8 @@ int list_size(list * ls){
 	return ls->size;
 }
 
+type list_type = {NULL,list_tostring,NULL,NULL,sizeof(list)};
+
 void list_add_pointer(list * list, void * element) {
 	check_argument(!list->is_view,__FILE__,__LINE__,"no se puede modificar una vista");
 	list_grow(list);

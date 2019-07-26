@@ -82,7 +82,7 @@ punto * n_problema8(list ls, int (*cmp)(const void *, const void *)) {
 }
 
 hash_table n_problema11(list ls){
-	hash_table r = hash_table_empty(int_type,sizeof(list));
+	hash_table r = hash_table_empty(int_type,list_type);
 	for (int i = 0; i < ls.size; i++) {
 		punto * p = (punto *) list_get(&ls,i);
 		Cuadrante c = punto_cuadrante(p);

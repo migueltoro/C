@@ -18,10 +18,10 @@ void ini_data(hash_table * table);
 int rehash(hash_table * table);
 void * hash_table_put_private(hash_table * table, void * key, void * value);
 
-hash_table hash_table_empty(type key_type, int size_value){
+hash_table hash_table_empty(type key_type, type value_type){
 	hash_table t;
 	t.key_type = key_type;
-	t.size_value = size_value;
+	t.value_type = value_type;
 	t.load_factor_limit = 0.75;
 	int capacity_blocks = _primes[_next_prime];
 	t.capacity_blocks = capacity_blocks;
@@ -75,7 +75,7 @@ void * hash_table_put_pointer(hash_table * table, void * key, void * value){
 
 void * hash_table_put(hash_table * table, void * key, void * value){
 	void * k = memory_heap_to_data(&(table->hp),key,table->key_type.size);
-    void * v = memory_heap_to_data(&(table->hp),value,table->size_value);
+    void * v = memory_heap_to_data(&(table->hp),value,table->value_type.size);
     return hash_table_put_pointer(table,k,v);
 }
 
@@ -232,10 +232,28 @@ iterable hash_table_items_iterable(hash_table * ht){
 	return s_hash_table;
 }
 
-
-char * hash_table_items_tostring(hash_table * ht, char * (*value_tostring)(const void * e, char * mem), char * mem){
-	iterable it = hash_table_items_iterable(ht);
-	return iterable_tostring(&it,value_tostring,mem);
+char * hash_table_tostring(hash_table * table, char * mem) {
+	char m1[Tam_String];
+	char m2[Tam_String];
+	char m[Tam_String];
+	bool first = true;
+	strcpy(mem, "{");
+	iterable st = hash_table_items_iterable(table);
+	while (iterable_has_next(&st)) {
+		pair * next = (pair *) iterable_next(&st);
+		char * k = table->key_type.tostring(next->key,m1);
+		char * v = table->value_type.tostring(next->value,m2);
+		sprintf(m,"(%s,%s)",k,v);
+		if (first) {
+			first = false;
+			strcat(mem, m);
+		} else {
+			strcat(mem, ",");
+			strcat(mem, m);
+		}
+	}
+	strcat(mem, "}");
+	return mem;
 }
 
 void hash_table_toconsole(hash_table * table, char * (*tostring_value)(const void * e,char * mem)){
@@ -289,7 +307,7 @@ void hash_table_free_2(hash_table * table, void (*f_key)(void * in), void (*f_va
 
 hash_table complete_table() {
 	int tam = 100;
-	hash_table ht = hash_table_empty(long_type,sizeof(double));
+	hash_table ht = hash_table_empty(long_type,double_type);
 	new_rand();
 	for (int i = 0; i < tam; i++) {
 		long a1 = i;
@@ -326,7 +344,7 @@ char * pair_key_long(const pair * in, char * mem){
 
 
 void test_hash_table() {
-	char mem[Tam_String];
+	char mem[2000];
 	printf("Hash Table test\n\n");
 //	printf("2:\n");
 	hash_table ht = complete_table();
@@ -346,6 +364,8 @@ void test_hash_table() {
 	iht = hash_table_items_iterable(&ht);
 	printf("\n7: \n");
 	iterable_toconsole_sep(&iht,pair_key_long,",","{","}\n");
+	printf("\n8: \n");
+	printf(hash_table_tostring(&ht,mem));
 //	long k = 99;
 //	void * r4 = hash_table_get(&ht,&k);
 //	optional or4 = optional_of(r4,&double_type);

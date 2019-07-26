@@ -35,13 +35,14 @@ int main() {
 //test_string();
 //test_ejercicio62();
 //test_set();
+//test_multiset();
 //test_iterables();
 //test_iterables2();
 //test_iterables3();
 //test_types();
-//test_accumulators();
+test_accumulators();
 //test_marca();
-test_ruta();
+//test_ruta();
 //test_palabras();
 }
 

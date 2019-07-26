@@ -54,6 +54,8 @@ void write_list_to_file(char * file, list * list, char * tostring(const void * s
 
 iterable list_iterable(list * ls);
 
+extern type list_type;
+
 int_pair bh(list * ls, void * pivot, int i, int j, int (*order)(const void * e1, const void * e2));
 void list_sort(list * ls, int (* order)(const void * e1, const void * e2));
 void basic_sort(list * ls, int (*order)(const void * e1, const void * e2));

@@ -71,17 +71,15 @@ bool iterable_map_has_next(iterable * current_iterable){
 
 void * iterable_map_see_next(iterable * current_iterable){
 	dependencies_map * d = (dependencies_map *) current_iterable->dependencies;
-	iterable * st = d->depending_iterable;
-    d->map_function(st->auxiliary_state,iterable_see_next(st));
-    return st->auxiliary_state;
+	iterable * depending_iterable = d->depending_iterable;
+	return d->map_function(depending_iterable->state,iterable_see_next(depending_iterable));
 }
 
 void * iterable_map_next(iterable * current_iterable) {
 	dependencies_map * d = (dependencies_map *) current_iterable->dependencies;
 	iterable * depending_iterable = d->depending_iterable;
 	void * r = iterable_next(depending_iterable);
-	d->map_function(current_iterable->state, r);
-	return current_iterable->state;
+	return d->map_function(current_iterable->state, r);
 }
 
 

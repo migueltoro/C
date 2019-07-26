@@ -124,6 +124,9 @@ typedef struct {
 	void * value;
 } pair;
 
+void * pair_to_key(void * out, pair * in);
+void * pair_to_value(void * out, pair * in);
+
 typedef struct {
 	void * key;
 	int n;
@@ -136,14 +139,14 @@ typedef struct {
 	type * value_type;
 } pair_t;
 
-pair_t * pair_parse(pair_t * out, char * text);
-char * pair_tostring(const pair_t * e, char * mem);
-bool pair_equals(const pair_t * e1, const pair_t * e2);
-int pair_naturalorder(const pair_t * e1, const pair_t * e2);
+pair_t * pair_t_parse(pair_t * out, char * text);
+char * pair_t_tostring(const pair_t * e, char * mem);
+bool pair_t_equals(const pair_t * e1, const pair_t * e2);
+int pair_t_naturalorder(const pair_t * e1, const pair_t * e2);
 
 
-pair_t pair_of(pair * p, type * t1, type * t2);
-pair_t pair_of_2(void * key, void * value, type * t1, type * t2);
+pair_t pair_t_of(pair * p, type * t1, type * t2);
+pair_t pair_t_of_2(void * key, void * value, type * t1, type * t2);
 
 extern type pair_type;
 

@@ -22,7 +22,7 @@ typedef struct {
 } set;
 
 set set_empty(type type_element);
-set set_of(list * ls, type type_element);
+set set_of(list * ls);
 void set_add_pointer(set * st, void * element);
 void set_add(set * st, void * element);
 int set_size(set * st);

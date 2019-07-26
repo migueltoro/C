@@ -183,7 +183,7 @@ hash_table iterable_counting(iterable * st,
 		type key_type){
 	char mem[20];
 	int uno = 1;
-	hash_table ht = hash_table_empty(key_type,sizeof(int));
+	hash_table ht = hash_table_empty(key_type,int_type);
 	while(iterable_has_next(st)){
 		void * next = iterable_next(st);
 		void * key = f_key(mem,next);
@@ -202,7 +202,7 @@ hash_table iterable_grouping(iterable * st,
 		type key_type,
 		type value_type){
 	char mem[20];
-	hash_table ht = hash_table_empty(key_type,sizeof(list));
+	hash_table ht = hash_table_empty(key_type,list_type);
 	while(iterable_has_next(st)){
 		void * next = iterable_next(st);
 		void * key = f_key(mem,next);
@@ -330,24 +330,7 @@ void * resto17(int * out, int * in){
 	return out;
 }
 
-char * pair_long_double_tostring(const pair * in, char * mem){
-	char m[Tam_String];
-	sprintf(mem,"(%s,%s)",long_tostring(in->key,m),double_tostring(in->value,m));
-	return mem;
-}
 
-char * pair_int_long_tostring(const pair * in, char * mem){
-	char m[Tam_String];
-	sprintf(mem,"(%s,%s)",int_tostring(in->key,m),long_tostring(in->value,m));
-	return mem;
-}
-
-
-char * pair_long_list_tostring(const pair * in, char * mem){
-	char m[Tam_String];
-	sprintf(mem,"(%s,%s)",long_tostring(in->key,m),list_tostring(in->value,m));
-	return mem;
-}
 
 bool esmultiplo17(const long *in){
 	return (*in)%17 == 0;
@@ -372,18 +355,17 @@ void test_accumulators(){
 	char mem[2000];
 	iterable st = iterable_range_long(4,500,3);
 	hash_table ht = iterable_counting(&st,resto17,int_type);
-	char * s = hash_table_items_tostring(&ht,pair_int_long_tostring,mem);
+	char * s = hash_table_tostring(&ht,mem);
 	printf("1:  \n%s\n\n",s);
 	st = iterable_range_long(4,500,3);
 	hash_table ht2 = iterable_grouping(&st,resto17,int_type,long_type);
-	iterable it = hash_table_items_iterable(&ht2);
-	char * s2 = iterable_tostring_sep(&it,pair_long_list_tostring,"\n","__________________\n","\n_______________\n",mem);
-	printf("2:  \n%s",s2);
+	char * s2 = hash_table_tostring(&ht2,mem);
+	printf("2:  \n%s\n\n",s2);
 	st = iterable_range_double(4,500,3);
 	estadisticos est= estadisticos_ini;
 	estadisticos est_r;
 	void * e = accumulate_left_r(&st,&est,&est_r,add_estadisticos,result_estadisticos);
-	printf("3:  \n%s\n",estadisticos_tostring(e,mem));
+	printf("3:  \n%s\n\n",estadisticos_tostring(e,mem));
 	st = iterable_range_double(4,500,3);
 	st = iterable_range_long(4,500,3);
 	bool r = iterable_all(&st,esmultiplo17);
