@@ -16,7 +16,7 @@
 memory_heap hp;
 
 void * to_data_time(time_t * t){
-	return memory_heap_to_data(&hp,t,sizeof(time_t));
+	return memory_heap_copy_and_mem(&hp,t,sizeof(time_t));
 }
 
 void test_ejercicio62() {

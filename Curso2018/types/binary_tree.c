@@ -11,19 +11,19 @@
 
 binary_tree * tree_empty(memory_heap * hp) {
 	binary_tree tree = {Empty_Tree,0,NULL,NULL,NULL};
-	return (binary_tree *) memory_heap_to_data(hp,&tree,sizeof(binary_tree));
+	return (binary_tree *) memory_heap_copy_and_mem(hp,&tree,sizeof(binary_tree));
 }
 
 binary_tree * tree_leaf(void * label, int size_label, memory_heap * hp) {
-	void * lb = memory_heap_to_data(hp,label,size_label);
+	void * lb = memory_heap_copy_and_mem(hp,label,size_label);
 	binary_tree tree = {Leaf_Tree,size_label,lb,NULL,NULL};
-	return (binary_tree *) memory_heap_to_data(hp,&tree,sizeof(binary_tree));
+	return (binary_tree *) memory_heap_copy_and_mem(hp,&tree,sizeof(binary_tree));
 }
 
 binary_tree * tree_binary(void * label, int size_label, binary_tree * left,  binary_tree * right, memory_heap * hp){
-	void * lb = memory_heap_to_data(hp,label,size_label);
+	void * lb = memory_heap_copy_and_mem(hp,label,size_label);
 	binary_tree tree = {Binary_Tree,size_label,lb,left,right};
-	return (binary_tree *) memory_heap_to_data(hp,&tree,sizeof(binary_tree));
+	return (binary_tree *) memory_heap_copy_and_mem(hp,&tree,sizeof(binary_tree));
 }
 
 tree_type binary_tree_type(binary_tree * tree) {

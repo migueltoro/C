@@ -9,16 +9,16 @@
 #define SET_H_
 
 
-
+#include "../types/types.h"
 #include "../types/hash_table.h"
 #include "../types/iterables.h"
 #include "../types/list.h"
-#include "../types/types.h"
 
 typedef struct {
 	hash_table hash_table;
 	memory_heap hp;
 	type type_element;
+	iterable iterable;
 } set;
 
 set set_empty(type type_element);

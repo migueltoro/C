@@ -26,7 +26,7 @@ void set_add_pointer(set * st, void * element){
 }
 
 void set_add(set * st, void * element){
-	void * e = memory_heap_to_data(&(st->hp),element,st->type_element.size);
+	void * e = memory_heap_copy_and_mem(&(st->hp),element,st->type_element.size);
 	set_add_pointer(st,e);
 }
 
@@ -43,9 +43,8 @@ bool set_contains(set * st, void * element){
 }
 
 iterable set_iterable(set * st){
-	iterable it = hash_table_items_iterable(&st->hash_table);
-	iterable * pit = memory_heap_to_data(&(st->hp),&it,sizeof(iterable));
-	iterable im = iterable_map(pit,0,pair_to_key);
+	st->iterable = hash_table_items_iterable(&st->hash_table);
+	iterable im = iterable_map(&st->iterable,0,pair_to_key);
 	return im;
 }
 
@@ -75,7 +74,5 @@ void test_set() {
 	printf("%d\n", set_size(&st));
 	set_tostring(&st, mem);
 	printf("%s\n", mem);
-	iterable is = set_iterable(&st);
-	iterable_toconsole_sep(&is,double_tostring, "\n", "__________________\n","\n_______________\n");
 	set_free(&st);
 }

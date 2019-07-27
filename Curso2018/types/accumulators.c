@@ -171,8 +171,17 @@ list iterable_to_list(iterable * st, type type_element){
 set iterable_to_set(iterable * st, type type_element) {
 	set r = set_empty(type_element);
 	while (iterable_has_next(st)) {
-		char * s = iterable_next(st);
-		set_add(&r, s);
+		void * e = iterable_next(st);
+		set_add(&r, e);
+	}
+	return r;
+}
+
+multiset iterable_to_multiset(iterable * st, type type_element) {
+	multiset r = multiset_empty(type_element);
+	while (iterable_has_next(st)) {
+		void * e = iterable_next(st);
+		multiset_add(&r, e, 1);
 	}
 	return r;
 }
@@ -350,9 +359,10 @@ long * long_max(long * out, long * in){
 	return out;
 }
 
+double * _random(double * out, long * in);
 
 void test_accumulators(){
-	char mem[2000];
+	char mem[4000];
 	iterable st = iterable_range_long(4,500,3);
 	hash_table ht = iterable_counting(&st,resto17,int_type);
 	char * s = hash_table_tostring(&ht,mem);
@@ -398,5 +408,15 @@ void test_accumulators(){
 	emp = string_empty();
 	sr = accumulate_right(&p3,&emp,30,string_add_pchar);
 	printf("11: %s\n",string_tostring(sr,mem));
+	iterable rr = iterable_range_long(0, 500, 2);
+	iterable rr1 = iterable_map(&rr, sizeof(double), _random);
+	set ms = iterable_to_set(&rr1, double_type);
+	s = set_tostring(&ms, mem);
+	printf("12: %s\n", s);
+	rr = iterable_range_long(0, 500, 2);
+	rr1 = iterable_map(&rr, sizeof(double),_random);
+	multiset mms = iterable_to_multiset(&rr1,double_type);
+	s = multiset_tostring(&mms, mem);
+	printf("13: %s\n",s);
 }
 

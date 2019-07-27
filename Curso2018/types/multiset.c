@@ -6,6 +6,7 @@
  */
 
 #include "../types/multiset.h"
+#include "../types/accumulators.h"
 
 multiset multiset_empty(type type_element){
 	multiset st = {hash_table_empty(type_element,int_type),memory_heap_create(),type_element};
@@ -26,14 +27,14 @@ void multiset_add_pointer(multiset * st, void * element, int n) {
 		*(int *) count = (*(int *) count) + n;
 	} else {
 		int nn =n;
-		void * pn = memory_heap_to_data(&(st->hp),&nn,sizeof(int));
+		void * pn = memory_heap_copy_and_mem(&(st->hp),&nn,sizeof(int));
 		hash_table_put_pointer(&st->hash_table,element,pn);
 	}
 }
 
 
 void multiset_add(multiset * st, void * element, int n) {
-	void * e = memory_heap_to_data(&(st->hp), element, st->type_element.size);
+	void * e = memory_heap_copy_and_mem(&(st->hp), element, st->type_element.size);
 	multiset_add_pointer(st,e,n);
 }
 
@@ -67,16 +68,8 @@ iterable multiset_iterable(multiset * st){
 	return hash_table_items_iterable(&st->hash_table);
 }
 
-char * pair_double_int(pair * in, char * mem){
-	char m1[Tam_String];
-	char m2[Tam_String];
-	sprintf(mem,"(%s,%s)",double_type.tostring(in->key,m1),int_type.tostring(in->value,m2));
-	return mem;
-}
-
 char * multiset_tostring(multiset * st, char * mem){
-	iterable it = multiset_iterable(st);
-	return iterable_tostring(&it,pair_double_int,mem);
+	return hash_table_tostring(&st->hash_table,mem);
 }
 
 void multiset_free(multiset * st){
@@ -93,6 +86,11 @@ multiset complete_multiset() {
 	return st;
 }
 
+double * _random(double * out, long * in){
+	*out = get_double_aleatorio(0, 100);
+	return out;
+}
+
 void test_multiset() {
 	char mem[1000];
 	new_rand();
@@ -100,7 +98,5 @@ void test_multiset() {
 	printf("%d\n", multiset_size(&st));
 	char * s = multiset_tostring(&st, mem);
 	printf("%s\n",s);
-	iterable is = multiset_iterable(&st);
-	iterable_toconsole_sep(&is,pair_double_int, "\n", "__________________\n","\n_______________\n");
 	multiset_free(&st);
 }

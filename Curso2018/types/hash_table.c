@@ -25,7 +25,7 @@ hash_table hash_table_empty(type key_type, type value_type){
 	t.load_factor_limit = 0.75;
 	int capacity_blocks = _primes[_next_prime];
 	t.capacity_blocks = capacity_blocks;
-	t.capacity_data = (int) (0.75* capacity_blocks + 1);
+	t.capacity_data = (int) (t.load_factor_limit* capacity_blocks + 1);
 	t.hp = memory_heap_create();
 	ini_data(&t);
 	return t;
@@ -74,8 +74,8 @@ void * hash_table_put_pointer(hash_table * table, void * key, void * value){
 }
 
 void * hash_table_put(hash_table * table, void * key, void * value){
-	void * k = memory_heap_to_data(&(table->hp),key,table->key_type.size);
-    void * v = memory_heap_to_data(&(table->hp),value,table->value_type.size);
+	void * k = memory_heap_copy_and_mem(&(table->hp),key,table->key_type.size);
+    void * v = memory_heap_copy_and_mem(&(table->hp),value,table->value_type.size);
     return hash_table_put_pointer(table,k,v);
 }
 

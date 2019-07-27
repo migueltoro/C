@@ -88,7 +88,7 @@ void list_add_pointer(list * list, void * element) {
 
 void list_add(list * ls, void * element){
 	check_argument(!ls->is_view,__FILE__,__LINE__,"no se puede modificar una vista");
-	void * e = memory_heap_to_data(&(ls->hp),element,ls->type_element.size);
+	void * e = memory_heap_copy_and_mem(&(ls->hp),element,ls->type_element.size);
 	list_add_pointer(ls,e);
 }
 

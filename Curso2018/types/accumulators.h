@@ -8,11 +8,13 @@
 #ifndef ACCUMULATORS_H_
 #define ACCUMULATORS_H_
 
+#include "../types/types.h"
 #include "../types/hash_table.h"
 #include "../types/iterables.h"
 #include "../types/list.h"
 #include "../types/set.h"
-#include "../types/types.h"
+#include "../types/multiset.h"
+
 
 typedef struct {
 	int size_state;
@@ -82,6 +84,7 @@ double iterable_average(iterable * st);
 
 list iterable_to_list(iterable * st, type type_element);
 set iterable_to_set(iterable * st, type type_element);
+multiset iterable_to_multiset(iterable * st, type type_element);
 hash_table iterable_counting(iterable * st, void * (*f_key)(void * out, void * in), type key_type);
 hash_table iterable_grouping(iterable * st, void * (*f_key)(void * out, void * in), type key_type, type element);
 

@@ -28,7 +28,7 @@ memory_heap * memory_heap_add(memory_heap * heap, void * element) {
 	return heap;
 }
 
-void * memory_heap_to_data(memory_heap * heap, void * source, int size_element){
+void * memory_heap_copy_and_mem(memory_heap * heap, void * source, int size_element){
 	if(size_element == 0) return NULL;
 	void * element = (void *) malloc(size_element);
 	memcpy(element,source,size_element);

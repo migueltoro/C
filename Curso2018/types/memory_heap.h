@@ -23,7 +23,7 @@ typedef struct {
 
 
 memory_heap memory_heap_create();
-void * memory_heap_to_data(memory_heap * heap, void * source, int size);
+void * memory_heap_copy_and_mem(memory_heap * heap, void * source, int size);
 void * memory_heap_get_memory(memory_heap * heap,int size);
 
 void memory_heap_free(memory_heap * heap);
