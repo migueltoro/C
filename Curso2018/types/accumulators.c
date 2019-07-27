@@ -8,7 +8,7 @@
 #include "../types/accumulators.h"
 
 
-void * accumulate_left_e_r(iterable * st, void * base,void * result,
+void * accumulate_left_e_r(iterable * st, void * base, void * result,
 		void * (*add)(void * out, const void * e),
 		bool isdone(void * in), void * (*f_result)(void * out, const void * in)) {
 

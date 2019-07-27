@@ -16,26 +16,7 @@
 #include "../types/multiset.h"
 
 
-typedef struct {
-	int size_state;
-	int size_result;
-	void * state;
-	void * result_value;
-	void * (*add)(void * base, const void * value, void * dependencies);
-	void * (*result)(void * rs, const void * base, void * dependencies);
-	bool (*isdone)(const void * base, void * dependencies);
-	void * dependencies;
-} accumulator;
 
-
-accumulator create_accumulator(
-		int size_state,
-		int size_result,
-		void * initial_value,
-		void * (*add)(void * base, const void * value, void * dependencies),
-		void * (*result)(void * rs, const void * base, void * dependencies),
-		bool (*isdone)(const void * base, void * dependencies),
-		int size_dependencies);
 
 typedef struct {
 	int num;
@@ -89,7 +70,6 @@ hash_table iterable_counting(iterable * st, void * (*f_key)(void * out, void * i
 hash_table iterable_grouping(iterable * st, void * (*f_key)(void * out, void * in), type key_type, type element);
 
 
-accumulator string_accumulator();
 
 void test_accumulators();
 void test_accumulators2();
