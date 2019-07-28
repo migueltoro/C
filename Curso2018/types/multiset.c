@@ -64,7 +64,7 @@ int multiset_count(multiset * st, void * element){
 	return r;
 }
 
-iterable multiset_iterable(multiset * st){
+iterator multiset_iterable(multiset * st){
 	return hash_table_items_iterable(&st->hash_table);
 }
 

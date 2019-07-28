@@ -186,12 +186,12 @@ typedef struct{
 //	bool first;
 }dependencies_hash_table;
 
-bool iterable_hash_table_has_next(iterable * current_iterable) {
+bool iterable_hash_table_has_next(iterator * current_iterable) {
 	dependencies_hash_table * dp = (dependencies_hash_table *) current_iterable->dependencies;
 	return dp->i < dp->nb;
 }
 
-void * iterable_hash_table_see_next(iterable * current_iterable){
+void * iterable_hash_table_see_next(iterator * current_iterable){
 	dependencies_hash_table * dp = (dependencies_hash_table *) current_iterable->dependencies;
 	hash_table * table = dp->ht;
 	pair * state = (pair *)current_iterable->state;
@@ -214,7 +214,7 @@ void next_state(dependencies_hash_table * dp){
 	dp->j = j;
 }
 
-void * iterable_hash_table_next(iterable * current_iterable){
+void * iterable_hash_table_next(iterator * current_iterable){
 	dependencies_hash_table * dp = (dependencies_hash_table *) current_iterable->dependencies;
 	hash_table * table = dp->ht;
 	pair * state = (pair *)current_iterable->state;
@@ -224,10 +224,10 @@ void * iterable_hash_table_next(iterable * current_iterable){
 	return current_iterable->state;
 }
 
-iterable hash_table_items_iterable(hash_table * ht){
+iterator hash_table_items_iterable(hash_table * ht){
 	dependencies_hash_table dh = {ht,ht->capacity_blocks,0,-1};
 	int size_dh = sizeof(dependencies_hash_table);
-	iterable s_hash_table = iterable_create(sizeof(pair),iterable_hash_table_has_next,iterable_hash_table_next,iterable_hash_table_see_next,NULL,&dh,size_dh);
+	iterator s_hash_table = iterable_create(sizeof(pair),iterable_hash_table_has_next,iterable_hash_table_next,iterable_hash_table_see_next,NULL,&dh,size_dh);
 	next_state(s_hash_table.dependencies);
 	return s_hash_table;
 }
@@ -238,7 +238,7 @@ char * hash_table_tostring(hash_table * table, char * mem) {
 	char m[Tam_String];
 	bool first = true;
 	strcpy(mem, "{");
-	iterable st = hash_table_items_iterable(table);
+	iterator st = hash_table_items_iterable(table);
 	while (iterable_has_next(&st)) {
 		pair * next = (pair *) iterable_next(&st);
 		char * k = table->key_type.tostring(next->key,m1);
@@ -358,7 +358,7 @@ void test_hash_table() {
 //	printf("\n5: \n");
 //	hash_table_toconsole(&ht,double_tostring);
 //	printf("\n\n\n");
-	iterable iht = hash_table_items_iterable(&ht);
+	iterator iht = hash_table_items_iterable(&ht);
 	printf("\n6: \n");
 	iterable_toconsole_sep(&iht,pair_long_double,",","{","}\n");
 	iht = hash_table_items_iterable(&ht);

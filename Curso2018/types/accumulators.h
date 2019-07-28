@@ -31,43 +31,47 @@ typedef struct {
 
 char * estadisticos_tostring(void * in, char * mem);
 
-void * accumulate_left(iterable * st, void * base,
+void * accumulate_left(iterator * st, void * base,
 		void * (*add)(void * out, const void * e));
-void * accumulate_left_e(iterable * st, void * base,
+void * accumulate_left_e(iterator * st, void * base,
 		void * (*add)(void * out, const void * e),
 		bool isdone(void *));
-void * accumulate_left_e_r(iterable * st, void * base,
+void * accumulate_left_e_r(iterator * st, void * base,
 		void * result,
 		void * (*add)(void * out, const void * e),
 		bool isdone(void * in), void * (*f_result)(void * out, const void * in));
 
-
-
-void * reduce_left(iterable * st, void * base, int size_base,
+void * accumulate_right(iterator * st, void * base, int size_element,
 		void * (*add)(void * out, const void * e));
-void * reduce_left_e(iterable * st, void * base, int size_base,
-		void * (*add)(void * out, const void * e), bool isdone(void *));
-void * reduce_right(iterable * st, void * base, int size_base,
+void * accumulate_right_r(iterator * st, void * base, void * result, int size_element,
+		void * (*add)(void * out, const void * e),
+		void * (f_result)(void * out, const void * e));
+
+void * reduce_left(iterator * st, void * base, int size_base,
 		void * (*add)(void * out, const void * e));
-void * reduce_right_e(iterable * st, void * base, int size_base,
+void * reduce_left_e(iterator * st, void * base, int size_base,
+		void * (*add)(void * out, const void * e), bool isdone(void *));
+void * reduce_right(iterator * st, void * base, int size_base,
+		void * (*add)(void * out, const void * e));
+void * reduce_right_e(iterator * st, void * base, int size_base,
 		void * (*add)(void * out, const void * e), bool isdone(void *));
 
 
-void * iterable_min(iterable * st,int (*comparator)(const void * e1, const void * e2));
-void * iterable_max(iterable * st, int (*comparator)(const void * e1, const void * e2));
-bool iterable_all(iterable * st, bool (*p)(const void * in));
-bool iterable_any(iterable * st, bool (*p)(const void * in));
-void * iterable_first(iterable * st, bool (*p)(const void * in));
-double iterable_sum(iterable * st);
-int iterable_size(iterable * st);
-double iterable_average(iterable * st);
+void * iterable_min(iterator * st,int (*comparator)(const void * e1, const void * e2));
+void * iterable_max(iterator * st, int (*comparator)(const void * e1, const void * e2));
+bool iterable_all(iterator * st, bool (*p)(const void * in));
+bool iterable_any(iterator * st, bool (*p)(const void * in));
+void * iterable_first(iterator * st, bool (*p)(const void * in));
+double iterable_sum(iterator * st);
+int iterable_size(iterator * st);
+double iterable_average(iterator * st);
 
 
-list iterable_to_list(iterable * st, type type_element);
-set iterable_to_set(iterable * st, type type_element);
-multiset iterable_to_multiset(iterable * st, type type_element);
-hash_table iterable_counting(iterable * st, void * (*f_key)(void * out, void * in), type key_type);
-hash_table iterable_grouping(iterable * st, void * (*f_key)(void * out, void * in), type key_type, type element);
+list iterable_to_list(iterator * st, type type_element);
+set iterable_to_set(iterator * st, type type_element);
+multiset iterable_to_multiset(iterator * st, type type_element);
+hash_table iterable_counting(iterator * st, void * (*f_key)(void * out, void * in), type key_type);
+hash_table iterable_grouping(iterator * st, void * (*f_key)(void * out, void * in), type key_type, type element);
 
 
 

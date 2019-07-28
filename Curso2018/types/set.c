@@ -42,14 +42,14 @@ bool set_contains(set * st, void * element){
 	return hash_table_contains(&(st->hash_table),element);
 }
 
-iterable set_iterable(set * st){
+iterator set_iterable(set * st){
 	st->iterable = hash_table_items_iterable(&st->hash_table);
-	iterable im = iterable_map(&st->iterable,0,pair_to_key);
+	iterator im = iterable_map(&st->iterable,0,pair_to_key);
 	return im;
 }
 
 char * set_tostring(set * st, char * mem){
-	iterable it = set_iterable(st);
+	iterator it = set_iterable(st);
 	return iterable_tostring(&it,st->type_element.tostring,mem);
 }
 

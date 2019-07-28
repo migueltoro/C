@@ -54,11 +54,11 @@ double * lng(double * out, const coordenadas_2d * c){
 }
 
 coordenadas_2d  coordenadas_2d_center(list lc){
-	iterable it = list_iterable(&lc);
-	iterable ilat = iterable_map(&it,sizeof(double),lat);
+	iterator it = list_iterable(&lc);
+	iterator ilat = iterable_map(&it,sizeof(double),lat);
 	double average_lat = iterable_average(&ilat);
 	it = list_iterable(&lc);
-	iterable ilng = iterable_map(&it,sizeof(double),lng);
+	iterator ilng = iterable_map(&it,sizeof(double),lng);
 	double average_lng = iterable_average(&ilng);
 	return coordenadas_2d_of(average_lat,average_lng);
 	iterable_free(&it);

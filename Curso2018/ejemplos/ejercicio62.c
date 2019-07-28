@@ -29,7 +29,7 @@ void test_ejercicio62() {
 }
 
 list leeIterativo(char * file, time_t a, time_t b) {
-	iterable f = file_iterable_pchar(file);
+	iterator f = file_iterable_pchar(file);
 	list lista = list_empty(time_type);
 	while (iterable_has_next(&f)) {
 		char * linea = iterable_next(&f);
@@ -41,7 +41,7 @@ list leeIterativo(char * file, time_t a, time_t b) {
 	return lista;
 }
 
-void rec(iterable * f, list * lis, time_t a, time_t b) {
+void rec(iterator * f, list * lis, time_t a, time_t b) {
 	if (!iterable_has_next(f)) {
 	} else {
 		char * linea = iterable_next(f);
@@ -54,7 +54,7 @@ void rec(iterable * f, list * lis, time_t a, time_t b) {
 }
 
 list leeRecursivo(char * file, time_t a, time_t b) {
-	iterable f = file_iterable_pchar(file);
+	iterator f = file_iterable_pchar(file);
 	list lista = list_empty(time_type);
 	rec(&f,&lista,a,b);
 	return lista;

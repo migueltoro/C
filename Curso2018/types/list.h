@@ -52,7 +52,7 @@ char * list_tostring(list * ls, char * mem);
 
 void write_list_to_file(char * file, list * list, char * tostring(const void * source, char * mem));
 
-iterable list_iterable(list * ls);
+iterator list_iterable(list * ls);
 
 extern type list_type;
 

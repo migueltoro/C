@@ -120,32 +120,32 @@ typedef struct{
 	int i;
 }dependencies_list;
 
-bool iterable_list_has_next(iterable * current_iterable) {
+bool iterable_list_has_next(iterator * current_iterable) {
 	dependencies_list * dp = (dependencies_list *) current_iterable->dependencies;
 	return dp->i < list_size(dp->ls);
 }
 
-void * iterable_list_see_next(iterable * current_iterable){
+void * iterable_list_see_next(iterator * current_iterable){
 	dependencies_list * dp = (dependencies_list *) current_iterable->dependencies;
     return list_get(dp->ls,dp->i);
 }
 
-void * iterable_list_next(iterable * current_iterable){
+void * iterable_list_next(iterator * current_iterable){
 	dependencies_list * dp = (dependencies_list *) current_iterable->dependencies;
 	int old_i = dp->i;
 	dp->i = dp->i +1;
 	return list_get(dp->ls,old_i);
 }
 
-iterable list_iterable(list * ls){
+iterator list_iterable(list * ls){
 	dependencies_list dl = {ls,0};
 	int size_dl = sizeof(dependencies_list);
-	iterable s_list = iterable_create(sizeof(void *),iterable_list_has_next,iterable_list_next,iterable_list_see_next,NULL,&dl,size_dl);
+	iterator s_list = iterable_create(sizeof(void *),iterable_list_has_next,iterable_list_next,iterable_list_see_next,NULL,&dl,size_dl);
 	return s_list;
 }
 
 char * list_tostring(list * ls, char * mem){
-	iterable st = list_iterable(ls);
+	iterator st = list_iterable(ls);
 	return iterable_tostring(&st,ls->type_element.tostring,mem);
 }
 
@@ -161,7 +161,7 @@ void write_list_to_file(char * file, list * list, char * tostring(const void * s
 
 list list_of_string_of_file(char * file){
 	list r = list_empty(string_type);
-	iterable f = file_iterable_pchar(file);
+	iterator f = file_iterable_pchar(file);
 	while(iterable_has_next(&f)){
 		char * s = iterable_next(&f);
 		remove_eol_s(s);

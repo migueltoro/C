@@ -30,7 +30,7 @@ int multiset_count(multiset * st, void * element);
 
 char * multiset_tostring(multiset * st, char * mem);
 
-iterable multiset_iterable(multiset * st);
+iterator multiset_iterable(multiset * st);
 
 void multiset_free(multiset * st);
 void multiset_free_2(multiset * st, void (*f)(void * in));

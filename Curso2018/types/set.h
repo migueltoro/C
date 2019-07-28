@@ -18,7 +18,7 @@ typedef struct {
 	hash_table hash_table;
 	memory_heap hp;
 	type type_element;
-	iterable iterable;
+	iterator iterable;
 } set;
 
 set set_empty(type type_element);
@@ -30,7 +30,7 @@ bool set_contains(set * st, void * element);
 
 char * set_tostring(set * st, char * mem);
 
-iterable set_iterable(set * st);
+iterator set_iterable(set * st);
 
 void set_free(set * st);
 void set_free_2(set * st, void (*f)(void * in));

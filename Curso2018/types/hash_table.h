@@ -41,7 +41,7 @@ bool hash_table_contains(hash_table * table, void * key);
 
 
 char * hash_table_tostring(hash_table * table, char * mem);
-iterable hash_table_items_iterable(hash_table * ht);
+iterator hash_table_items_iterable(hash_table * ht);
 
 
 void hash_table_toconsole(hash_table * table, char * (*tostring_value)(const void * e,char * mem));

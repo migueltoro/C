@@ -100,7 +100,7 @@ hash_table n_problema11(list ls){
 
 list n_problema61(char * file){
 	list r = list_empty(punto_type);
-	iterable f = file_iterable_pchar(file);
+	iterator f = file_iterable_pchar(file);
 	while(iterable_has_next(&f)){
 		char * s = (char *) iterable_next(&f);
 		punto e = punto_parse_s(s);
@@ -133,7 +133,7 @@ void * next_primo(long * out, long *in){
 
 void n_problema59_b(char * file, long n){
 	long ini = 2;
-	iterable st = iterable_iterate(sizeof(long),&ini,has_next_primo,next_primo);
+	iterator st = iterable_iterate(sizeof(long),&ini,has_next_primo,next_primo);
 	write_iterable_to_file(file,&st,long_tostring);
 }
 
