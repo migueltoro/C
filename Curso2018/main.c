@@ -24,7 +24,7 @@
 #include "types/set.h"
 #include "ruta/marca.h"
 #include "ruta/ruta.h"
-
+#include "ejemplos/ejemplos2.h"
 
 int main() {
 //test_ejemplos();
@@ -40,9 +40,10 @@ int main() {
 //test_iterables2();
 //test_iterables3();
 //test_types();
-test_accumulators();
+//test_accumulators();
 //test_marca();
 //test_ruta();
 //test_palabras();
+test_ejemplos2();
 }
 
