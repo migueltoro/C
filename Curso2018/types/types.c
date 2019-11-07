@@ -410,6 +410,14 @@ int split_text(const char * in, const char * delimiters, char ** tokens){
 	return i;
 }
 
+char * substring(char * out, char * in, int from, int to){
+	to = MIN(strlen(in),to);
+	int n = to - from;
+	strncpy(out,in+from,n);
+	*(out+n) = '\0';
+	return out;
+}
+
 char * pchar_parse(char * out, char * text){
 	return text;
 }
@@ -563,6 +571,10 @@ void test_string(){
 	printf("8: %d,%ld,%f,%lf\n",a1,b1,c1,d1);
 	printf("9: %s\n",int_pair_tostring(&e1,mem));
 	printf("10: %s\n",punto_tostring(&f1,mem));
+	char aa[] = "En un lugar de la mancha de cuyo nombre no quiero acordarme";
+	char * s = substring(mem,aa,10,13);
+	printf("%s\n",aa);
+	printf("%s\n",s);
 }
 
 void test_types() {

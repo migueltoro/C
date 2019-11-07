@@ -45,6 +45,7 @@ char * list_get_string(list * ls, const int index, char * mem);
 int list_size(list * ls);
 void list_add_pointer(list * ls, void * element);
 void list_add(list * ls, void * element);
+void list_add_left(list * ls, void * element);
 
 list list_filter(list * ls, bool (*predicate)(void * e), int sizeElement);
 list list_map(list * ls, void * (*f)(void * out, void * in), type type_element);

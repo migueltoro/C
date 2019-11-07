@@ -16,6 +16,8 @@
 long sum_primos_file(char * file);
 int count_primos_file(char * file);
 int count_primos_file_2(char * file);
+list file_to_list(char * file);
+list file_to_list_2(char * file);
 bool is_palindrome(list * ls);
 void test_ejemplos2();
 

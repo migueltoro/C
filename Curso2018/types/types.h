@@ -186,8 +186,10 @@ void string_free(string * in);
 
 char * remove_eol_s(char * string);
 char *  remove_eol(char * out, char * in);
-void * pchar_concat(char * out, const char * in_string);
+int split_text(const char * in, const char * delimiters, char ** tokens);
+char * substring(char * out, char * in, int from, int to);
 
+void * pchar_concat(char * out, const char * in_string);
 char * pchar_to_string(string * out, const char * in);
 
 char * pchar_parse(char * out, char * text);

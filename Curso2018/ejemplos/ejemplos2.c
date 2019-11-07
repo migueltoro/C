@@ -24,7 +24,7 @@ long sum_primos_file(char * file){
 
 int count_primos_file(char * file){
 	iterator it = file_iterable_pchar(file);
-	long sum = 0;
+	int sum = 0;
 	while(iterable_has_next(&it)){
 		char * line = (char *) iterable_next(&it);
 		long e;
@@ -38,7 +38,7 @@ int count_primos_file(char * file){
 
 int count_primos_file_2(char * file){
 	iterator it = file_iterable_pchar(file);
-	long sum = 0;
+	int sum = 0;
 	while(iterable_has_next(&it)){
 		char * line = (char *) iterable_next(&it);
 		iterator it2 = split_iterable_pchar(line," ,");
@@ -54,6 +54,43 @@ int count_primos_file_2(char * file){
 	return sum;
 }
 
+list file_to_list(char * file){
+       iterator it = file_iterable_pchar(file);
+       list ls = list_empty(long_type);
+       while(iterable_has_next(&it)){
+             char * line = (char *) iterable_next(&it);
+             iterator it2 = split_iterable_pchar(line," ,");
+             while(iterable_has_next(&it2)) {
+                    char * num = (char *) iterable_next(&it2);
+                    long e;
+                    long_type.parse(&e,num);
+                    if (e%2 == 0) {
+                        e = e*e;
+                        list_add(&ls, &e);
+                    }
+             }
+       }
+       return ls;
+}
+
+list file_to_list_2(char * file) {
+	iterator f = file_iterable_pchar(file);
+	list ls = list_empty(long_type);
+	while (iterable_has_next(&f)) {
+		char * linea = iterable_next(&f);
+		char * tt[20];
+		int n = split_text(linea, " ,", tt);
+		for (int i = 0; i < n; i++) {
+			int e = long_parse_s(tt[i]);
+			if (e%2 == 0) {
+				e = e * e;
+				list_add(&ls, &e);
+			}
+		}
+	}
+	return ls;
+}
+
 bool is_palindrome(list * ls){
 	int i = 0;
 	int n = list_size(ls);
@@ -66,6 +103,7 @@ bool is_palindrome(list * ls){
 }
 
 void test_ejemplos2(){
+	char mem[500];
 	int r = sum_primos_file("ficheros/numeros.txt");
 	printf("r = %d\n",r);
 	int np = count_primos_file("ficheros/numeros.txt");
@@ -76,4 +114,10 @@ void test_ejemplos2(){
 	list ls = list_of(dt,9,int_type);
 	bool s = is_palindrome(&ls);
 	printf("s = %s\n",s?"true":"false");
+	list ls2 = file_to_list("ficheros/numeros2.txt");
+	char * s2 = list_tostring(&ls2,mem);
+	printf("\n%s\n", s2);
+	ls2 = file_to_list_2("ficheros/numeros2.txt");
+	s2 = list_tostring(&ls2,mem);
+	printf("\n%s\n", s2);
 }

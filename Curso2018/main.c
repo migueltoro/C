@@ -25,10 +25,12 @@
 #include "ruta/marca.h"
 #include "ruta/ruta.h"
 #include "ejemplos/ejemplos2.h"
+#include "ejemplos/ejemplos3.h"
+
 
 int main() {
 //test_ejemplos();
-//test_list();
+test_list();
 //test_hash_table();
 //test_tree();
 //test_dates();
@@ -44,6 +46,6 @@ int main() {
 //test_marca();
 //test_ruta();
 //test_palabras();
-test_ejemplos2();
+//test_ejemplos3();
 }
 

@@ -92,6 +92,17 @@ void list_add(list * ls, void * element){
 	list_add_pointer(ls,e);
 }
 
+void list_add_left(list * ls, void * element){
+	check_argument(!ls->is_view,__FILE__,__LINE__,"no se puede modificar una vista");
+	void * e = memory_heap_copy_and_mem(&(ls->hp),element,ls->type_element.size);
+	list_add_pointer(ls,e);
+	void * last_element = list_get(ls,list_size(ls)-1);
+	for(int i = list_size(ls)-1; i>0;i--){
+		ls->elements[i] = ls->elements[i-1];
+	}
+	ls->elements[0] = last_element;
+}
+
 list list_filter(list * ls, bool (*predicate)(void * e), int sizeElement){
 	list r = list_empty(ls->type_element);
 	for(int i =0; i< ls->size; i++){
@@ -346,6 +357,10 @@ void test_list() {
 	list ls3 = merge_list(&ls1, &ls2s, double_naturalorder);
 	s = list_tostring(&ls3, mem);
 	printf("ls3 = %s\n", s);
+	double a3 = 34000.55;
+	list_add_left(&ls3,&a3);
+	s = list_tostring(&ls3, mem);
+	printf("2 -- ls3 = %s\n", s);
 	double d[] = {2.,3.,4.5,5.7,8.9,-3.1};
 	list ls4 = list_of(d,6,double_type);
 	s = list_tostring(&ls4, mem);
