@@ -15,7 +15,6 @@
 #include "types/types.h"
 #include "ejemplos/ejercicio62.h"
 #include "types/accumulators.h"
-#include "types/binary_tree.h"
 #include "types/dates.h"
 #include "types/hash_table.h"
 #include "types/iterables.h"
@@ -26,13 +25,15 @@
 #include "ruta/ruta.h"
 #include "ejemplos/ejemplos2.h"
 #include "ejemplos/ejemplos3.h"
+#include "types/tree.h"
 
 
 int main() {
 //test_ejemplos();
-test_list();
+//test_list();
 //test_hash_table();
-//test_tree();
+test_binary_tree();
+test_tree();
 //test_dates();
 //test_string();
 //test_ejercicio62();
