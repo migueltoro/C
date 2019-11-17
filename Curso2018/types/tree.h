@@ -38,6 +38,7 @@ typedef struct tr {
 binary_tree * binary_tree_empty(memory_heap * hp);
 binary_tree * binary_tree_leaf(void * label, type type_label, memory_heap * hp);
 binary_tree * binary_tree_new(void * label,type type_label, binary_tree * left, binary_tree * right, memory_heap * hp);
+binary_tree * binary_tree_parse(char * in, memory_heap * hp);
 binary_tree_type type_binary_tree(binary_tree * tree);
 void * binary_tree_label(binary_tree * tree);
 binary_tree * binary_tree_left(binary_tree * tree);
@@ -45,15 +46,15 @@ binary_tree * binary_tree_right(binary_tree * tree);
 list binary_tree_to_list(binary_tree * tree);
 int binary_tree_size(binary_tree * tree);
 void binary_tree_toconsole(binary_tree * tree);
-binary_tree * binary_tree_parse(char * in, memory_heap * hp);
+
 
 tree * tree_empty(memory_heap * hp);
 tree * tree_leaf(void * label, type type_label, memory_heap * hp);
 tree * tree_new(void * label, type type_label, int num_children, tree ** children, memory_heap * hp);
+tree * tree_parse(char * text, memory_heap * hp);
 tree_type type_tree(tree * tree);
 void * tree_label(tree * tree);
 tree * tree_get_child(tree * tree, int i);
-tree * tree_parse(char * text, memory_heap * hp);
 list tree_to_list(tree * tree);
 int tree_size(tree * tree);
 void tree_toconsole(tree * tree);
