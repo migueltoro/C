@@ -26,14 +26,16 @@
 #include "ejemplos/ejemplos2.h"
 #include "ejemplos/ejemplos3.h"
 #include "types/tree.h"
-
+#include "types/tokenizer.h"
 
 int main() {
 //test_ejemplos();
 //test_list();
 //test_hash_table();
-test_binary_tree();
-test_tree();
+//test_binary_tree();
+//test_tree();
+//test_parse_binary_tree();
+test_parse_tree();
 //test_dates();
 //test_string();
 //test_ejercicio62();
@@ -48,5 +50,7 @@ test_tree();
 //test_ruta();
 //test_palabras();
 //test_ejemplos3();
+//test_tokenizer();
+//test_token();
 }
 

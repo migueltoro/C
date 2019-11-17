@@ -8,8 +8,10 @@
 #ifndef TREE_H_
 #define TREE_H_
 
+
 #include "../types/list.h"
 #include "../types/types.h"
+#include "../types/tokenizer.h"
 
 typedef enum{Empty_Binary_Tree, Leaf_Binary_Tree, Binary_Tree} binary_tree_type;
 typedef enum{Empty_Tree, Leaf_Tree, Tree} tree_type;
@@ -43,7 +45,7 @@ binary_tree * binary_tree_right(binary_tree * tree);
 list binary_tree_to_list(binary_tree * tree);
 int binary_tree_size(binary_tree * tree);
 void binary_tree_toconsole(binary_tree * tree);
-binary_tree * binary_tree_parse(char * in, type type_label, memory_heap * hp);
+binary_tree * binary_tree_parse(char * in, memory_heap * hp);
 
 tree * tree_empty(memory_heap * hp);
 tree * tree_leaf(void * label, type type_label, memory_heap * hp);
@@ -51,11 +53,14 @@ tree * tree_new(void * label, type type_label, int num_children, tree ** childre
 tree_type type_tree(tree * tree);
 void * tree_label(tree * tree);
 tree * tree_get_child(tree * tree, int i);
+tree * tree_parse(char * text, memory_heap * hp);
 list tree_to_list(tree * tree);
 int tree_size(tree * tree);
 void tree_toconsole(tree * tree);
 
 void test_binary_tree();
 void test_tree();
+void test_parse_binary_tree();
+void test_parse_tree();
 
 #endif /* TREE_H_ */
