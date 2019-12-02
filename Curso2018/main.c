@@ -28,6 +28,7 @@
 #include "types/tree.h"
 #include "types/tokenizer.h"
 
+
 int main() {
 //test_ejemplos();
 //test_list();
@@ -35,7 +36,7 @@ int main() {
 //test_binary_tree();
 //test_tree();
 //test_parse_binary_tree();
-test_parse_tree();
+//test_parse_tree();
 //test_dates();
 //test_string();
 //test_ejercicio62();
@@ -44,6 +45,7 @@ test_parse_tree();
 //test_iterables();
 //test_iterables2();
 //test_iterables3();
+test_iterables4();
 //test_types();
 //test_accumulators();
 //test_marca();

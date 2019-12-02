@@ -340,6 +340,7 @@ typedef struct{
 	char * token;
 	char * delimiters;
 	int size_delimiters;
+	char * mem[20];
 }dependencies_split;
 
 bool iterable_split_has_next(iterator * current_iterable) {
@@ -355,7 +356,7 @@ void * iterable_split_see_next(iterator * current_iterable){
 void * iterable_split_next(iterator * current_iterable){
 	dependencies_split * dp = (dependencies_split *) current_iterable->dependencies;
 	char * old = dp->token;
-	dp->token = strtok(NULL,dp->delimiters);
+	dp->token = strtok_r2(NULL,dp->delimiters,dp->mem);
 	return old;
 }
 
@@ -379,7 +380,7 @@ iterator split_iterable_pchar(char * text, const char * delimiters) {
 	int size_ds = sizeof(dependencies_split);
 	strcpy(ds.text,text);
 	strcpy(ds.delimiters,delimiters);
-	ds.token = strtok(ds.text,delimiters);
+	ds.token = strtok_r2(ds.text,delimiters,ds.mem);
 	iterator r = iterable_create(0, iterable_split_has_next,
 			iterable_split_next, iterable_split_see_next,dependencies_split_free, &ds, size_ds);
 	return r;
@@ -619,4 +620,48 @@ void test_iterables3(){
 	printf("\n_______________\n");
 }
 
-
+void test_iterables4() {
+	iterator it1 = file_iterable_pchar("matriz.txt");
+	int matriz[10][10];
+	while (iterable_has_next(&it1)) {
+		int i = 0;
+		char *line = iterable_next(&it1);
+		printf("Line = %s\n",line);
+		iterator it2 = split_iterable_pchar(line, ",");
+		while (iterable_has_next(&it2)) {
+			int j = 0;
+			char *filas = iterable_next(&it2);
+			printf("   Fila = %s\n",filas);
+			iterator it3 = split_iterable_pchar(filas, " {}");
+			while (iterable_has_next(&it3)) {
+				// aquí viene el problema solo hace dos iteraciones
+				char *elemento = iterable_next(&it3);
+				printf("       Elemento = %s\n",elemento);
+				matriz[i][j] = int_parse_s(elemento);
+				j++;
+			}
+			iterable_free(&it3);
+			i++;
+		}
+		iterable_free(&it2);
+	}
+	iterable_free(&it1);
+	iterator it4 = file_iterable_pchar("fechas_new.txt");
+	while (iterable_has_next(&it4)) {
+		char *line = iterable_next(&it4);
+		printf("Line = %s\n", line);
+		iterator it5 = split_iterable_pchar(line, " ");
+		while (iterable_has_next(&it5)) {
+			char *fila = iterable_next(&it5);
+			printf("   Fila = %s\n", fila);
+			iterator it6 = split_iterable_pchar(fila, ":");
+			while (iterable_has_next(&it6)) {
+				char *elemento = iterable_next(&it6);
+				printf("       Elemento = %s\n", elemento);
+			}
+			iterable_free(&it6);
+		}
+		iterable_free(&it5);
+	}
+	iterable_free(&it4);
+}
