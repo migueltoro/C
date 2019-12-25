@@ -25,8 +25,11 @@
 #include "ruta/ruta.h"
 #include "ejemplos/ejemplos2.h"
 #include "ejemplos/ejemplos3.h"
+#include "ejemplos/histograma.h"
 #include "types/tree.h"
 #include "types/tokenizer.h"
+#include "types/matrices.h"
+#include "types/matrices.h"
 
 
 int main() {
@@ -45,7 +48,7 @@ int main() {
 //test_iterables();
 //test_iterables2();
 //test_iterables3();
-test_iterables4();
+//test_iterables4();
 //test_types();
 //test_accumulators();
 //test_marca();
@@ -54,5 +57,7 @@ test_iterables4();
 //test_ejemplos3();
 //test_tokenizer();
 //test_token();
+test_matrices();
+//test_histograma();
 }
 
