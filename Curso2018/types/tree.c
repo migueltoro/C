@@ -342,12 +342,18 @@ void test_tree() {
 
 void test_parse_binary_tree(){
 	memory_heap hp = memory_heap_create();
-	binary_tree * tree = binary_tree_parse("-24.7(34.5,-51(33,57))", &hp);
+	binary_tree * tree = binary_tree_parse("-24.7(-34.5,-51(_,57))", &hp);
 	binary_tree_toconsole(tree);
+	binary_tree * tree2 = binary_tree_parse("0(_,-1)", &hp);
+	binary_tree_toconsole(tree2);
+	binary_tree * tree3 = binary_tree_parse("12(-34,56(-78,_))", &hp);
+	binary_tree_toconsole(tree3);
+
 }
 
 void test_parse_tree(){
 	memory_heap hp = memory_heap_create();
 	tree * tree = tree_parse("-24.7(34.5,-51(33,56(57)),-51(33,57),-51(33,57))", &hp);
 	tree_toconsole(tree);
+
 }

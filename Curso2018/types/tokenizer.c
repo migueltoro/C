@@ -200,7 +200,7 @@ token next_tk(tokenizer * tk) {
 			token_length += 1+old_len;
 			t = token_of(tk->text,st1,Double,tk->current_position-token_length,tk->current_position);
 		}
-	} else if (is_alphabetic_char(c)) {
+	} else if (is_alphabetic_char(c) || c == '_') {
 		char * st = get_identifier(&token_length,tk);
 		t = token_of(tk->text,st,Identifier,tk->current_position-token_length,tk->current_position);
 	} else if (is_operator_char(c)) {

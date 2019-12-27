@@ -38,7 +38,7 @@ int main() {
 //test_hash_table();
 //test_binary_tree();
 //test_tree();
-//test_parse_binary_tree();
+test_parse_binary_tree();
 //test_parse_tree();
 //test_dates();
 //test_string();
@@ -57,7 +57,7 @@ int main() {
 //test_ejemplos3();
 //test_tokenizer();
 //test_token();
-test_matrices();
+//test_matrices();
 //test_histograma();
 }
 
