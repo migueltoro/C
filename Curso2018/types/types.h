@@ -162,7 +162,7 @@ typedef struct {
 	char * data;
 } string;
 
-string * string_parse_out(string * out, char * text);
+string * string_parse(string * out, char * text);
 char * string_tostring(const string * e, char * mem);
 bool string_equals(const string * e1, const string * e2);
 int string_naturalorder(const string * e1,const  string * e2);
@@ -174,6 +174,7 @@ string string_empty();
 bool string_is_empty(string * in);
 bool string_not_is_empty(string * in);
 string string_of_pchar(const char * initial);
+int string_size(string * in);
 
 void * string_add_pchar(string * out, const char * in_char);
 void * string_add_string(string * out, const string * in);
@@ -191,7 +192,6 @@ char * substring(char * out, char * in, int from, int to);
 char* strtok_r2(char *str, const char *delim, char **nextp);
 
 void * pchar_concat(char * out, const char * in_string);
-char * pchar_to_string(string * out, const char * in);
 
 char * pchar_parse(char * out, char * text);
 char * pchar_tostring(const char * e, char * mem);

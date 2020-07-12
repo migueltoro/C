@@ -323,6 +323,10 @@ bool string_not_is_empty(string * in){
 	return strlen(in->data) > 0;
 }
 
+int string_size(string * in){
+	return strlen(in->data);
+}
+
 string string_of_pchar(const char * initial){
 	string bf = string_empty();
 	string_add_pchar(&bf,initial);
@@ -420,10 +424,10 @@ char * substring(char * out, char * in, int from, int to){
 
 //versión reentrante de strtok
 
-char* strtok_r2(char *str, const char *delim, char **nextp) {
+char* strtok_r2(char *str, const char *delim, char **save_pointer) {
 	char *ret;
 	if (str == NULL) {
-		str = *nextp;
+		str = *save_pointer;
 	}
 	str += strspn(str, delim);
 	if (*str == '\0') {
@@ -434,7 +438,7 @@ char* strtok_r2(char *str, const char *delim, char **nextp) {
 	if (*str) {
 		*str++ = '\0';
 	}
-	*nextp = str;
+	*save_pointer = str;
 	return ret;
 }
 

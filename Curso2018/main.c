@@ -38,10 +38,10 @@ int main() {
 //test_hash_table();
 //test_binary_tree();
 //test_tree();
-test_parse_binary_tree();
+//test_parse_binary_tree();
 //test_parse_tree();
 //test_dates();
-//test_string();
+test_string();
 //test_ejercicio62();
 //test_set();
 //test_multiset();
