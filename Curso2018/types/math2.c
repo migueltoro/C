@@ -16,12 +16,20 @@ bool es_par(int a) {
 	return a % 2 == 0;
 }
 
+bool es_par_g(int * a) {
+	return es_par(*a);
+}
+
 /**
  * @param a Un entero
  * @return Si es impar
  */
 bool es_impar(int a) {
 	return !es_par(a);
+}
+
+bool es_impar_g(int * a) {
+	return es_impar(*a);
 }
 
 /**
@@ -34,8 +42,16 @@ bool es_divisible_int(int a, int b) {
 	return (a % b) == 0;
 }
 
+bool es_divisible_int_g(int_pair * in) {
+	return es_divisible_int(in->a,in->b);
+}
+
 bool es_divisible_long(long a, long b) {
 	return (a % b) == 0;
+}
+
+bool es_divisible_long_g(long_pair * in) {
+	return es_divisible_long(in->a,in->b);
 }
 /**
  * @param a Un entero
@@ -54,6 +70,10 @@ bool es_primo(long n) {  //problema 18
 	return !a;
 }
 
+bool es_primo_g(long * n) {
+	return es_primo(* n);
+}
+
 /**
  * @param a Un entero
  * @return Siguiente primo
@@ -66,6 +86,11 @@ long siguiente_primo(long a) {
 			break;
 	}
 	return x;
+}
+
+long * siguiente_primo_g(long * out, long * in){
+	*out = siguiente_primo(*in);
+	return out;
 }
 
 void new_rand(){
@@ -92,6 +117,11 @@ int get_entero_aleatorio(int a, int b) {
 	return valor;
 }
 
+int * get_entero_aleatorio_g(int * out, int_pair * in){
+	*out = get_entero_aleatorio(in->a,in->b);
+	return out;
+}
+
 /**
  * @pre b &gt; a
  * @param a Límite inferior
@@ -102,6 +132,11 @@ double get_double_aleatorio(double a, double b) {
 	double r = ((double) rand() / (RAND_MAX));
 	r = a + (b - a) * r;
 	return r;
+}
+
+double * get_double_aleatorio_g(double * out, punto * in){
+	*out = get_double_aleatorio(in->x,in->y);
+	return out;
 }
 
 /**
@@ -121,4 +156,7 @@ long mcd(long a, long b) {
 	return u;
 }
 
-
+long * mcd_g(long * out, long_pair * in){
+	*out = mcd(in->a,in->b);
+	return out;
+}

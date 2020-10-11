@@ -67,7 +67,7 @@ void new_rand();
  * @return Un entero aleatorio r tal que a &le; = r &lt; b
  */
 int get_entero_aleatorio(int a, int b);
-int * get_entero_aleatorio_g(int_pair * in);
+int * get_entero_aleatorio_g(int * out, int_pair * in);
 /**
  * @pre b &gt; a
  * @param a Límite inferior
@@ -75,13 +75,13 @@ int * get_entero_aleatorio_g(int_pair * in);
  * @return Un double aleatorio que  está en el intervalo  a &le; = r &lt; b
  */
 double get_double_aleatorio(double a, double b);
-double * get_double_aleatorio_g(punto * in);
+double * get_double_aleatorio_g(double * out, punto * in);
 /**
  * @param a Un entero
  * @param b Un segundo entero
  * @return Calcula el máximo común divisor de los valores ablsolutos de los parámetros
  */
 long mcd(long a, long b);
-long * mcd_g(long_pair * in);
+long * mcd_g(long * out, long_pair * in);
 
 #endif /* MATH2_H_ */
