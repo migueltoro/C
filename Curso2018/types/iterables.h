@@ -81,5 +81,6 @@ void test_iterables();
 void test_iterables2();
 void test_iterables3();
 void test_iterables4();
+void test_iterables5();
 
 #endif /* ITERABLES_H_ */

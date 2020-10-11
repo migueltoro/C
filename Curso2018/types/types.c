@@ -28,6 +28,11 @@ unsigned long int hash_code(void * in, type t){
 	return hash_index;
 }
 
+bool type_equals(const type* e1, const type* e2) {
+	return e1->equals==e2->equals;
+}
+
+
 // int type
 
 int int_parse_s(char * text){
@@ -62,6 +67,67 @@ int int_naturalorder(const int * e1,const int * e2){
 
 
 type int_type = {int_equals,int_tostring,int_naturalorder,int_parse,sizeof(int)};
+
+// char type
+
+char * char_parse(char * out, char * text){
+	sscanf(text,"%c",out);
+	return out;
+}
+
+char * char_tostring(const char * e, char * mem){
+    sprintf(mem,"%c",*e);
+    return mem;
+}
+
+bool char_equals(const char * e1, const char * e2){
+	char r1 = *e1;
+	char r2 = *e2;
+	return r1 == r2;
+}
+
+int char_naturalorder(const char * e1,const char * e2){
+    int a = *e1;
+    int b = *e2;
+    int r;
+    if(a==b) r = 0;
+    else if(a<b) r = -1;
+    else r = +1;
+    return r;
+}
+
+type char_type = {char_equals, char_tostring, char_naturalorder, char_parse, sizeof(char)};
+
+// bool type
+
+bool * bool_parse(bool * out, char * in) {
+	sscanf(in,"%d",out);
+	return out;
+}
+
+char * bool_tostring(const bool * e, char * out) {
+	bool r = *e;
+	sprintf(out,"%s",r?"true":"false");
+    return out;
+}
+
+bool bool_equals(const bool * e1, const bool * e2) {
+	bool r1 = *e1;
+	bool r2 = *e2;
+	return r1 == r2;
+}
+
+int bool_naturalorder(const bool * e1,const bool * e2) {
+    int a = *e1;
+    int b = *e2;
+    int r;
+    if(a==b) r = 0;
+    else if(a<b) r = -1;
+    else r = +1;
+    return r;
+}
+
+type bool_type = {bool_equals, bool_tostring, bool_naturalorder, bool_parse, sizeof(bool)};
 
 // long type
 
@@ -200,6 +266,41 @@ int int_pair_naturalorder(const int_pair * p1, const int_pair * p2){
 
 type int_pair_type = {int_pair_equals,int_pair_tostring,int_pair_naturalorder,int_pair_parse,sizeof(int_pair)};
 
+/////
+// int_pair
+
+long_pair long_pair_parse_s(char * text){
+	long_pair p;
+	sscanf(text,"(%ld,%ld)",&p.a,&p.b);
+	return p;
+}
+
+long_pair * long_pair_parse(long_pair * out, char * text){
+	sscanf(text,"(%ld,%ld)",&out->a,&out->b);
+	return out;
+}
+
+char * long_pair_tostring(const long_pair * p, char * mem){
+	sprintf(mem,"(%ld,%ld)",p->a,p->b);
+	return mem;
+}
+
+bool long_pair_equals(const long_pair * p1, const long_pair * p2){
+	return p1->a == p2->a && p1->b == p2->b;
+}
+
+int long_pair_naturalorder(const long_pair * p1, const long_pair * p2){
+	long_pair np1 = *p1;
+	long_pair np2 = *p2;
+	int r  = long_naturalorder(&np1.a,&np2.a);
+	if(r==0) r  = long_naturalorder(&np1.b,&np2.b);
+	return r;
+}
+
+
+type long_pair_type = {long_pair_equals,long_pair_tostring,long_pair_naturalorder,long_pair_parse,sizeof(long_pair)};
+
+/////
 Cuadrante punto_cuadrante(const punto * p) {
 	Cuadrante r;
 	if(p->x >=0 && p->y>=0){

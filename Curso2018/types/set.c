@@ -53,6 +53,50 @@ char * set_tostring(set * st, char * mem){
 	return iterable_tostring(&it,st->type_element.tostring,mem);
 }
 
+list set_tolist(const set * s) {
+	list res = list_empty(s->type_element);
+	iterator it = set_iterable(s);
+	while(iterable_has_next(&it)) {
+		list_add(&res, iterable_next(&it));
+	}
+	list_sort(&res, s->type_element.order);
+	return res;
+}
+
+bool set_equals(const set * s1, const set * s2) {
+	bool mismo_tipo = type_equals(&s1->type_element, &s2->type_element);
+	bool mismo_size = set_size(s1)==set_size(s2);
+	bool res = mismo_tipo && mismo_size;
+	if(res) {
+		list ls1 = set_tolist(s1);
+		list ls2 = set_tolist(s2);
+		res = list_equals(&ls1, &ls2);
+	}
+	return res;
+}
+
+set * set_parse(set * out, char * text) {
+	iterator it = split_iterable_pchar(text, "{ ,}");
+	while(iterable_has_next(&it)) {
+		set_add(out, iterable_next(&it));
+	}
+	iterable_free(&it);
+	return out;
+}
+
+set set_parse_s(char * text) {
+	set res = set_empty(pchar_type);
+	iterator it = split_iterable_pchar(text, "{ ,}");
+	while(iterable_has_next(&it)) {
+		set_add(&res, iterable_next(&it));
+	}
+	iterable_free(&it);
+	return res;
+}
+
+type set_type = {set_equals, set_tostring, NULL, set_parse, sizeof(set)};
+
+
 void set_free(set * st){
 	hash_table_free(&(st->hash_table));
 }
@@ -75,4 +119,41 @@ void test_set() {
 	set_tostring(&st, mem);
 	printf("%s\n", mem);
 	set_free(&st);
+}
+
+void test_set_2() {
+	puts("\n\n------------------------------ TEST Set2 ------------------------------");
+
+	int size = 10;
+	int* enteros = malloc(size * sizeof(int));
+
+	for (int i = 0; i < size; i++) {
+		*(enteros + i) = i;
+	}
+	list ls = list_of(enteros, size, int_type);
+	set s1 = set_of(&ls);
+	set s2 = set_of(&ls);
+
+	char* mem1 = malloc(512 * sizeof(char));
+	char* mem2 = malloc(512 * sizeof(char));
+	printf("\n¿Son iguales s1 y s2?: %s; s1=%s; s2=%s\n",
+			MSG_BOOL(set_equals(&s1, &s2)), set_tostring(&s1, mem1),
+			set_tostring(&s2, mem2));
+
+	int valor = 11;
+	set_add(&s2, &valor);
+	printf("¿Son iguales s1 y s2?: %s; s1=%s; s2=%s\n",
+			MSG_BOOL(set_equals(&s1, &s2)), set_tostring(&s1, mem1),
+			set_tostring(&s2, mem2));
+
+	char* texto1 = "{Estas, son, pruebas, de, nuevas, funciones, para, el, tipo, set}";
+	set s4 = set_empty(pchar_type);
+	set_parse(&s4, texto1);
+	printf("Dada la cadena \"%s\", set_parse ha obtenido el conjunto:\n%s\n",
+			texto1, set_tostring(&s4, mem1));
+
+	char* texto2 = "{Creo, que, todo, todo, todo, funciona, bien, bien}";
+	set s5 = set_parse_s(texto2);
+	printf("Dada la cadena \"%s\", set_parse_s ha obtenido la lista:\n%s\n",
+			texto2, set_tostring(&s5, mem1));
 }

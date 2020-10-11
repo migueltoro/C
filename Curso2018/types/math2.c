@@ -120,3 +120,5 @@ long mcd(long a, long b) {
 	}
 	return u;
 }
+
+

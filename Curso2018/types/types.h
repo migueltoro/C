@@ -19,9 +19,14 @@
 #include <float.h>
 #include <ctype.h>
 
-#include "../types/math2.h"
 #include "../types/preconditions.h"
 
+#ifndef MAX
+#define MAX(a,b) ((a)>(b)?(a):(b))
+#endif
+#ifndef MIN
+#define MIN(a,b) ((a)<(b)?(a):(b))
+#endif
 
 typedef struct{
 	bool (* equals)(const void * e1, const void * e2);
@@ -34,6 +39,8 @@ typedef struct{
 unsigned long int hash(const char * key);
 unsigned long int hash_code(void * in, type t);
 
+bool type_equals(const type* e1, const type* e2);
+
 // int type
 
 int int_parse_s(char * text);
@@ -44,7 +51,23 @@ int int_naturalorder(const int * e1, const int * e2);
 
 extern type int_type;
 
-#define bool_tostring(b) b?"true":"false"
+char* char_parse(char * out, char * text);
+char* char_tostring(const char * e, char * mem);
+bool char_equals(const char * e1, const char * e2);
+int char_naturalorder(const char * e1, const char * e2);
+
+extern type char_type;
+
+#ifndef MSG_BOOL
+#define MSG_BOOL(x) (x==0?"false":"true")
+#endif
+
+bool* bool_parse(bool * out, char * in);
+char* bool_tostring(const bool * e, char * out);
+bool bool_equals(const bool * e1, const bool * e2);
+int bool_naturalorder(const bool * e1,const bool * e2);
+
+extern type bool_type;
 
 // long type
 
@@ -64,7 +87,7 @@ char * float_tostring(const float * e, char * mem);
 bool float_equals(const float * e1, const float * e2);
 int float_naturalorder(const float * e1,const float * e2);
 
-extern type int_type;
+extern type float_type;
 
 // double type
 
@@ -91,6 +114,22 @@ int int_pair_naturalorder(const int_pair * t1,const int_pair * t2);
 
 
 extern type int_pair_type;
+
+// long_pair
+
+typedef struct{
+	long a;
+	long b;
+}long_pair;
+
+long_pair long_pair_parse_s(char * text);
+long_pair * long_pair_parse(long_pair * out, char * text);
+char * long_pair_tostring(const long_pair * t, char * mem);
+bool long_pair_equals(const long_pair * t1, const long_pair * t2);
+int long_pair_naturalorder(const long_pair * t1,const long_pair * t2);
+
+
+extern type long_pair_type;
 
 // punto
 
@@ -152,8 +191,6 @@ extern type pair_type;
 
 // string type
 
-#define Tam_String 256
-
 //typedef char string[Tam_String];
 
 typedef struct {
@@ -184,6 +221,8 @@ void string_clear(string * in);
 void string_free(string * in);
 
 // pchar type
+
+#define Tam_String 256
 
 char * remove_eol_s(char * string);
 char *  remove_eol(char * out, char * in);

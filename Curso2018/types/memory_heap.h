@@ -22,10 +22,16 @@ typedef struct {
 } memory_heap;
 
 
+// #define memory_heap_initial {0,10,malloc(10*sizeof(void *))}
+
 memory_heap memory_heap_create();
 void * memory_heap_copy_and_mem(memory_heap * heap, void * source, int size);
 void * memory_heap_get_memory(memory_heap * heap,int size);
 
 void memory_heap_free(memory_heap * heap);
+void memory_heap_clear(memory_heap * heap);
+
+extern memory_heap memory_heap_global;
+
 
 #endif /* MEMORY_HEAP_H_ */

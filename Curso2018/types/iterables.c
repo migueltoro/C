@@ -422,8 +422,9 @@ void * iterable_file_next(iterator * current_iterable){
 
 iterator file_iterable_pchar(char * file) {
 	FILE * st = fopen(file,"r");
-	char  ms[Tam_String] = "no se encuentra el fichero ";
-	check_not_null(st,__FILE__,__LINE__,strcat(ms,file));
+	char  ms[Tam_String];
+	if(st==NULL) sprintf(ms,"no se encuentra el fichero %s",file);
+	check_not_null(st,__FILE__,__LINE__,ms);
 	dependencies_file df = {st,false};
 	int size_df = sizeof(dependencies_file);
 	iterator s_file = iterable_create(Tam_String,iterable_file_has_next,iterable_file_next,
@@ -664,4 +665,8 @@ void test_iterables4() {
 		iterable_free(&it5);
 	}
 	iterable_free(&it4);
+}
+
+void test_iterables5() {
+	iterator fit = file_iterable_pchar("ficheros/prueba7.txt");
 }

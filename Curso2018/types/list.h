@@ -46,10 +46,17 @@ int list_size(list * ls);
 void list_add_pointer(list * ls, void * element);
 void list_add(list * ls, void * element);
 void list_add_left(list * ls, void * element);
+void * list_set(list * list, const int index, const void * e);
+void list_set_pointer(list * list, int index, void * element);
 
-list list_filter(list * ls, bool (*predicate)(void * e), int sizeElement);
+list list_filter(list * ls, bool (*predicate)(void * e), int size_element);
 list list_map(list * ls, void * (*f)(void * out, void * in), type type_element);
+
 char * list_tostring(list * ls, char * mem);
+bool list_contains(list * list, const void * e);
+bool list_equals(const list * ls1, const list * ls2);
+list * list_parse(list * out, char * text);
+list list_parse_s(char * text);
 
 void write_list_to_file(char * file, list * list, char * tostring(const void * source, char * mem));
 

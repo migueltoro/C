@@ -32,6 +32,18 @@ char * set_tostring(set * st, char * mem);
 
 iterator set_iterable(set * st);
 
+//Los volcamos a listas y ordenamos por o. natural
+bool set_equals(const set * s1, const set * ls2);
+
+
+list set_tolist(const set * s);
+
+set * set_parse(set * out, char * text);
+set set_parse_s(char * text);
+
+extern type set_type;
+
+
 void set_free(set * st);
 void set_free_2(set * st, void (*f)(void * in));
 

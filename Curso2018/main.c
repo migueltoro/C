@@ -33,20 +33,21 @@
 
 
 int main() {
+char mem[256];
 //test_ejemplos();
-//test_list();
+//test_list_2();
 //test_hash_table();
-//test_binary_tree();
-//test_tree();
+//test_binary_tree_2();
+//test_tree_2();
 //test_parse_binary_tree();
 //test_parse_tree();
 //test_dates();
-test_string();
+//test_string();
 //test_ejercicio62();
-//test_set();
+//test_set_2();
 //test_multiset();
 //test_iterables();
-//test_iterables2();
+test_iterables5();
 //test_iterables3();
 //test_iterables4();
 //test_types();
@@ -55,6 +56,7 @@ test_string();
 //test_ruta();
 //test_palabras();
 //test_ejemplos3();
+//test_ejemplos2();
 //test_tokenizer();
 //test_token();
 //test_matrices();

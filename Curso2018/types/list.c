@@ -77,8 +77,6 @@ int list_size(list * ls){
 	return ls->size;
 }
 
-type list_type = {NULL,list_tostring,NULL,NULL,sizeof(list)};
-
 void list_add_pointer(list * list, void * element) {
 	check_argument(!list->is_view,__FILE__,__LINE__,"no se puede modificar una vista");
 	list_grow(list);
@@ -92,6 +90,20 @@ void list_add(list * ls, void * element){
 	list_add_pointer(ls,e);
 }
 
+void list_set_pointer(list * list, int index, void * e) {
+	check_argument(!list->is_view,__FILE__,__LINE__,"no se puede modificar una vista");
+	list->elements[index] = e;
+}
+
+void * list_set(list * list, const int index, const void * e) {
+	check_argument(!list->is_view,__FILE__,__LINE__,"no se puede modificar una vista");
+	void * res = list->elements[index];
+	void * cp = memory_heap_copy_and_mem(&(list->hp),e,list->type_element.size);
+	list_set_pointer(list,index, cp);
+	return res;
+}
+
+
 void list_add_left(list * ls, void * element){
 	check_argument(!ls->is_view,__FILE__,__LINE__,"no se puede modificar una vista");
 	void * e = memory_heap_copy_and_mem(&(ls->hp),element,ls->type_element.size);
@@ -102,6 +114,7 @@ void list_add_left(list * ls, void * element){
 	}
 	ls->elements[0] = last_element;
 }
+
 
 list list_filter(list * ls, bool (*predicate)(void * e), int sizeElement){
 	list r = list_empty(ls->type_element);
@@ -159,6 +172,67 @@ char * list_tostring(list * ls, char * mem){
 	iterator st = list_iterable(ls);
 	return iterable_tostring(&st,ls->type_element.tostring,mem);
 }
+
+bool list_contains(list * list, const void * e) {
+	bool res = false;
+	for(int i=0; !res && i<list_size(list); i++) {
+		res = list->type_element.equals(list_get(list, i), e);
+	}
+	return res;
+}
+
+bool list_equals(const list * ls1, const list * ls2) {
+	bool mismo_tipo = type_equals(&ls1->type_element, &ls2->type_element);
+	bool mismo_size = ls1->size==ls2->size;
+	bool res = mismo_tipo && mismo_size;
+	if(res) {
+		int i=0;
+		while(i<ls1->size && res) {
+			void* e1 = list_get(ls1, i);
+			void* e2 = list_get(ls2, i++);
+			res = ls1->type_element.equals(e1, e2);
+		}
+	}
+	return res;
+}
+
+int list_naturalorder(const list * ls1, const list * ls2) {
+	bool mismo_tipo = type_equals(&ls1->type_element, &ls2->type_element);
+	check_argument(mismo_tipo,__FILE__,__LINE__,"no se pueden comparar listas de tipos distintos");
+
+	int res = ls1->size-ls2->size;
+	if(res==0) {
+		int i=0;
+		while(i<ls1->size && res==0) {
+			void* e1 = list_get(ls1, i);
+			void* e2 = list_get(ls2, i++);
+			res = ls1->type_element.order(e1, e2);
+		}
+	}
+	return res;
+}
+
+list * list_parse(list * out, char * text) {
+	iterator it = split_iterable_pchar(text, "{ ,}");
+	while(iterable_has_next(&it)){
+		void * e = iterable_next(&it);
+		list_add(out,e);
+	}
+	iterable_free(&it);
+	return out;
+}
+list list_parse_s(char * text) {
+	list res = list_empty(pchar_type);
+	iterator it = split_iterable_pchar(text, "{ ,}");
+	while(iterable_has_next(&it)){
+			void * e = iterable_next(&it);
+			list_add(&res,e);
+	}
+	iterable_free(&it);
+	return res;
+}
+
+type list_type = {list_equals, list_tostring, NULL, list_parse, sizeof(list)};
 
 
 void write_list_to_file(char * file, list * list, char * tostring(const void * source, char * mem)) {
@@ -382,3 +456,53 @@ void test_list() {
 	list_free(&ls3);
 	list_free(&ls4);
 }
+
+void test_list_2(void) {
+	puts("\n\n------------------------------ TEST List2 ------------------------------");
+	int size = 10;
+	int * enteros = malloc(size*sizeof(int));
+	for(int i=0; i<size; i++) {
+		*(enteros+i) = i;
+	}
+	list ls1 = list_of(enteros, size, int_type);
+	list ls2 = list_of(enteros, size, int_type);
+
+	char* mem1 = malloc(100*sizeof(char));
+	char* mem2 = malloc(100*sizeof(char));
+	printf("\n¿Son iguales ls1 y ls2?: %s; ls1=%s; ls2=%s\n", MSG_BOOL(list_equals(&ls1, &ls2)),
+			list_tostring(&ls1, mem1), list_tostring(&ls2, mem2));
+
+	int valor = 11;
+	list_set(&ls2, 9, &valor);
+	printf("¿Son iguales ls1 y ls2?: %s; ls1=%s; ls2=%s\n", MSG_BOOL(list_equals(&ls1, &ls2)),
+			list_tostring(&ls1, mem1), list_tostring(&ls2, mem2));
+
+	list ls3 = list_empty(double_type);
+	for(int i=0; i<10; i++) {
+		double x = (i+1.)/(i+2.);
+		list_add(&ls3, &x);
+	}
+
+	printf("¿Son iguales ls1 y ls3?: %s; ls1=%s; ls3=%s\n", MSG_BOOL(list_equals(&ls1, &ls3)),
+			list_tostring(&ls1, mem1), list_tostring(&ls3, mem2));
+
+	printf("¿Contiene ls1 el valor %d?: %s\n", valor, MSG_BOOL(list_contains(&ls1, &valor)));
+	printf("¿Contiene ls2 el valor %d?: %s\n", valor, MSG_BOOL(list_contains(&ls2, &valor)));
+	printf("¿Contiene ls3 el valor %d?: %s\n", valor, MSG_BOOL(list_contains(&ls3, &valor)));
+	double valor2 = 0.75;
+	printf("¿Contiene ls3 el valor %.2lf?: %s\n", valor2, MSG_BOOL(list_contains(&ls3, &valor2)));
+	valor2 = 1.5;
+	list_set(&ls3, 9, &valor2);
+	printf("Ahora ls3 es: %s;\n", list_tostring(&ls3, mem1));
+	printf("¿Contiene ls3 el valor %.2lf?: %s\n", valor2, MSG_BOOL(list_contains(&ls3, &valor2)));
+
+	char* texto1 = "{Estas, son, pruebas, de, nuevas, funciones, para, el, tipo, list}";
+	list ls4 = list_empty(pchar_type);
+	list_parse(&ls4, texto1);
+	printf("Dada la cadena \"%s\", list_parse ha obtenido la lista:\n%s\n", texto1, list_tostring(&ls4, mem1));
+
+	char* texto2 = "{Creo, que, todo, funciona, bien}";
+	list ls5 = list_parse_s(texto2);
+	printf("Dada la cadena \"%s\", list_parse_s ha obtenido la lista:\n%s\n", texto2, list_tostring(&ls5, mem1));
+}
+

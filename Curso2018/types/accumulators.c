@@ -379,10 +379,10 @@ void test_accumulators(){
 	st = iterable_range_double(4,500,3);
 	st = iterable_range_long(4,500,3);
 	bool r = iterable_all(&st,esmultiplo17);
-	printf("5:  \n%s\n",bool_tostring(r));
+	printf("5:  \n%s\n",bool_type.tostring(&r,mem));
 	st = iterable_range_long(4,500,3);
 	r = iterable_any(&st,esmultiplo17);
-	printf("6:  \n%s\n",bool_tostring(r));
+	printf("6:  \n%s\n",bool_type.tostring(&r,mem));
 	st = iterable_range_long(7,500,3);
 	long r1 = *(long *) iterable_first(&st,esmultiplo17);
 	printf("7:  \n%ld\n",r1);

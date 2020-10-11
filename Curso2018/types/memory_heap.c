@@ -49,3 +49,15 @@ void memory_heap_free(memory_heap * heap) {
 	}
 	free(heap->elements);
 }
+
+void memory_heap_clear(memory_heap * heap) {
+	for (int i = 0; i < heap->size; i++) {
+			free(heap->elements[i]);
+		}
+	free(heap->elements);
+	heap->size=0;
+	heap->tam=10;
+	heap->elements=malloc(10 * sizeof(void *));
+}
+
+memory_heap memory_heap_global;
