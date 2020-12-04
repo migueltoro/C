@@ -159,8 +159,8 @@ void * reduce_right_e(iterator * st, void * base, int size_base,
 }
 
 
-list iterable_to_list(iterator * st, type type_element){
-	list r = list_empty(type_element);
+list iterable_to_list(iterator * st){
+	list r = list_empty(st->type);
 	while(iterable_has_next(st)){
 		char * s = iterable_next(st);
 		list_add(&r,s);
@@ -168,8 +168,8 @@ list iterable_to_list(iterator * st, type type_element){
 	return r;
 }
 
-set iterable_to_set(iterator * st, type type_element) {
-	set r = set_empty(type_element);
+set iterable_to_set(iterator * st) {
+	set r = set_empty(st->type);
 	while (iterable_has_next(st)) {
 		void * e = iterable_next(st);
 		set_add(&r, e);
@@ -177,8 +177,8 @@ set iterable_to_set(iterator * st, type type_element) {
 	return r;
 }
 
-multiset iterable_to_multiset(iterator * st, type type_element) {
-	multiset r = multiset_empty(type_element);
+multiset iterable_to_multiset(iterator * st) {
+	multiset r = multiset_empty(st->type);
 	while (iterable_has_next(st)) {
 		void * e = iterable_next(st);
 		multiset_add(&r, e, 1);
@@ -259,22 +259,36 @@ char * estadisticos_tostring(void * in, char * mem){
 	return mem;
 }
 
-void * iterable_min(iterator * st, int (*comparator)(const void * out, const void * in)){
-	void * r = NULL;
+void * iterable_min(iterator * st, int (*comparator)(const void * out, const void * in),
+		void * minvalue){
+	bool first = true;
+	int size = st->size_state;
 	while(iterable_has_next(st)){
 		void * next = iterable_next(st);
-		if(r == NULL || comparator(next,r) < 0) r = next;
+		if(first) {
+			copy(minvalue, next, size);
+			first = false;
+		} else if(comparator(next,minvalue) < 0) {
+			copy(minvalue, next, size);
+		}
 	}
-	return r;
+	return minvalue;
 }
 
-void * iterable_max(iterator * st, int (*comparator)(const void * out, const void * in)){
-	void * r = NULL;
-	while(iterable_has_next(st)){
+void * iterable_max(iterator * st,
+		int (*comparator)(const void * out, const void * in), void * maxvalue) {
+	bool first = true;
+	int size = st->size_state;
+	while (iterable_has_next(st)) {
 		void * next = iterable_next(st);
-		if(r == NULL || comparator(next,r) > 0) r = next;
+		if (first) {
+			copy(maxvalue, next, size);
+			first = false;
+		} else if (comparator(next, maxvalue) > 0) {
+			copy(maxvalue, next, size);
+		}
 	}
-	return r;
+	return maxvalue;
 }
 
 bool iterable_all(iterator * st, bool (*p)(const void * in)){
@@ -330,8 +344,26 @@ double iterable_average(iterator * st) {
 		r =  r+*(double *) e;
 		n = n+1;
 	}
-	check_argument(n != 0, __FILE__, __LINE__, "el número de elementos es cero");
+	check_argument(n != 0, __FILE__, __LINE__,"el número de elementos es cero y es %d",n);
 	return r/n;
+}
+
+int iterable_num_differents(iterator * st){
+	set s = iterable_to_set(st);
+	return set_size(&s);
+}
+
+bool iterable_all_differents(iterator * st) {
+	int n = 0;
+	set r = set_empty(st->type);
+	while (iterable_has_next(st)) {
+		void * e = iterable_next(st);
+		set_add(&r, e);
+		n = n + 1;
+	}
+	int n2 = set_size(&r);
+	set_free(&r);
+	return n == n2;
 }
 
 void * resto17(int * out, int * in){
@@ -339,10 +371,12 @@ void * resto17(int * out, int * in){
 	return out;
 }
 
-
-
 bool esmultiplo17(const long *in){
 	return (*in)%17 == 0;
+}
+
+bool esmultiplo5(const long *in){
+	return (*in)%5 == 0;
 }
 
 bool esmultiplo44(const long *in){
@@ -400,23 +434,39 @@ void test_accumulators(){
 	reduce_right(&st,&r7,sizeof(double),long_max);
 	printf("9.1:  \n%ld\n", r7);
 	char text[] = "El    Gobierno abre la puerta a no;llevar los Presupuestos.Generales de 2019 al Congreso si no logra los apoyos suficientes para sacarlos adelante. Esa opción que ya deslizaron fuentes próximas al presidente la ha confirmado la portavoz, Isabel Celaá, en la rueda de prensa posterior a la reunión del gabinete en la que ha asegurado que el Consejo de Ministras tomará la decisión sobre llevar o no las cuentas públicas al Parlamento una vez concluyan las negociaciones de la ministra María Jesús Montero. ";
-	iterator p3 = split_iterable_pchar(text," ;.");
+	iterator p3 = text_to_iterable_pchar(text," ;.");
 	string emp = string_empty();
 	void * sr = accumulate_left(&p3,&emp,string_add_pchar);
 	printf("10: %s\n",string_tostring(sr,mem));
-	p3 = split_iterable_pchar(text," ;.");
+	p3 = text_to_iterable_pchar(text," ;.");
 	emp = string_empty();
 	sr = accumulate_right(&p3,&emp,30,string_add_pchar);
 	printf("11: %s\n",string_tostring(sr,mem));
 	iterator rr = iterable_range_long(0, 500, 2);
-	iterator rr1 = iterable_map(&rr, sizeof(double), _random);
-	set ms = iterable_to_set(&rr1, double_type);
+	iterator rr1 = iterable_map(&rr, double_type, _random);
+	set ms = iterable_to_set(&rr1);
 	s = set_tostring(&ms, mem);
 	printf("12: %s\n", s);
 	rr = iterable_range_long(0, 500, 2);
-	rr1 = iterable_map(&rr, sizeof(double),_random);
-	multiset mms = iterable_to_multiset(&rr1,double_type);
+	rr1 = iterable_map(&rr,double_type,_random);
+	multiset mms = iterable_to_multiset(&rr1);
 	s = multiset_tostring(&mms, mem);
 	printf("13: %s\n",s);
+}
+
+void test_accumulators_2(){
+	iterator st = iterable_range_long(4,100,13);
+	long r;
+	iterable_max(&st,long_type.order,&r);
+	printf("%ld\n",r);
+	st = iterable_range_long(4,100,13);
+	r = *(long*) iterable_first(&st,esmultiplo5);
+    printf("%ld\n",r);
+    st = iterable_range_long(4,100,13);
+    int n = iterable_num_differents(&st);
+    printf("%d\n",n);
+    st = iterable_range_long(4,100,13);
+    bool b = iterable_all_differents(&st);
+    printf("%s\n",MSG_BOOL(b));
 }
 

@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 #include "../types/iterables.h"
 #include "../types/math2.h"
@@ -35,9 +36,14 @@ void swap_in_list(list * ls, int a, int b);
 
 list list_empty(type element);
 list list_empty_tam(type element, int tam);
-list list_of(void * data, int size, type type_element);
-list list_of_pchar(char ** data, int size);
-list list_of_string_of_file(char * file);
+list list_of(void * data, int size, type type);
+list list_of_file(char * file);
+list list_of_file_type(char * file, type type);
+list list_of_list_of_file_type(char * file, type type);
+list list_of_int(int n, ...);
+list list_of_long(int n, ...);
+list list_of_double(int n, ...);
+list list_of_string(int n, ...);
 
 list list_sublist(list * ls, int a, int b);
 void * list_get(list * ls, const int index);
@@ -58,6 +64,9 @@ bool list_equals(const list * ls1, const list * ls2);
 list * list_parse(list * out, char * text);
 list list_parse_s(char * text);
 
+void * list_to_array(list * ls, void * array);
+void * list_of_list_to_2_array(list * ls, void * array);
+
 void write_list_to_file(char * file, list * list, char * tostring(const void * source, char * mem));
 
 iterator list_iterable(list * ls);
@@ -73,4 +82,8 @@ int bs(list * ls, void * element, int (* order)(const void * e1, const void * e2
 void list_free(list * ls);
 void list_free_2(list * ls, void (*f)(void * in));
 void test_list();
+void test_list_2();
+void test_list_3();
+void test_list_4();
+
 #endif /* LIST_H_ */

@@ -84,4 +84,6 @@ double * get_double_aleatorio_g(double * out, punto * in);
 long mcd(long a, long b);
 long * mcd_g(long * out, long_pair * in);
 
+void test_math2();
+
 #endif /* MATH2_H_ */

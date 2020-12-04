@@ -8,11 +8,17 @@
 #include "../types/preconditions.h"
 #include <assert.h>
 
-
-
-void check_argument(bool condition, char * file, int line, char * message){
+void check_argument(bool condition, char * file, int line, char * format,...){
 	if(!condition){
-		fprintf(stderr,"%s en fichero %s linea %d \n",message,file,line);
+		char context[256];
+		sprintf(context," en fichero %s linea %d\n",file,line);
+		char message[256];
+		strcpy(message,format);
+		strcat(message,context);
+		va_list args;
+		va_start(args,format);
+		vfprintf(stderr,message,args);
+		va_end(args);
 		assert(false);
 	}
 }

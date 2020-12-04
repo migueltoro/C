@@ -7,10 +7,11 @@
 
 #include "../ruta/ruta.h"
 
+
 ruta * ruta_of_file(ruta * r, char * file){
 	iterator i1 = file_iterable_pchar(file);
-	iterator i2 = iterable_map(&i1,sizeof(marca),marca_parse);
-	list ls = iterable_to_list(&i2,marca_type);
+	iterator i2 = iterable_map(&i1,marca_type,marca_parse);
+	list ls = iterable_to_list(&i2);
 	r->marcas = ls;
 	iterable_free(&i1);
 	iterable_free(&i2);

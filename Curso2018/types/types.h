@@ -171,6 +171,8 @@ typedef struct {
 	int n;
 }pair_enumerate;
 
+extern type pair_enumerate_type;
+
 typedef struct {
 	void * key;
 	void * value;
@@ -224,13 +226,20 @@ void string_free(string * in);
 
 #define Tam_String 256
 
+typedef char pchar[Tam_String];
+
 char * remove_eol_s(char * string);
-char *  remove_eol(char * out, char * in);
-int split_text(const char * in, const char * delimiters, char ** tokens);
-char * substring(char * out, char * in, int from, int to);
+char *  pchar_remove_eol(char * out, char * in);
+int pchar_split_text(const char * in, const char * delimiters, char ** tokens);
+char * pchar_substring(char * out, char * in, int from, int to);
+char pchar_get(const char * in, int i);
+char pchar_set(char * in_out, int i, char c);
+int pchar_size(const char * string);
+
 char* strtok_r2(char *str, const char *delim, char **nextp);
 
-void * pchar_concat(char * out, const char * in_string);
+char * pchar_concat(char * out, const char * in);
+char * pchar_copy(char * out, const char * in);
 
 char * pchar_parse(char * out, char * text);
 char * pchar_tostring(const char * e, char * mem);

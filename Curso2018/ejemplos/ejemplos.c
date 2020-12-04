@@ -11,7 +11,7 @@ memory_heap hp;
 
 double n_problema1(list ls){
 	double sum = 0.;
-	for(int i=0;i<ls.size;i++){
+	for(int i=0;i<list_size(&ls);i++){
 		sum = sum + *(double*) list_get(&ls,i);
 	}
 	return sum;
@@ -19,7 +19,7 @@ double n_problema1(list ls){
 
 list n_problema2(list ls) {
 	list r = list_empty(double_type);
-	for (int i = 0; i < ls.size; i++) {
+	for (int i = 0; i <list_size(&ls); i++) {
 		double x = (*(punto*)list_get(&ls,i)).x;
 		list_add(&r,&x);
 	}
@@ -29,7 +29,7 @@ list n_problema2(list ls) {
 bool n_problema3(list ls, bool (*p)(int e)) {
 	bool b = true;
 	int i = 0;
-	while (i < ls.size && b) {
+	while (i < list_size(&ls) && b) {
 		b = p(*(int*) list_get(&ls,i));
 		i++;
 	}
@@ -39,7 +39,7 @@ bool n_problema3(list ls, bool (*p)(int e)) {
 bool n_problema4(list ls, bool (*p)(int e)) {
 	bool b = false;
 	int i = 0;
-	while (i < ls.size && !b) {
+	while (i < list_size(&ls) && !b) {
 		b = p(*(int*) list_get(&ls,i));
 		i++;
 	}
@@ -48,7 +48,7 @@ bool n_problema4(list ls, bool (*p)(int e)) {
 
 int n_problema5(list ls) {
 	int sum = 0;
-	for (int i = 0; i < ls.size; i++) {
+	for (int i = 0; i < list_size(&ls); i++) {
 		int e = *(int*) list_get(&ls,i);
 		int t = e * e;
 		sum = sum + t;
@@ -60,7 +60,7 @@ double n_problema6(list ls, double umbral) {
 	double b;
 	int p = 0;
 	int i = 0;
-	while (i < ls.size && p == 0) {
+	while (i <list_size(&ls) && p == 0) {
 		double e = *(double *) list_get(&ls,i);
 		if (e > umbral) {
 			p++;
@@ -73,7 +73,7 @@ double n_problema6(list ls, double umbral) {
 
 punto * n_problema8(list ls, int (*cmp)(const void *, const void *)) {
 	punto * r = NULL;
-	for (int i = 0; i < ls.size; i++) {
+	for (int i = 0; i <list_size(&ls); i++) {
 		punto * p = (punto *) list_get(&ls,i);
 		if (r == NULL || cmp(p, r) > 0)
 			r = p;
@@ -83,7 +83,7 @@ punto * n_problema8(list ls, int (*cmp)(const void *, const void *)) {
 
 hash_table n_problema11(list ls){
 	hash_table r = hash_table_empty(int_type,list_type);
-	for (int i = 0; i < ls.size; i++) {
+	for (int i = 0; i <list_size(&ls); i++) {
 		punto * p = (punto *) list_get(&ls,i);
 		Cuadrante c = punto_cuadrante(p);
 		if(hash_table_contains(&r,&c)){
@@ -133,7 +133,7 @@ void * next_primo(long * out, long *in){
 
 void n_problema59_b(char * file, long n){
 	long ini = 2;
-	iterator st = iterable_iterate(sizeof(long),&ini,has_next_primo,next_primo);
+	iterator st = iterable_iterate(long_type,&ini,has_next_primo,next_primo);
 	write_iterable_to_file(file,&st,long_tostring);
 }
 
@@ -208,4 +208,11 @@ void test_ejemplos(){
 	}
 
 //	memory_heap_free(&hp);
+}
+
+void test_ejemplos1(){
+		punto p = {-2.1,-3.2};
+		Cuadrante c = punto_cuadrante(&p);
+		int ci = c;
+		printf("%d",ci);
 }

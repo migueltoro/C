@@ -103,7 +103,7 @@ bool hash_table_contains(hash_table * table, void * key) {
 int rehash(hash_table * table) {
 	if (table->size < table->capacity_data) return 0;
 	_next_prime = _next_prime + 1;
-	check_argument(_next_prime < _nprimes,__FILE__,__LINE__,"se ha acabado los números primos disponibles");
+	check_argument(_next_prime < _nprimes,__FILE__,__LINE__,"se ha acabado los números primos disponibles %d",_next_prime);
 	int old_capacity_blocks = table->capacity_blocks;
 	int old_capacity_data = table->capacity_data;
 	int * old_blocks = table->blocks;
@@ -113,12 +113,12 @@ int rehash(hash_table * table) {
 	table->capacity_data = (int) (0.75* capacity_blocks + 1);
 	ini_data(table);
 	for (int i = 0; i < old_capacity_blocks; i++) {
-		check_argument( i < old_capacity_blocks,__FILE__,__LINE__,"el índice no está en rango de los bloques disponibles");
+		check_element_index( i,old_capacity_blocks,__FILE__,__LINE__);
 		int first = old_blocks[i];
 		if (first < 0) continue;
 		int j = first;
 		while (j >= 0) {
-			check_argument(j < old_capacity_data,__FILE__,__LINE__,"el índice no está en el rango del array de datos");
+			check_element_index(j,old_capacity_data,__FILE__,__LINE__);
 			hash_table_put_private(table, old_data[j].key, old_data[j].value);
 			j = old_data[j].next;
 		}
@@ -227,7 +227,7 @@ void * iterable_hash_table_next(iterator * current_iterable){
 iterator hash_table_items_iterable(hash_table * ht){
 	dependencies_hash_table dh = {ht,ht->capacity_blocks,0,-1};
 	int size_dh = sizeof(dependencies_hash_table);
-	iterator s_hash_table = iterable_create(sizeof(pair),iterable_hash_table_has_next,iterable_hash_table_next,iterable_hash_table_see_next,NULL,&dh,size_dh);
+	iterator s_hash_table = iterable_create(pair_type,iterable_hash_table_has_next,iterable_hash_table_next,iterable_hash_table_see_next,NULL,&dh,size_dh);
 	next_state(s_hash_table.dependencies);
 	return s_hash_table;
 }

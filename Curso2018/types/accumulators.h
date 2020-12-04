@@ -57,20 +57,21 @@ void * reduce_right_e(iterator * st, void * base, int size_base,
 		void * (*add)(void * out, const void * e), bool isdone(void *));
 
 
-void * iterable_min(iterator * st,int (*comparator)(const void * e1, const void * e2));
-void * iterable_max(iterator * st, int (*comparator)(const void * e1, const void * e2));
+void * iterable_min(iterator * st,int (*comparator)(const void * e1, const void * e2), void * minvalue);
+void * iterable_max(iterator * st, int (*comparator)(const void * e1, const void * e2), void * maxvalue);
 bool iterable_all(iterator * st, bool (*p)(const void * in));
 bool iterable_any(iterator * st, bool (*p)(const void * in));
 void * iterable_first(iterator * st, bool (*p)(const void * in));
 double iterable_sum(iterator * st);
 int iterable_size(iterator * st);
 double iterable_average(iterator * st);
+int iterable_num_differents(iterator * st);
+bool iterable_all_differents(iterator * s);
 
-
-list iterable_to_list(iterator * st, type type_element);
-set iterable_to_set(iterator * st, type type_element);
-multiset iterable_to_multiset(iterator * st, type type_element);
-hash_table iterable_counting(iterator * st, void * (*f_key)(void * out, void * in), type key_type);
+list iterable_to_list(iterator * st);
+set iterable_to_set(iterator * st);
+multiset iterable_to_multiset(iterator * st);
+hash_table iterable_counting(iterator * st, void * (*f_key)(void * out, void * in),type key_type);
 hash_table iterable_grouping(iterator * st, void * (*f_key)(void * out, void * in), type key_type, type element);
 
 

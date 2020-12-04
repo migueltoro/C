@@ -41,7 +41,7 @@ int count_primos_file_2(char * file){
 	int sum = 0;
 	while(iterable_has_next(&it)){
 		char * line = (char *) iterable_next(&it);
-		iterator it2 = split_iterable_pchar(line," ,");
+		iterator it2 = text_to_iterable_pchar(line," ,");
 		while(iterable_has_next(&it2)) {
 			char * num = (char *) iterable_next(&it2);
 			long e;
@@ -57,12 +57,12 @@ int count_primos_file_2(char * file){
 list file_to_list(char * file){
        iterator it = file_iterable_pchar(file);
        list ls = list_empty(long_type);
+       long e;
        while(iterable_has_next(&it)){
              char * line = (char *) iterable_next(&it);
-             iterator it2 = split_iterable_pchar(line," ,");
+             iterator it2 = text_to_iterable_pchar(line," ,");
              while(iterable_has_next(&it2)) {
                     char * num = (char *) iterable_next(&it2);
-                    long e;
                     long_type.parse(&e,num);
                     if (e%2 == 0) {
                         e = e*e;
@@ -76,12 +76,13 @@ list file_to_list(char * file){
 list file_to_list_2(char * file) {
 	iterator f = file_iterable_pchar(file);
 	list ls = list_empty(long_type);
+	long e;
 	while (iterable_has_next(&f)) {
 		char * linea = iterable_next(&f);
 		char * tt[20];
-		int n = split_text(linea, " ,", tt);
+		int n = pchar_split_text(linea, " ,", tt);
 		for (int i = 0; i < n; i++) {
-			int e = long_parse_s(tt[i]);
+			long_parse(&e,tt[i]);
 			if (e%2 == 0) {
 				e = e * e;
 				list_add(&ls, &e);
@@ -94,21 +95,20 @@ list file_to_list_2(char * file) {
 list file_to_list_of_list(char * file){
 	list res = list_empty(list_type);
 	iterator it1 = file_iterable_pchar(file);
+	int x;
 	while(iterable_has_next(&it1)) {
 	      char* linea = (char*)iterable_next(&it1);
-	      list ls = list_empty(int_type);
-	      iterator it2 = split_iterable_pchar(linea, " ,");
+	      list ls = list_empty(long_type);
+	      iterator it2 = text_to_iterable_pchar(linea, " ,");
 	      while(iterable_has_next(&it2)) {
 	    	  	char * tx = iterable_next(&it2);
-	            int x;
-	            int_type.parse(&x,tx);
+	            long_type.parse(&x,tx);
                 list_add(&ls, &x);
 	      }
 	      list_add(&res, &ls);
 	}
 	return res;
 }
-
 
 bool is_palindrome(list * ls){
 	int i = 0;
@@ -122,7 +122,7 @@ bool is_palindrome(list * ls){
 }
 
 void test_ejemplos2(){
-	char mem[1500];
+	char mem[2500];
 //	int r = sum_primos_file("ficheros/numeros.txt");
 //	printf("r = %d\n",r);
 //	int np = count_primos_file("ficheros/numeros.txt");
@@ -133,12 +133,12 @@ void test_ejemplos2(){
 //	list ls = list_of(dt,9,int_type);
 //	bool s = is_palindrome(&ls);
 //	printf("s = %s\n",s?"true":"false");
-//	list ls2 = file_to_list("ficheros/numeros2.txt");
-//	char * s2 = list_tostring(&ls2,mem);
-//	printf("\n%s\n", s2);
+	list ls2 = file_to_list("ficheros/numeros2.txt");
+	char * s2 = list_tostring(&ls2,mem);
+	printf("%s\n", s2);
 //	ls2 = file_to_list_2("ficheros/numeros2.txt");
 //	s2 = list_tostring(&ls2,mem);
 	list ls3 = file_to_list_of_list("ficheros/datos_entrada.txt");
-	char * s2 = list_tostring(&ls3,mem);
-	printf("\n%s\n", s2);
+	s2 = list_tostring(&ls3, mem);
+	printf("%s ",s2);
 }

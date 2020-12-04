@@ -9,9 +9,9 @@
 
 int numero_de_palabras(char * file) {
 	iterator git1 = file_iterable_pchar(file);
-	iterator git2 = iterable_filter(&git1, Tam_String, pchar_not_all_space);
-	iterator git3 = iterable_map(&git2, Tam_String, remove_eol);
-	iterator gmap = iterable_flatmap(&git3, Tam_String,pchar_to_iterable_pchar);
+	iterator git2 = iterable_filter(&git1, pchar_not_all_space);
+	iterator git3 = iterable_map(&git2,pchar_type, pchar_remove_eol);
+	iterator gmap = iterable_flatmap(&git3,pchar_type,text_to_iterable_pchar_function);
 	int n = iterable_size(&gmap);
 	iterable_free(&git1);
 	iterable_free(&git2);
@@ -22,9 +22,9 @@ int numero_de_palabras(char * file) {
 
 int numero_de_palabras_distintas(char * file) {
 	iterator git1 = file_iterable_pchar(file);
-	iterator git2 = iterable_filter(&git1, Tam_String, pchar_not_all_space);
-	iterator git3 = iterable_map(&git2, Tam_String, remove_eol);
-	iterator gmap = iterable_flatmap(&git3, Tam_String,pchar_to_iterable_pchar);
+	iterator git2 = iterable_filter(&git1, pchar_not_all_space);
+	iterator git3 = iterable_map(&git2,pchar_type, pchar_remove_eol);
+	iterator gmap = iterable_flatmap(&git3,pchar_type,text_to_iterable_pchar_function);
 	int n = iterable_size(&gmap);
 	iterable_free(&git1);
 	iterable_free(&git2);
@@ -40,9 +40,9 @@ char * identity(char * out, char * in){
 
 hash_table frecuencias_de_palabras(char * file) {
 	iterator git1 = file_iterable_pchar(file);
-	iterator git2 = iterable_filter(&git1, Tam_String, pchar_not_all_space);
-	iterator git3 = iterable_map(&git2, Tam_String, remove_eol);
-	iterator gmap = iterable_flatmap(&git3, Tam_String,pchar_to_iterable_pchar);
+	iterator git2 = iterable_filter(&git1, pchar_not_all_space);
+	iterator git3 = iterable_map(&git2,pchar_type, pchar_remove_eol);
+	iterator gmap = iterable_flatmap(&git3,pchar_type,text_to_iterable_pchar_function);
 	type pc = pchar_type;
 	pc.size = 20;
 	hash_table r = iterable_counting(&gmap,identity,pc);

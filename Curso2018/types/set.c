@@ -44,7 +44,7 @@ bool set_contains(set * st, void * element){
 
 iterator set_iterable(set * st){
 	st->iterable = hash_table_items_iterable(&st->hash_table);
-	iterator im = iterable_map(&st->iterable,0,pair_to_key);
+	iterator im = iterable_map(&st->iterable,st->type_element,pair_to_key);
 	return im;
 }
 
@@ -76,7 +76,7 @@ bool set_equals(const set * s1, const set * s2) {
 }
 
 set * set_parse(set * out, char * text) {
-	iterator it = split_iterable_pchar(text, "{ ,}");
+	iterator it = text_to_iterable_pchar(text, "{ ,}");
 	while(iterable_has_next(&it)) {
 		set_add(out, iterable_next(&it));
 	}
@@ -86,7 +86,7 @@ set * set_parse(set * out, char * text) {
 
 set set_parse_s(char * text) {
 	set res = set_empty(pchar_type);
-	iterator it = split_iterable_pchar(text, "{ ,}");
+	iterator it = text_to_iterable_pchar(text, "{ ,}");
 	while(iterable_has_next(&it)) {
 		set_add(&res, iterable_next(&it));
 	}

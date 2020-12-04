@@ -7,6 +7,7 @@
 
 
 #include "../types/math2.h"
+#include "../types/preconditions.h"
 ;
 /**
  * @param a Un entero
@@ -60,6 +61,7 @@ bool es_divisible_long_g(long_pair * in) {
 
 
 bool es_primo(long n) {  //problema 18
+	check_argument(n>=2,__FILE__,__LINE__,"El parámetro debe ser mayor o igual que 2 y es %ld",n);
 	long sq = (long) sqrt((double) n);
 	int e = 2;
 	bool a = false;
@@ -80,12 +82,15 @@ bool es_primo_g(long * n) {
  */
 
 long siguiente_primo(long a) {
-	long x;
-	for (x = a + 1; 1; x = x + 1) {
-		if (es_primo(x))
+	long r = 2;
+	if(a>=2) {
+		a = a%2==0?a+1:a+2;
+		for (r = a; true; r = r + 2) {
+		if (es_primo(r))
 			break;
+		}
 	}
-	return x;
+	return r;
 }
 
 long * siguiente_primo_g(long * out, long * in){
@@ -159,4 +164,11 @@ long mcd(long a, long b) {
 long * mcd_g(long * out, long_pair * in){
 	*out = mcd(in->a,in->b);
 	return out;
+}
+
+void test_math2(){
+	long a = siguiente_primo(2);
+	printf("%ld\n",a);
+	bool r = es_primo(2);
+	printf("%s",MSG_BOOL(r));
 }

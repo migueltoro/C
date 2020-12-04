@@ -403,6 +403,10 @@ pair_t pair_t_of_2(void * key, void * value, type * t1, type * t2){
 
 type pair_type = {pair_t_equals,pair_t_tostring,pair_t_naturalorder,pair_t_parse,sizeof(pair_t)};
 
+// pair_enumerate
+
+type pair_enumerate_type = {NULL,NULL,NULL,NULL,sizeof(pair_enumerate)};
+
 // string type
 
 #define INITIAL_TAM 250
@@ -489,6 +493,8 @@ type string_type = {string_equals,string_tostring,string_naturalorder,string_par
 
 
 // pchar type
+// Las variables de este tipo se declaran char v[Tam_String]
+// y se referencian como char *
 
 char * remove_eol_s(char * in){
 	int len = strlen(in);
@@ -498,13 +504,13 @@ char * remove_eol_s(char * in){
 	return in;
 }
 
-char *  remove_eol(char * out, char * in){
+char *  pchar_remove_eol(char * out, char * in){
 	strcpy(out,in);
 	remove_eol_s(out);
 	return out;
 }
 
-int split_text(const char * in, const char * delimiters, char ** tokens){
+int pchar_split_text(const char * in, const char * delimiters, char ** tokens){
 	int i = 0;
 	char * token = strtok(in,delimiters);
 	while(token != NULL) {
@@ -515,12 +521,30 @@ int split_text(const char * in, const char * delimiters, char ** tokens){
 	return i;
 }
 
-char * substring(char * out, char * in, int from, int to){
+char * pchar_substring(char * out, char * in, int from, int to){
 	to = MIN(strlen(in),to);
 	int n = to - from;
 	strncpy(out,in+from,n);
 	*(out+n) = '\0';
 	return out;
+}
+
+int pchar_size(const char * in){
+	return strlen(in);
+}
+
+char pchar_get(const char * in, int i){
+	int n = strlen(in);
+	check_element_index(i,n,__FILE__,__LINE__);
+	return in[i];
+}
+
+char pchar_set(char * in_out, int i, char c){
+	int n = strlen(in_out);
+	check_element_index(i,n,__FILE__,__LINE__);
+	char r = in_out[i];
+	in_out[i]=c;
+	return r;
 }
 
 //versión reentrante de strtok
@@ -544,13 +568,27 @@ char* strtok_r2(char *str, const char *delim, char **save_pointer) {
 }
 
 
-char * pchar_parse(char * out, char * text){
-	return text;
+char * pchar_concat(char * out, const char * in){
+	strcat(out,in);
+	return out;
 }
+
+char * pchar_copy(char * out, const char * in){
+	strcpy(out,in);
+	return out;
+}
+
+
+char * pchar_parse(char * out, char * text){
+	strcpy(out,text);
+	return out;
+}
+
 char * pchar_tostring(const char * e, char * mem){
 	strcpy(mem,e);
 	return mem;
 }
+
 bool pchar_equals(const char * e1, const char * e2){
 	return strcmp(e1,e2) == 0;
 }
@@ -663,7 +701,7 @@ void test_string(){
 	char delimiters[] = " ,;.";
 	char text[600] = "El Gobierno abre la puerta a no;llevar los Presupuestos.Generales de 2019 al Congreso si no logra los apoyos suficientes para sacarlos adelante. Esa opción que ya deslizaron fuentes próximas al presidente la ha confirmado la portavoz, Isabel Celaá, en la rueda de prensa posterior a la reunión del gabinete en la que ha asegurado que el Consejo de Ministras tomará la decisión sobre llevar o no las cuentas públicas al Parlamento una vez concluyan las    negociaciones de la ministra María Jesús Montero. ";
 	char * tokens[100];
-	int n = split_text(text, delimiters,tokens);
+	int n = pchar_split_text(text, delimiters,tokens);
 	printf("1: %d\n",n);
 	for(int i =0;i<n;i++){
 		printf("2: %d,%s\n",i,tokens[i]);
@@ -683,7 +721,7 @@ void test_string(){
 	char tt2[200] = "34 389   23.5 -37.90 (3,-5) (34.1,-67.8)";
 	char delimiters2[] = " ";
 	char * tt[10];
-	n = split_text(tt2,delimiters2,tt);
+	n = pchar_split_text(tt2,delimiters2,tt);
 	printf("6: %d\n",n);
 	for(int i =0;i<n;i++){
 		printf("%d,%s\n",i,tt[i]);
@@ -698,12 +736,16 @@ void test_string(){
 	printf("9: %s\n",int_pair_tostring(&e1,mem));
 	printf("10: %s\n",punto_tostring(&f1,mem));
 	char aa[] = "En un lugar de la mancha de cuyo nombre no quiero acordarme";
-	char * s = substring(mem,aa,10,13);
+	char * s = pchar_substring(mem,aa,10,13);
 	printf("%s\n",aa);
 	printf("%s\n",s);
+	pchar d[] = {"Juan","Antonio","Jesus"};
+	printf("%s\n",d[1]);
+	printf("%d,%d,%d",pchar_size(d[0]),pchar_size(d[1]),pchar_size(d[2]));
 }
 
 void test_types() {
+	char mem[256];
 	double a = 4;
 	double b = 17;
 	double * c = &b;
@@ -716,11 +758,14 @@ void test_types() {
 	char tt2[] = "34 389   23.5 -37.90 (3,-5) (34.1,-67.8)";
 	char delimiters2[] = " ";
 	char * tt[10];
-	n = split_text(tt2, delimiters2,tt);
+	n = pchar_split_text(tt2, delimiters2,tt);
 	printf("6: %d\n", n);
 	for (int i = 0; i < n; i++) {
 		printf("7: %s\n", tt[i]);
 	}
+	pchar e;
+	pchar_copy(e,"Juego de tronos");
+	printf("7: %s\n", pchar_type.tostring(e,mem));
 }
 
 

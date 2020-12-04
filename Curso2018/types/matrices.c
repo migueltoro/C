@@ -7,17 +7,32 @@
 
 #include "matrices.h"
 
+matrix matrix_of_array(int * a, int nf, int nc){
+	matrix r = {a,nc,0,nf,0,nc};
+	return r;
+}
+
+matrix matrix_of_file(char * file, void * array, type type) {
+	list ls = list_of_list_of_file_type(file, type);
+	int nf = list_size(&ls);
+	int nc = list_size(list_get(&ls, 0));
+	list_of_list_to_2_array(&ls, array);
+	return matrix_of_array(array, nf, nc);
+}
+
+int matrix_nf(matrix s){
+	return s.nf;
+}
+int matrix_nc(matrix s){
+	return s.nc;
+}
+
 int matrix_get(matrix s, int i, int j){
 	return *(s.datos + s.__n*(s.iv+i)+ s.jv+ j);
 }
 
 void matrix_set(matrix s, int i, int j, int value){
 	*(s.datos + s.__n*(s.iv+i)+ s.jv+ j) = value;
-}
-
-matrix matrix_of_array(int * a, int nf, int nc){
-	matrix r = {a,nc,0,nf,0,nc};
-	return r;
 }
 
 void matrix_set_zero(matrix s);
@@ -51,7 +66,7 @@ void matrix_print(matrix s, char * name) {
 	int i, j;
 	for (i = 0; i < s.nf; i++) {
 		for (j = 0; j < s.nc; j++)
-			printf("%d ", matrix_get(s,i,j));
+			printf("%4d ", matrix_get(s,i,j));
 		printf("\n");
 	}
 }
@@ -174,5 +189,25 @@ void test_matrices() {
 	matrix_print(r, "Result matrix multiply iterativa is");
 	multiply_recursiva(r,s1,s2);
 	matrix_print(r, "Result matrix multiply recursiva is");
+	printf("%d,%d",matrix_nf(r),matrix_nc(r));
+}
+
+void test_matrices_2() {
+	// el array tiene que estar dimensionado para que quepa la matrix
+	int array[49][5];
+	matrix r = matrix_of_file("ficheros/datos_entrada.txt",array,int_type);
+	matrix_print(r, "Result matrix multiply iterativa is");
+	matrix_print(matrix_view(r,1), "View");
+}
+
+void test_matrices_3(){
+	list ls = list_of_list_of_file_type("ficheros/datos_entrada.txt",int_type);
+    int nf = list_size(&ls);
+	int nc = list_size(list_get(&ls, 0));
+	int array[nf][nc];
+	list_of_list_to_2_array(&ls, array);
+	matrix r = matrix_of_array(array, nf, nc);
+	matrix_print(r, "Result matrix multiply iterativa is");
+	matrix_print(matrix_view(r,1), "View");
 }
 
